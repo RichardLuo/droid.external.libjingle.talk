@@ -1,0 +1,40 @@
+##################################################################
+# author: Richard Luo                      
+# date:   2013-03-03 15:38:48
+#                                                                
+##################################################################
+
+LOCAL_PATH:= $(call my-dir)
+
+include $(CLEAR_VARS)
+
+include $(LOCAL_PATH)/../android_common.mk
+
+LOCAL_MODULE := examples_android_call
+
+LOCAL_CPP_EXTENSION = .cc
+
+LOCAL_SRC_FILES := \
+            examples/call/call_main.cc			\
+            examples/call/callclient.cc			\
+            examples/call/console.cc			\
+            examples/call/friendinvitesendtask.cc				\
+            examples/call/mediaenginefactory.cc			\
+            examples/call/mucinviterecvtask.cc			\
+            examples/call/mucinvitesendtask.cc			\
+            examples/call/presencepushtask.cc			\
+
+
+LOCAL_CFLAGS += $(JINGLE_CFLAGS)
+
+LOCAL_C_INCLUDES += \
+	$(JINGLE_C_INCLUDES)
+
+LOCAL_SHARED_LIBRARIES += libjingle
+LOCAL_SHARED_LIBRARIES += libjingle_p2p
+
+LOCAL_PRELINK_MODULE := false
+
+LOCAL_MODULE_TAGS := eng
+
+include $(BUILD_EXECUTABLE)
