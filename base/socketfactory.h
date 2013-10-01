@@ -51,6 +51,10 @@ public:
   virtual AsyncSocket* CreateAsyncSocket(int type) = 0;
   virtual AsyncSocket* CreateAsyncSocket(int family, int type) = 0;
 
+  virtual AsyncSocket* WrapSocket(int s) {
+      return NULL;
+  }
+
   virtual AsyncFile* CreateFile(int fd) {
     return NULL;
   }
