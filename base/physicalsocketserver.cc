@@ -146,7 +146,8 @@ class PhysicalSocket : public AsyncSocket, public sigslot::has_slots<> {
   }
 
   SocketAddress GetLocalAddress() const {
-    sockaddr_storage addr_storage = {0};
+    sockaddr_storage addr_storage;
+    bzero(&addr_storage, sizeof(addr_storage));
     socklen_t addrlen = sizeof(addr_storage);
     sockaddr* addr = reinterpret_cast<sockaddr*>(&addr_storage);
     int result = ::getsockname(s_, addr, &addrlen);
@@ -161,7 +162,8 @@ class PhysicalSocket : public AsyncSocket, public sigslot::has_slots<> {
   }
 
   SocketAddress GetRemoteAddress() const {
-    sockaddr_storage addr_storage = {0};
+    sockaddr_storage addr_storage;
+    bzero(&addr_storage, sizeof(addr_storage));
     socklen_t addrlen = sizeof(addr_storage);
     sockaddr* addr = reinterpret_cast<sockaddr*>(&addr_storage);
     int result = ::getpeername(s_, addr, &addrlen);
@@ -179,6 +181,17 @@ class PhysicalSocket : public AsyncSocket, public sigslot::has_slots<> {
     sockaddr_storage addr_storage;
     size_t len = bind_addr.ToSockAddrStorage(&addr_storage);
     sockaddr* addr = reinterpret_cast<sockaddr*>(&addr_storage);
+
+#ifdef _DEBUG
+    {
+      int on = 1;
+      int err = ::setsockopt(s_, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on) );
+      if (err) {
+        return err;
+      }
+    }
+#endif
+
     int err = ::bind(s_, addr, static_cast<int>(len));
     UpdateLastError();
 #ifdef _DEBUG
