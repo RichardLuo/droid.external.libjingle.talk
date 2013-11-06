@@ -132,13 +132,18 @@ XmlElement* XmppTask::MakeIqResult(const XmlElement * query) {
 bool XmppTask::MatchResponseIq(const XmlElement* stanza,
                                const Jid& to,
                                const std::string& id) {
-  if (stanza->Name() != QN_IQ)
+  if (stanza->Name() != QN_IQ) {
     return false;
+  }
 
   if (stanza->Attr(QN_ID) != id)
     return false;
 
-  return MatchStanzaFrom(stanza, to);
+  // added by richard_luo, MatchStanzaFrom() 假定了stanza是从server端发
+  // 送过来的，对于serverless通信来说就不合适了。检查id就够了，而且对两
+  // 种方式的xmpp都合适。
+  return true;
+  // return MatchStanzaFrom(stanza, to);
 }
 
 bool XmppTask::MatchStanzaFrom(const XmlElement* stanza,
@@ -154,6 +159,7 @@ bool XmppTask::MatchStanzaFrom(const XmlElement* stanza,
   // It is legal for the server to identify itself with "domain" or
   // "myself@domain"
   Jid me = GetClient()->jid();
+  fprintf(stderr, "me:%s from:%s \n", me.Str().c_str(), from.Str().c_str());
   return (from == Jid(me.domain())) || (from == me.BareJid());
 }
 

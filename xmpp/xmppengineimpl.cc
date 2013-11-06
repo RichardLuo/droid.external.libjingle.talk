@@ -163,6 +163,14 @@ const Jid& XmppEngineImpl::GetUser() {
   return user_jid_;
 }
 
+XmppReturnStatus XmppEngineImpl::SetPeerUser(const Jid& jid) {
+  return XMPP_RETURN_OK;
+}
+
+const Jid& XmppEngineImpl::GetPeerUser() {
+  return user_jid_;
+}
+
 XmppReturnStatus XmppEngineImpl::SetSaslHandler(SaslHandler* sasl_handler) {
   if (state_ != STATE_START)
     return XMPP_RETURN_BADSTATE;

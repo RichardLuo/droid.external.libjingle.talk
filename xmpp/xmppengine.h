@@ -200,6 +200,10 @@ public:
   //! Get the login (bare) JID.
   virtual const Jid & GetUser() = 0;
 
+  virtual XmppReturnStatus SetPeerUser(const Jid & jid)= 0;
+
+  virtual const Jid & GetPeerUser() = 0;
+
   //! Provides different methods for credentials for login.
   //! Takes ownership of this object; deletes when login is done
   virtual XmppReturnStatus SetSaslHandler(SaslHandler * h) = 0;

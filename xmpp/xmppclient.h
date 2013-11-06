@@ -114,6 +114,7 @@ public:
   // As XmppClientInterface
   virtual XmppEngine::State GetState() const;
   virtual const Jid& jid() const;
+  virtual const Jid& GetPeerUser() const;
   virtual std::string NextId();
   virtual XmppReturnStatus SendStanza(const XmlElement *stanza);
   virtual XmppReturnStatus SendStanzaError(const XmlElement * pelOriginal,

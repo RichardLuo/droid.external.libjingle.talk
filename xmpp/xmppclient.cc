@@ -333,6 +333,9 @@ const Jid& XmppClient::jid() const {
   return d_->engine_->FullJid();
 }
 
+const Jid& XmppClient::GetPeerUser() const {
+  return d_->engine_->GetPeerUser();
+}
 
 std::string XmppClient::NextId() {
   return d_->engine_->NextId();

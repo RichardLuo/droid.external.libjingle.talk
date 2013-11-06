@@ -73,6 +73,10 @@ class XmppEngineImpl : public XmppEngine {
   //! Get the login (bare) JID.
   virtual const Jid& GetUser();
 
+  virtual XmppReturnStatus SetPeerUser(const Jid & jid);
+
+  virtual const Jid & GetPeerUser();
+
   //! Indicates the autentication to use.  Takes ownership of the object.
   virtual XmppReturnStatus SetSaslHandler(SaslHandler* sasl_handler);
 

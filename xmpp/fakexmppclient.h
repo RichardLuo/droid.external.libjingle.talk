@@ -64,6 +64,10 @@ class FakeXmppClient : public XmppTaskParentInterface,
     return jid_;
   }
 
+  virtual const Jid& GetPeerUser() const {
+    return jid_;
+  }
+
   virtual std::string NextId() {
     // Implement if needed for tests.
     return "0";

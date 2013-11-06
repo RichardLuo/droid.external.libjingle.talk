@@ -75,6 +75,7 @@ class XmppClientInterface {
 
   virtual XmppEngine::State GetState() const = 0;
   virtual const Jid& jid() const = 0;
+  virtual const Jid& GetPeerUser() const = 0;
   virtual std::string NextId() = 0;
   virtual XmppReturnStatus SendStanza(const XmlElement* stanza) = 0;
   virtual XmppReturnStatus SendStanzaError(const XmlElement* original_stanza,
@@ -161,6 +162,11 @@ class XmppTask : public XmppTaskBase,
 
   bool MatchResponseIq(const XmlElement* stanza, const Jid& to,
                        const std::string& task_id);
+
+  bool MatchResponseIq(const XmlElement* stanza, const std::string& task_id) {
+      const Jid to;
+      return MatchResponseIq(stanza, to, task_id);
+  }
 
   static bool MatchRequestIq(const XmlElement* stanza, const std::string& type,
                              const QName& qn);
