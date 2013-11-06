@@ -41,8 +41,19 @@ IqTask::IqTask(XmppTaskParentInterface* parent,
     : buzz::XmppTask(parent, buzz::XmppEngine::HL_SINGLE),
       to_(to),
       stanza_(MakeIq(verb, to_, task_id())) {
-  stanza_->AddElement(el);
+    // stanza_->AddAttr(QN_FROM, GetClient()->jid().Str());
+  if (el) {
+    stanza_->AddElement(el);
+  }
   set_timeout_seconds(kDefaultIqTimeoutSecs);
+}
+
+bool IqTask::SetPayloadElement(XmlElement* el) {
+  if (el) {
+    stanza_->AddElement(el);
+    return true;
+  }
+  return false;
 }
 
 int IqTask::ProcessStart() {

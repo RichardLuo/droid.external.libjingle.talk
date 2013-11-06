@@ -40,6 +40,7 @@ class IqTask : public XmppTask {
   IqTask(XmppTaskParentInterface* parent,
          const std::string& verb, const Jid& to,
          XmlElement* el);
+  bool SetPayloadElement(XmlElement* el);
   virtual ~IqTask() {}
 
   const XmlElement* stanza() const { return stanza_.get(); }
