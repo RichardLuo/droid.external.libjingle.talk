@@ -46,7 +46,7 @@ Task::Task(TaskParent *parent)
       error_(false),
       start_time_(0),
       timeout_time_(0),
-      timeout_seconds_(0),
+      timeout_ms_(0),
       timeout_suspended_(false)  {
   unique_id_ = unique_id_seed_++;
 
@@ -244,9 +244,13 @@ void Task::Stop() {
   TaskParent::OnStopped(this);
 }
 
-void Task::set_timeout_seconds(const int timeout_seconds) {
-  timeout_seconds_ = timeout_seconds;
+void Task::set_timeout_ms(int64 timeout_ms) {
+  timeout_ms_ = timeout_ms;
   ResetTimeout();
+}
+
+void Task::set_timeout_seconds(int timeout_seconds) {
+    set_timeout_ms(timeout_seconds*kSecToMsec);
 }
 
 static std::string str_time(const char *name, int64 time) {
@@ -263,12 +267,12 @@ static std::string current_time() {
 
 bool Task::TimedOut() {
   const int64 now = CurrentTime();
-  // printf("=== task:%p timeout_seconds_:%d %s %s \n",
-  //        this, timeout_seconds_,
+  // printf("=== task:%p timeout_ms_:%d %s %s \n",
+  //        this, timeout_ms_,
   //        str_time("timeout_time_", timeout_time_).c_str(), current_time().c_str());
   // fflush(0);
 
-  return timeout_seconds_ &&
+  return timeout_ms_ &&
     timeout_time_ &&
     CurrentTime() >= timeout_time_;
 }
@@ -278,9 +282,9 @@ void Task::ResetTimeout() {
   bool timeout_allowed = (state_ != STATE_INIT)
                       && (state_ != STATE_DONE)
                       && (state_ != STATE_ERROR);
-  if (timeout_seconds_ && timeout_allowed && !timeout_suspended_)
+  if (timeout_ms_ && timeout_allowed && !timeout_suspended_)
     timeout_time_ = CurrentTime() +
-                    (timeout_seconds_ * kSecToMsec * kMsecTo100ns);
+                    (timeout_ms_ * kMsecTo100ns);
   else
     timeout_time_ = 0;
 

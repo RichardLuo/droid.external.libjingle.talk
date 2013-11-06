@@ -95,7 +95,7 @@
 // Also notice that Task has some primitive built-in timeout functionality.
 //
 // A timeout is defined as "the task stays in STATE_BLOCKED longer than
-// timeout_seconds_."
+// timeout_ms_."
 //
 // Descendant classes can override this behavior by calling the
 // various protected methods to change the timeout behavior.  For
@@ -130,7 +130,8 @@ class Task : public TaskParent {
   bool TimedOut();
 
   int64 timeout_time() const { return timeout_time_; }
-  int timeout_seconds() const { return timeout_seconds_; }
+  int64 timeout_seconds() const { return timeout_ms_/1000; }
+  void set_timeout_ms(int64 timeout_ms);
   void set_timeout_seconds(int timeout_seconds);
 
   sigslot::signal0<> SignalTimeout;
@@ -186,7 +187,7 @@ class Task : public TaskParent {
   bool error_;
   int64 start_time_;
   int64 timeout_time_;
-  int timeout_seconds_;
+  int64 timeout_ms_;
   bool timeout_suspended_;
   int32 unique_id_;
   
