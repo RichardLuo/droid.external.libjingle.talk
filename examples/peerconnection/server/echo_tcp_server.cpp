@@ -15,161 +15,126 @@
 #include <string.h>
 
 #include <vector>
+#include <string>
+#include <utils/Log.h>
 
 #include "talk/base/flags.h"
 #include "common/utils.h"
-#include "common/data_socket.h"
-#include "common/peer_channel.h"
+
+#include "talk/base/asynchttprequest.h"
+#include "talk/base/socketaddress.h"
+
+
+#include "talk/base/httpserver.h"
+#include "talk/base/socketstream.h"
+#include "talk/base/thread.h"
+
+using namespace talk_base;
 
 DEFINE_bool(help, false, "Prints this message");
 DEFINE_int(port, 9999, "The port on which to listen.");
 
 static const size_t kMaxConnections = (FD_SETSIZE - 2);
 
-void HandleBrowserRequest(DataSocket* ds, bool* quit) {
-  assert(ds && ds->valid());
-  assert(quit);
 
-  const std::string& path = ds->request_path();
+class EchoTcpServer : public sigslot::has_slots<> {
 
-  *quit = (path.compare("/quit") == 0);
+  public:
 
-  if (*quit) {
-    ds->Send("200 OK", true, "text/html", "",
-             "<html><body>Quitting...</body></html>");
-  } else if (ds->method() == DataSocket::OPTIONS) {
-    // We'll get this when a browsers do cross-resource-sharing requests.
-    // The headers to allow cross-origin script support will be set inside
-    // Send.
-    ds->Send("200 OK", true, "", "", "");
-  } else {
-    // Here we could write some useful output back to the browser depending on
-    // the path.
-    printf("Received an invalid request: %s\n", ds->request_path().c_str());
-    ds->Send("500 Sorry", true, "text/html", "",
-             "<html><body>Sorry, not yet implemented</body></html>");
-  }
-}
+    int init(Thread* thread, const SocketAddress& addr) {
+        mListenSocket.reset(thread->socketserver()->CreateAsyncSocket(addr.family(), SOCK_STREAM));
+        LOG_IF_RETURN(mListenSocket->Bind(addr), "ERR: on Bind!");
+        LOG_IF_RETURN(mListenSocket->Listen(5), "ERR: on Listen!");
+        mListenSocket->SignalReadEvent.connect(this, &EchoTcpServer::OnAccept);
+        LOGFL("<< SignalReadEvent.connect()!");
+        return 0;
+    }
+
+    SocketAddress address() const { return mListenSocket->GetLocalAddress(); }
+
+    void Close() const { mListenSocket->Close(); }
+
+  private:
+
+    void OnAccept(AsyncSocket* socket) {
+        fprintf(stderr, "OnAccept! \n");
+        fflush(0);
+        AsyncSocket* new_socket = mListenSocket->Accept(NULL);
+        if (new_socket) {
+            new_socket->SignalReadEvent.connect(this, &EchoTcpServer::HandleReadEvent);
+            new_socket->SignalCloseEvent.connect(this, &EchoTcpServer::HandleCloseEvent);
+            mDataSockets.push_back(new_socket);
+
+            // XmppEngine *engine = XmppEngine::Create();
+            // // handler_.reset(new XmppTestHandler(engine_.get()));
+            // Jid jid("kitty@localhost");
+            // talk_base::InsecureCryptStringImpl pass;
+            // pass.password() = "miao";
+            // engine->SetSessionHandler(handler_.get());
+            // engine->SetOutputHandler(handler_.get());
+            // engine->AddStanzaHandler(handler_.get());
+            // engine->SetUser(jid);
+            // engine->SetSaslHandler(new buzz::PlainSaslHandler(jid, talk_base::CryptString(pass), true));
+
+        }
+    }
+
+    void HandleReadEvent(AsyncSocket *sock) {
+        uint8_t buf[4096];
+        int len = sock->Recv(buf, sizeof(buf));
+        if (len < 0) {
+            // TODO: Do something better like forwarding the error to the user.
+            if (!sock->IsBlocking()) {
+                //LOG(LS_ERROR) << "Recv() returned error: " << sock->GetError();
+            }
+            return;
+        }
+        hexdump_info(buf, len, "got data:");
+
+        std::string input =
+                "<stream:stream id=\"a5f2d8c9\" version=\"1.0\" "
+                "xmlns:stream=\"http://etherx.jabber.org/streams\" "
+                "xmlns=\"jabber:client\">";
+        sock->Send(input.c_str(), input.length());
+    }
+
+    void HandleCloseEvent(AsyncSocket *sock, int e) {
+        std::vector<AsyncSocket*>::iterator i = mDataSockets.begin();
+        for (; i != mDataSockets.end(); ++i) {
+            if (*i == sock) {
+                mDataSockets.erase(i);
+            }
+        }
+        sock->Close();
+        delete sock;
+    }
+
+    talk_base::scoped_ptr<AsyncSocket> mListenSocket;
+
+    std::vector<AsyncSocket*> mDataSockets;
+
+};
+
 
 int main(int argc, char** argv) {
-  FlagList::SetFlagsFromCommandLine(&argc, argv, true);
-  if (FLAG_help) {
-    FlagList::Print(NULL, false);
+    FlagList::SetFlagsFromCommandLine(&argc, argv, true);
+    if (FLAG_help) {
+      FlagList::Print(NULL, false);
+      return 0;
+    }
+
+    // Abort if the user specifies a port that is outside the allowed
+    // range [1, 65535].
+    if ((FLAG_port < 1) || (FLAG_port > 65535)) {
+      printf("Error: %i is not a valid port.\n", FLAG_port);
+      return -1;
+    }
+
+    const SocketAddress kServerAddr("127.0.0.1", FLAG_port);
+    EchoTcpServer es;
+    es.init(Thread::Current(), kServerAddr);
+
+    Thread::Current()->ProcessMessages(kForever);
+
     return 0;
-  }
-
-  // Abort if the user specifies a port that is outside the allowed
-  // range [1, 65535].
-  if ((FLAG_port < 1) || (FLAG_port > 65535)) {
-    printf("Error: %i is not a valid port.\n", FLAG_port);
-    return -1;
-  }
-
-  ListeningSocket listener;
-  if (!listener.Create()) {
-    printf("Failed to create server socket\n");
-    return -1;
-  } else if (!listener.Listen(FLAG_port)) {
-    printf("Failed to listen on server socket\n");
-    return -1;
-  }
-
-  printf("Server listening on port %i\n", FLAG_port);
-
-  PeerChannel clients;
-  typedef std::vector<DataSocket*> SocketArray;
-  SocketArray sockets;
-  bool quit = false;
-  while (!quit) {
-    fd_set socket_set;
-    FD_ZERO(&socket_set);
-    if (listener.valid())
-      FD_SET(listener.socket(), &socket_set);
-
-    for (SocketArray::iterator i = sockets.begin(); i != sockets.end(); ++i)
-      FD_SET((*i)->socket(), &socket_set);
-
-    struct timeval timeout = { 10, 0 };
-    if (select(FD_SETSIZE, &socket_set, NULL, NULL, &timeout) == SOCKET_ERROR) {
-      printf("select failed\n");
-      break;
-    }
-
-    for (SocketArray::iterator i = sockets.begin(); i != sockets.end(); ++i) {
-      DataSocket* s = *i;
-      bool socket_done = true;
-      if (FD_ISSET(s->socket(), &socket_set)) {
-        if (s->OnDataAvailable(&socket_done) && s->request_received()) {
-          ChannelMember* member = clients.Lookup(s);
-          if (member || PeerChannel::IsPeerConnection(s)) {
-            if (!member) {
-              if (s->PathEquals("/sign_in")) {
-                clients.AddMember(s);
-              } else {
-                printf("No member found for: %s\n",
-                    s->request_path().c_str());
-                s->Send("500 Error", true, "text/plain", "",
-                        "Peer most likely gone.");
-              }
-            } else if (member->is_wait_request(s)) {
-              // no need to do anything.
-              socket_done = false;
-            } else {
-              ChannelMember* target = clients.IsTargetedRequest(s);
-              if (target) {
-                member->ForwardRequestToPeer(s, target);
-              } else if (s->PathEquals("/sign_out")) {
-                s->Send("200 OK", true, "text/plain", "", "");
-              } else {
-                printf("Couldn't find target for request: %s\n",
-                    s->request_path().c_str());
-                s->Send("500 Error", true, "text/plain", "",
-                        "Peer most likely gone.");
-              }
-            }
-          } else {
-            HandleBrowserRequest(s, &quit);
-            if (quit) {
-              printf("Quitting...\n");
-              FD_CLR(listener.socket(), &socket_set);
-              listener.Close();
-              clients.CloseAll();
-            }
-          }
-        }
-      } else {
-        socket_done = false;
-      }
-
-      if (socket_done) {
-        printf("Disconnecting socket\n");
-        clients.OnClosing(s);
-        assert(s->valid());  // Close must not have been called yet.
-        FD_CLR(s->socket(), &socket_set);
-        delete (*i);
-        i = sockets.erase(i);
-        if (i == sockets.end())
-          break;
-      }
-    }
-
-    clients.CheckForTimeout();
-
-    if (FD_ISSET(listener.socket(), &socket_set)) {
-      DataSocket* s = listener.Accept();
-      if (sockets.size() >= kMaxConnections) {
-        delete s;  // sorry, that's all we can take.
-        printf("Connection limit reached\n");
-      } else {
-        sockets.push_back(s);
-        printf("New connection...\n");
-      }
-    }
-  }
-
-  for (SocketArray::iterator i = sockets.begin(); i != sockets.end(); ++i)
-    delete (*i);
-  sockets.clear();
-
-  return 0;
 }

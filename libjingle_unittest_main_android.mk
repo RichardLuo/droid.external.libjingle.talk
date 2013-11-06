@@ -68,6 +68,7 @@ LOCAL_SRC_FILES := \
 	base/urlencode_unittest.cc \
 	base/versionparsing_unittest.cc \
 	base/virtualsocket_unittest.cc \
+	base/json_unittest.cc \
 	xmllite/qname_unittest.cc \
 	xmllite/xmlbuilder_unittest.cc \
 	xmllite/xmlelement_unittest.cc \
@@ -86,6 +87,7 @@ LOCAL_SRC_FILES := \
 	xmpp/util_unittest.cc \
 	xmpp/xmppengine_unittest.cc \
 	xmpp/xmpplogintask_unittest.cc \
+	xmpp/xmpplocalengine_unittest.cc \
 	xmpp/xmppstanzaparser_unittest.cc \
 	base/sslidentity_unittest.cc \
 	base/sslstreamadapter_unittest.cc
@@ -108,6 +110,7 @@ LOCAL_SHARED_LIBRARIES := \
 	libjingle_media_android \
 	libjingle \
 	libjingle_p2p \
+	libjsoncpp \
 	libutils \
 
 LOCAL_LDLIBS += -ldl -lrt -lpthread
