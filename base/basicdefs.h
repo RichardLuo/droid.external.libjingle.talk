@@ -32,6 +32,8 @@
 #include "config.h"  // NOLINT
 #endif
 
+#ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (static_cast<int>(sizeof(x) / sizeof(x[0])))
+#endif
 
 #endif  // TALK_BASE_BASICDEFS_H_
