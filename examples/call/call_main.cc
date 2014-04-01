@@ -272,6 +272,8 @@ int main(int argc, char **argv) {
   DEFINE_bool(help, false, "Prints this message");
   DEFINE_bool(multisession, false,
               "Enable support for multiple sessions in calls.");
+  DEFINE_string(resource, "call",
+                "specify the the local part of JID");
 
   // parse options
   FlagList::SetFlagsFromCommandLine(&argc, argv, true);
@@ -300,6 +302,8 @@ int main(int argc, char **argv) {
   bool render = FLAG_render;
   bool data_channel_enabled = FLAG_datachannel;
   bool multisession_enabled = FLAG_multisession;
+  std::string resource = FLAG_resource;
+
   talk_base::SSLIdentity* ssl_identity = NULL;
 
   // Set up debugging.
@@ -359,7 +363,7 @@ int main(int argc, char **argv) {
   // Decide on the connection settings.
   buzz::XmppClientSettings xcs;
   xcs.set_user(jid.node());
-  xcs.set_resource("call");
+  xcs.set_resource(resource);
   xcs.set_host(jid.domain());
   xcs.set_allow_plain(allow_plain);
 
