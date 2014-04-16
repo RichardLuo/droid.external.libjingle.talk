@@ -116,6 +116,9 @@ class Runnable {
 
 class Thread : public MessageQueue {
  public:
+
+  sigslot::signal1<Thread*> SignalQuiting;
+
   Thread(SocketServer* ss = NULL);
   virtual ~Thread();
 

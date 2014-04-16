@@ -499,8 +499,13 @@ bool Thread::ProcessMessages(int cmsLoop) {
 #endif
     {
       Message msg;
-      if (!Get(&msg, cmsNext))
-        return !IsQuitting();
+      if (!Get(&msg, cmsNext)) {
+          const bool ok = !IsQuitting();
+          if (!ok) {
+              SignalQuiting(this);
+          }
+          return ok;
+      }
       Dispatch(&msg);
 
       if (cmsLoop != kForever) {
