@@ -75,6 +75,7 @@ class XmppClientInterface {
 
   virtual XmppEngine::State GetState() const = 0;
   virtual const Jid& jid() const = 0;
+  virtual void SetPeerUser(const Jid &peer) = 0;
   virtual const Jid& GetPeerUser() const = 0;
   virtual std::string NextId() = 0;
   virtual XmppReturnStatus SendStanza(const XmlElement* stanza) = 0;
@@ -103,6 +104,10 @@ class XmppTaskParentInterface : public talk_base::Task {
   virtual ~XmppTaskParentInterface() {}
 
   virtual XmppClientInterface* GetClient() = 0;
+
+  const Jid& GetPeer() {
+    return GetClient()->GetPeerUser();
+  }
 
   DISALLOW_EVIL_CONSTRUCTORS(XmppTaskParentInterface);
 };

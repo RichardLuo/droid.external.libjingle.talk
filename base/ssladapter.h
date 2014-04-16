@@ -36,8 +36,11 @@ namespace talk_base {
 
 class SSLAdapter : public AsyncSocketAdapter {
  public:
-  explicit SSLAdapter(AsyncSocket* socket)
-    : AsyncSocketAdapter(socket), ignore_bad_cert_(false) { }
+
+  explicit SSLAdapter(AsyncSocket* socket, bool as_client = true)
+    : AsyncSocketAdapter(socket)
+    , as_client_(as_client)
+    , ignore_bad_cert_(false) { }
 
   bool ignore_bad_cert() const { return ignore_bad_cert_; }
   void set_ignore_bad_cert(bool ignore) { ignore_bad_cert_ = ignore; }
@@ -48,9 +51,28 @@ class SSLAdapter : public AsyncSocketAdapter {
   virtual int StartSSL(const char* hostname, bool restartable) = 0;
 
   // Create the default SSL adapter for this platform
-  static SSLAdapter* Create(AsyncSocket* socket);
+  static SSLAdapter* Create(AsyncSocket* socket, bool as_client = true);
+
+  bool AsClient() const {
+    return as_client_;
+  }
+
+  void SetPrivateKeyFile(const std::string &path) {
+    srv_cert_file_ = path;
+  }
+
+  void SetCertificateFile(const std::string &path) {
+    srv_priv_key_file_ = path;
+  }
+
+ protected:
+
+  bool as_client_;
+  std::string srv_cert_file_;
+  std::string srv_priv_key_file_;
 
  private:
+
   // If true, the server certificate need not match the configured hostname.
   bool ignore_bad_cert_;
 };

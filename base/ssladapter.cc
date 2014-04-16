@@ -52,11 +52,11 @@
 namespace talk_base {
 
 SSLAdapter*
-SSLAdapter::Create(AsyncSocket* socket) {
+SSLAdapter::Create(AsyncSocket* socket, bool as_client) {
 #if SSL_USE_SCHANNEL
   return new SChannelAdapter(socket);
 #elif SSL_USE_OPENSSL  // && !SSL_USE_SCHANNEL
-  return new OpenSSLAdapter(socket);
+  return new OpenSSLAdapter(socket, as_client);
 #else  // !SSL_USE_OPENSSL && !SSL_USE_SCHANNEL
   return NULL;
 #endif  // !SSL_USE_OPENSSL && !SSL_USE_SCHANNEL

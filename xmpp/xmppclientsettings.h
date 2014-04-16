@@ -102,6 +102,12 @@ class XmppClientSettings : public XmppUserSettings {
   void set_use_proxy_auth(bool f) { use_proxy_auth_ = f; }
   void set_proxy_user(const std::string& user) { proxy_user_ = user; }
   void set_proxy_pass(const talk_base::CryptString& pass) { proxy_pass_ = pass; }
+  void set_certificate_file(const std::string &path) {
+    certificate_file_ = path;
+  }
+  const std::string& certificate_file() const {
+    return certificate_file_;
+  }
 
   const talk_base::SocketAddress& server() const { return server_; }
   cricket::ProtocolType protocol() const { return protocol_; }
@@ -121,6 +127,7 @@ class XmppClientSettings : public XmppUserSettings {
   bool use_proxy_auth_;
   std::string proxy_user_;
   talk_base::CryptString proxy_pass_;
+  std::string certificate_file_;
 };
 
 }

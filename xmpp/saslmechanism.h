@@ -63,9 +63,9 @@ public:
   // for the user is passed on failure.
   virtual void HandleSaslFailure(const XmlElement * failure);
 
+  static std::string Base64Decode(const std::string & encoded);
 protected:
   static std::string Base64Encode(const std::string & plain);
-  static std::string Base64Decode(const std::string & encoded);
   static std::string Base64EncodeFromArray(const char * plain, size_t length);
 };
 

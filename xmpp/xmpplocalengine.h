@@ -56,6 +56,8 @@ class XmppLocalEngine : public XmppEngine {
 
   // SOCKET INPUT AND OUTPUT ------------------------------------------------
 
+  virtual void SetServerDomain(const std::string &domain) {}
+
   //! Registers the handler for socket output
   virtual XmppReturnStatus SetOutputHandler(XmppOutputHandler *pxoh);
 

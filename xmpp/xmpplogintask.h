@@ -35,6 +35,7 @@
 #include "talk/base/scoped_ptr.h"
 #include "talk/xmpp/jid.h"
 #include "talk/xmpp/xmppengine.h"
+#include "talk/xmpp/xmpplogininterface.h"
 
 namespace buzz {
 
@@ -42,9 +43,8 @@ class XmlElement;
 class XmppEngineImpl;
 class SaslMechanism;
 
-
 // TODO: Rename to LoginTask.
-class XmppLoginTask {
+class XmppLoginTask : public XmppLoginInterface {
 
 public:
   XmppLoginTask(XmppEngineImpl *pctx);

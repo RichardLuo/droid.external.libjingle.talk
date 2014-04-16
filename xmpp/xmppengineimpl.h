@@ -31,15 +31,17 @@
 #include <sstream>
 #include <vector>
 #include "talk/xmpp/xmppengine.h"
+#include "talk/base/messagehandler.h"
 #include "talk/xmpp/xmppstanzaparser.h"
+
 
 namespace buzz {
 
-class XmppLoginTask;
 class XmppEngine;
 class XmppIqEntry;
 class SaslHandler;
 class SaslMechanism;
+class XmppLoginInterface;
 
 //! The XMPP connection engine.
 //! This engine implements the client side of the 'core' XMPP protocol.
@@ -49,10 +51,13 @@ class SaslMechanism;
 //! and then call Connect() to initiate the connection.
 //! An application can listen for events and receive stanzas by
 //! registering an XmppStanzaHandler via AddStanzaHandler().
-class XmppEngineImpl : public XmppEngine {
+class XmppEngineImpl : public XmppEngine,
+                       public talk_base::MessageHandler {
  public:
-  XmppEngineImpl();
+  XmppEngineImpl(bool as_client = true);
   virtual ~XmppEngineImpl();
+
+  virtual void OnMessage(talk_base::Message *msg);
 
   // SOCKET INPUT AND OUTPUT ------------------------------------------------
 
@@ -74,6 +79,14 @@ class XmppEngineImpl : public XmppEngine {
   virtual const Jid& GetUser();
 
   virtual XmppReturnStatus SetPeerUser(const Jid & jid);
+
+  virtual const std::string& GetServerDomain() const {
+    return domain_;
+  }
+
+  virtual void SetServerDomain(const std::string &domain) {
+    domain_ = domain;
+  }
 
   virtual const Jid & GetPeerUser();
 
@@ -189,18 +202,29 @@ class XmppEngineImpl : public XmppEngine {
 
  private:
   friend class XmppLoginTask;
+  friend class XmppLoginHandler;
   friend class XmppIqEntry;
+
+  XmppLoginInterface *CreateLoginObj(bool as_client);
 
   void IncomingStanza(const XmlElement *stanza);
   void IncomingStart(const XmlElement *stanza);
   void IncomingEnd(bool isError);
 
   void InternalSendStart(const std::string& domainName);
+  void InternalSendStartResponse();
+  void InternalSendFeatures(bool tls_handshake_finished, bool auth_finished);
+    
   void InternalSendStanza(const XmlElement* stanza);
+  int ProcessSaslAuthStanza(const XmlElement* stanza);
+  static int DecodeSaslPlainAuth(const std::string &auth, std::string &user, std::string &pass);
+
+
   std::string ChooseBestSaslMechanism(
       const std::vector<std::string>& mechanisms, bool encrypted);
   SaslMechanism* GetSaslMechanism(const std::string& name);
   void SignalBound(const Jid& fullJid);
+  void SignalSessionOpened();
   void SignalStreamError(const XmlElement* streamError);
   void SignalError(Error errorCode, int subCode);
   bool HasError();
@@ -251,12 +275,17 @@ class XmppEngineImpl : public XmppEngine {
   // state
   int engine_entered_;
   Jid user_jid_;
+
+  Jid peer_jid_;
+  std::string domain_;
+
   std::string password_;
   std::string requested_resource_;
   TlsOptions tls_option_;
+  bool as_client_;
   std::string tls_server_hostname_;
   std::string tls_server_domain_;
-  talk_base::scoped_ptr<XmppLoginTask> login_task_;
+  talk_base::scoped_ptr<XmppLoginInterface> login_task_;
   std::string lang_;
 
   int next_id_;

@@ -45,7 +45,7 @@ public:
   static bool InitializeSSLThread();
   static bool CleanupSSL();
 
-  OpenSSLAdapter(AsyncSocket* socket);
+  OpenSSLAdapter(AsyncSocket* socket, bool as_client);
   virtual ~OpenSSLAdapter();
 
   virtual int StartSSL(const char* hostname, bool restartable);
@@ -68,9 +68,18 @@ private:
   };
 
   int BeginSSL();
+  int BeginSSLClient();
+  int BeginSSLServer();
+
   int ContinueSSL();
+  int ContinueSSLClient();
+  int ContinueSSLServer();
+
   void Error(const char* context, int err, bool signal = true);
   void Cleanup();
+
+  SSL_CTX* SetupSSLClientContext();
+  SSL_CTX* SetupSSLServerContext();
 
   static bool VerifyServerName(SSL* ssl, const char* host,
                                bool ignore_bad_cert);
@@ -83,7 +92,7 @@ private:
   friend class OpenSSLStreamAdapter;  // for custom_verify_callback_;
 
   static bool ConfigureTrustedRootCertificates(SSL_CTX* ctx);
-  static SSL_CTX* SetupSSLContext();
+  SSL_CTX* SetupSSLContext();
 
   SSLState state_;
   bool ssl_read_needs_write_;
