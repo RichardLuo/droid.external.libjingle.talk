@@ -152,7 +152,7 @@ public:
 //! registering an XmppStanzaHandler via AddStanzaHandler().
 class XmppEngine {
 public:
-  static XmppEngine * Create();
+  static XmppEngine * Create(bool as_client = true);
   virtual ~XmppEngine() {}
 
   //! Error codes. See GetError().
@@ -203,6 +203,8 @@ public:
   virtual XmppReturnStatus SetPeerUser(const Jid & jid)= 0;
 
   virtual const Jid & GetPeerUser() = 0;
+
+  virtual void SetServerDomain(const std::string &domain) = 0;
 
   //! Provides different methods for credentials for login.
   //! Takes ownership of this object; deletes when login is done

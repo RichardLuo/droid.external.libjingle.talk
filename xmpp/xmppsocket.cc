@@ -46,24 +46,80 @@
 #endif  // FEATURE_ENABLE_SSL
 #endif  // USE_SSLSTREAM
 
+#include <utils/Log.h>
+
 namespace buzz {
 
-XmppSocket::XmppSocket(buzz::TlsOptions tls) : cricket_socket_(NULL),
-                                               tls_(tls) {
+//  XmppSocket(buzz::TlsOptions tls, SSLRole role = SSL_CLIENT,  = NULL);
+XmppSocket::XmppSocket(buzz::TlsOptions tls, SSLRole role)
+        : cricket_socket_(NULL)
+        , tls_(tls)
+        , role_(role) {
   state_ = buzz::AsyncSocket::STATE_CLOSED;
 }
 
-void XmppSocket::CreateCricketSocket(int family) {
-  talk_base::Thread* pth = talk_base::Thread::Current();
-  if (family == AF_UNSPEC) {
-    family = AF_INET;
-  }
-  talk_base::AsyncSocket* socket =
-      pth->socketserver()->CreateAsyncSocket(family, SOCK_STREAM);
+// static
+XmppSocket* XmppSocket::CreateAcceptedSocket(buzz::TlsOptions tls, talk_base::AsyncSocket *socket) {
+    XmppSocket *s = new XmppSocket(tls, SSL_SERVER);
+    // s->OnSocketAccepted(socket);
+    return s;
+}
+
+void XmppSocket::OnSocketAccepted(talk_base::AsyncSocket *socket) {
+    InitAsyncSocket(socket);
+}
+
+int XmppSocket::SetPrivateKeyFile(const std::string &path) {
+    if (role_ != SSL_SERVER) {
+        LOGE("ERR: only server need private key!");
+        return -1;
+    }
+    if (cricket_socket_ == NULL) {
+        LOGE("ERR: cricket_socket_ is NULL!");
+        return -1;
+    }
+#if defined(FEATURE_ENABLE_SSL)
+  if (tls_ == buzz::TLS_DISABLED)
+    return -1;
+#ifndef USE_SSLSTREAM
+  talk_base::SSLAdapter* ssl_adapter =
+    static_cast<talk_base::SSLAdapter *>(cricket_socket_);
+  ssl_adapter->SetPrivateKeyFile(path);
+#else  // USE_SSLSTREAM
+#error HHHHHHHHHHHHHHHH
+#endif  // USE_SSLSTREAM
+#endif  // !defined(FEATURE_ENABLE_SSL)
+    return 0;
+}
+
+int XmppSocket::SetCertificateFile(const std::string &path) {
+    if (role_ != SSL_SERVER) {
+        LOGE("ERR: only server need CA!");
+        return -1;
+    }
+    if (cricket_socket_ == NULL) {
+        LOGE("ERR: cricket_socket_ is NULL!");
+        return -1;
+    }
+#if defined(FEATURE_ENABLE_SSL)
+  if (tls_ == buzz::TLS_DISABLED)
+    return -1;
+#ifndef USE_SSLSTREAM
+  talk_base::SSLAdapter* ssl_adapter =
+    static_cast<talk_base::SSLAdapter *>(cricket_socket_);
+  ssl_adapter->SetCertificateFile(path);
+#else  // USE_SSLSTREAM
+#error HHHHHHHHHHHHHHHH
+#endif  // USE_SSLSTREAM
+#endif  // !defined(FEATURE_ENABLE_SSL)
+    return 0;
+}
+
+void XmppSocket::InitAsyncSocket(talk_base::AsyncSocket *socket) {
 #ifndef USE_SSLSTREAM
 #ifdef FEATURE_ENABLE_SSL
   if (tls_ != buzz::TLS_DISABLED) {
-    socket = talk_base::SSLAdapter::Create(socket);
+    socket = talk_base::SSLAdapter::Create(socket, role_ == SSL_CLIENT);
   }
 #endif  // FEATURE_ENABLE_SSL
   cricket_socket_ = socket;
@@ -83,6 +139,16 @@ void XmppSocket::CreateCricketSocket(int family) {
 #endif  // USE_SSLSTREAM
 }
 
+void XmppSocket::CreateCricketSocket(int family) {
+  talk_base::Thread* pth = talk_base::Thread::Current();
+  if (family == AF_UNSPEC) {
+    family = AF_INET;
+  }
+  talk_base::AsyncSocket* socket =
+      pth->socketserver()->CreateAsyncSocket(family, SOCK_STREAM);
+  InitAsyncSocket(socket);
+}
+
 XmppSocket::~XmppSocket() {
   Close();
 #ifndef USE_SSLSTREAM
@@ -100,6 +166,7 @@ void XmppSocket::OnReadEvent(talk_base::AsyncSocket * socket) {
 void XmppSocket::OnWriteEvent(talk_base::AsyncSocket * socket) {
   // Write bytes if there are any
   while (buffer_.Length() != 0) {
+    hexdump_info(buffer_.Data(), buffer_.Length(), ">> send to socket:");
     int written = cricket_socket_->Send(buffer_.Data(), buffer_.Length());
     if (written > 0) {
       buffer_.Consume(written);
@@ -163,7 +230,7 @@ void XmppSocket::OnEvent(talk_base::StreamInterface* stream,
         return;
       ASSERT(result == talk_base::SR_SUCCESS);
       ASSERT(written > 0);
-      buffer_.Shift(written);
+      buffer_.Consume(written);
     }
   }
   if ((events & talk_base::SE_CLOSE))
@@ -243,11 +310,13 @@ bool XmppSocket::StartTls(const std::string & domainname) {
 #ifndef USE_SSLSTREAM
   talk_base::SSLAdapter* ssl_adapter =
     static_cast<talk_base::SSLAdapter *>(cricket_socket_);
+  ssl_adapter->set_ignore_bad_cert(true);
   if (ssl_adapter->StartSSL(domainname.c_str(), false) != 0)
     return false;
 #else  // USE_SSLSTREAM
   talk_base::SSLStreamAdapter* ssl_stream =
     static_cast<talk_base::SSLStreamAdapter *>(stream_);
+  ssl_stream->set_ignore_bad_cert(true);
   if (ssl_stream->StartSSLWithServer(domainname.c_str()) != 0)
     return false;
 #endif  // USE_SSLSTREAM

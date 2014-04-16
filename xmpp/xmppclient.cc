@@ -333,6 +333,10 @@ const Jid& XmppClient::jid() const {
   return d_->engine_->FullJid();
 }
 
+void XmppClient::SetPeerUser(const Jid &peer) {
+  d_->engine_->SetPeerUser(peer);
+}
+
 const Jid& XmppClient::GetPeerUser() const {
   return d_->engine_->GetPeerUser();
 }

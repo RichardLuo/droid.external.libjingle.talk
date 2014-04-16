@@ -15,6 +15,7 @@ LOCAL_C_INCLUDES := \
 LOCAL_SHARED_LIBRARIES += libexpat
 LOCAL_SHARED_LIBRARIES += libjsoncpp
 LOCAL_SHARED_LIBRARIES += libopenssl
+LOCAL_SHARED_LIBRARIES += libcutils
 LOCAL_SHARED_LIBRARIES += liblog
 
 LOCAL_LDLIBS += -ldl -lrt -lpthread

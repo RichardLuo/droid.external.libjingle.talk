@@ -273,8 +273,8 @@ bool OpenSSLAdapter::CleanupSSL() {
   return true;
 }
 
-OpenSSLAdapter::OpenSSLAdapter(AsyncSocket* socket)
-  : SSLAdapter(socket),
+OpenSSLAdapter::OpenSSLAdapter(AsyncSocket* socket, bool as_client)
+    : SSLAdapter(socket, as_client),
     state_(SSL_NONE),
     ssl_read_needs_write_(false),
     ssl_write_needs_read_(false),
@@ -309,8 +309,67 @@ OpenSSLAdapter::StartSSL(const char* hostname, bool restartable) {
   return 0;
 }
 
-int
-OpenSSLAdapter::BeginSSL() {
+int OpenSSLAdapter::BeginSSL() {
+    if (AsClient()) {
+        return BeginSSLClient();
+    } else {
+        return BeginSSLServer();
+    }
+}
+
+int OpenSSLAdapter::BeginSSLServer() {
+  LOG(LS_INFO) << "BeginSSLServer: " << ssl_host_name_;
+  ASSERT(state_ == SSL_CONNECTING);
+
+  int err = 0;
+  BIO* bio = NULL;
+
+  // First set up the context
+  if (!ssl_ctx_)
+    ssl_ctx_ = SetupSSLServerContext();
+
+  if (!ssl_ctx_) {
+    err = -1;
+    goto ssl_error;
+  }
+
+  bio = BIO_new_socket(static_cast<AsyncSocketAdapter*>(socket_));
+  if (!bio) {
+    err = -1;
+    goto ssl_error;
+  }
+
+  ssl_ = SSL_new(ssl_ctx_);
+  if (!ssl_) {
+    err = -1;
+    goto ssl_error;
+  }
+
+  SSL_set_app_data(ssl_, this);
+
+  SSL_set_bio(ssl_, bio, bio);
+  SSL_set_mode(ssl_, SSL_MODE_ENABLE_PARTIAL_WRITE |
+                     SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+
+  // the SSL object owns the bio now
+  bio = NULL;
+
+  // Do the connect
+  err = ContinueSSLServer();
+  if (err != 0)
+    goto ssl_error;
+
+  return err;
+
+ssl_error:
+  Cleanup();
+  if (bio)
+    BIO_free(bio);
+
+  return err;
+}
+
+int OpenSSLAdapter::BeginSSLClient() {
   LOG(LS_INFO) << "BeginSSL: " << ssl_host_name_;
   ASSERT(state_ == SSL_CONNECTING);
 
@@ -319,7 +378,7 @@ OpenSSLAdapter::BeginSSL() {
 
   // First set up the context
   if (!ssl_ctx_)
-    ssl_ctx_ = SetupSSLContext();
+    ssl_ctx_ = SetupSSLClientContext();
 
   if (!ssl_ctx_) {
     err = -1;
@@ -362,11 +421,46 @@ ssl_error:
   return err;
 }
 
-int
-OpenSSLAdapter::ContinueSSL() {
+int OpenSSLAdapter::ContinueSSL() {
+  return AsClient() ? ContinueSSLClient() : ContinueSSLServer();
+}
+
+int OpenSSLAdapter::ContinueSSLServer() {
+  ASSERT(state_ == SSL_CONNECTING);
+
+  int code = SSL_accept(ssl_);
+  switch (SSL_get_error(ssl_, code)) {
+  case SSL_ERROR_NONE:
+    // if (!SSLPostConnectionCheck(ssl_, ssl_host_name_.c_str())) {
+    //   LOG(LS_ERROR) << "TLS post connection check failed";
+    //   // make sure we close the socket
+    //   Cleanup();
+    //   // The connect failed so return -1 to shut down the socket
+    //   return -1;
+    // }
+
+    state_ = SSL_CONNECTED;
+    AsyncSocketAdapter::OnConnectEvent(this);
+    break;
+
+  case SSL_ERROR_WANT_READ:
+  case SSL_ERROR_WANT_WRITE:
+    break;
+
+  case SSL_ERROR_ZERO_RETURN:
+  default:
+    LOG(LS_WARNING) << "ContinueSSL -- error " << code;
+    return (code != 0) ? code : -1;
+  }
+
+  return 0;
+}
+
+int OpenSSLAdapter::ContinueSSLClient() {
   ASSERT(state_ == SSL_CONNECTING);
 
   int code = SSL_connect(ssl_);
+  // int code = (role_ == SSL_CLIENT) ? SSL_connect(ssl_) : SSL_accept(ssl_);
   switch (SSL_get_error(ssl_, code)) {
   case SSL_ERROR_NONE:
     if (!SSLPostConnectionCheck(ssl_, ssl_host_name_.c_str())) {
@@ -819,7 +913,7 @@ OpenSSLAdapter::SSLVerifyCallback(int ok, X509_STORE_CTX* store) {
     int depth = X509_STORE_CTX_get_error_depth(store);
     int err = X509_STORE_CTX_get_error(store);
 
-    LOG(LS_INFO) << "Error with certificate at depth: " << depth;
+    LOG(LS_INFO) << "** Error with certificate at depth: " << depth;
     X509_NAME_oneline(X509_get_issuer_name(cert), data, sizeof(data));
     LOG(LS_INFO) << "  issuer  = " << data;
     X509_NAME_oneline(X509_get_subject_name(cert), data, sizeof(data));
@@ -876,8 +970,32 @@ bool OpenSSLAdapter::ConfigureTrustedRootCertificates(SSL_CTX* ctx) {
   return count_of_added_certs > 0;
 }
 
-SSL_CTX*
-OpenSSLAdapter::SetupSSLContext() {
+SSL_CTX* OpenSSLAdapter::SetupSSLServerContext() {
+  OpenSSL_add_all_algorithms();  /* load & register all cryptos, etc. */
+  SSL_load_error_strings();   /* load all error messages */
+
+  SSL_CTX* ctx = SSL_CTX_new(SSLv23_server_method());
+
+  if (ctx == NULL)
+    return NULL;
+
+  /* set the local certificate from CertFile */
+  if (SSL_CTX_use_certificate_file(ctx, srv_cert_file_.c_str(), SSL_FILETYPE_PEM) <= 0) {
+      LOG(LS_ERROR) << "Failed on SSL_CTX_use_certificate_file()!";
+      SSL_CTX_free(ctx);
+      return NULL;
+  }
+  /* set the private key from KeyFile (may be the same as CertFile) */
+  if (SSL_CTX_use_PrivateKey_file(ctx, srv_priv_key_file_.c_str(), SSL_FILETYPE_PEM) <= 0) {
+      LOG(LS_ERROR) << "Failed on SSL_CTX_use_PrivateKey_file()!";
+      SSL_CTX_free(ctx);
+      return NULL;
+  }
+
+  return ctx;
+}
+
+SSL_CTX* OpenSSLAdapter::SetupSSLClientContext() {
   SSL_CTX* ctx = SSL_CTX_new(TLSv1_client_method());
   if (ctx == NULL)
     return NULL;

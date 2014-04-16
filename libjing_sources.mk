@@ -109,11 +109,14 @@ LOCAL_SRC_FILES := \
 	xmpp/rostermoduleimpl.cc \
 	xmpp/saslmechanism.cc \
 	xmpp/xmppclient.cc \
+	xmpp/XmppSession.cc \
+	xmpp/xmpplogininterface.cc \
 	xmpp/xmppengineimpl.cc \
 	xmpp/xmpplocalengine.cc \
 	xmpp/xmpplocallogintask.cc \
 	xmpp/xmppengineimpl_iq.cc \
 	xmpp/xmpplogintask.cc \
+	xmpp/xmpploginhandler.cc \
 	xmpp/xmppstanzaparser.cc \
 	xmpp/xmpptask.cc \
 	xmpp/xmppauth.cc \

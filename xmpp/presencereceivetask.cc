@@ -77,7 +77,7 @@ void PresenceReceiveTask::HandlePresence(const Jid& from,
 
   PresenceStatus status;
   DecodeStatus(from, stanza, &status);
-  PresenceUpdate(status);
+  PresenceUpdate(parent_, status);
 }
 
 void PresenceReceiveTask::DecodeStatus(const Jid& from,

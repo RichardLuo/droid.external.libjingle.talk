@@ -25,8 +25,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef TALK_XMPP_LOGINTASK_H_
-#define TALK_XMPP_LOGINTASK_H_
+#ifndef TALK_XMPP_LOGINHANDLER_H_
+#define TALK_XMPP_LOGINHANDLER_H_
 
 #include <string>
 #include <vector>
@@ -43,12 +43,13 @@ class XmlElement;
 class XmppEngineImpl;
 class SaslMechanism;
 
+
 // TODO: Rename to LoginTask.
-class XmppLoginTask : public XmppLoginInterface {
+class XmppLoginHandler : public XmppLoginInterface {
 
 public:
-  XmppLoginTask(XmppEngineImpl *pctx);
-  ~XmppLoginTask();
+  XmppLoginHandler(XmppEngineImpl *pctx);
+  ~XmppLoginHandler();
 
   bool IsDone()
     { return state_ == LOGINSTATE_DONE; }
@@ -58,12 +59,15 @@ public:
     { allowNonGoogleLogin_ = b; }
 
 private:
-  enum LoginTaskState {
+  enum LoginHandlerState {
     LOGINSTATE_INIT = 0,
-    LOGINSTATE_STREAMSTART_SENT,
+    LOGINSTATE_LISTEN_STREAMSTART,
+    LOGINSTATE_STREAMSTART_RSP_SENT,
+    LOGINSTATE_XMPP_FEATURES_SENT,    
     LOGINSTATE_STARTED_XMPP,
     LOGINSTATE_TLS_INIT,
     LOGINSTATE_AUTH_INIT,
+    LOGINSTATE_AUTH_FINISHED,
     LOGINSTATE_BIND_INIT,
     LOGINSTATE_TLS_REQUESTED,
     LOGINSTATE_SASL_RUNNING,
@@ -82,8 +86,10 @@ private:
 
   XmppEngineImpl * pctx_;
   bool authNeeded_;
+  bool authFinished_;
+  bool tlsHandshakeFinished_;
   bool allowNonGoogleLogin_;
-  LoginTaskState state_;
+  LoginHandlerState state_;
   const XmlElement * pelStanza_;
   bool isStart_;
   std::string iqId_;
@@ -101,4 +107,4 @@ private:
 
 }
 
-#endif  //  TALK_XMPP_LOGINTASK_H_
+#endif  //  TALK_XMPP_LOGINHANDLER_H_

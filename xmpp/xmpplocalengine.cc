@@ -359,9 +359,14 @@ void XmppLocalEngine::InternalSendStart() {
            << "<stream:stream "
            << "xmlns=\"jabber:client\" "
            << "xmlns:stream=\"http://etherx.jabber.org/streams\" "
-           << " from=\"" << user_jid_.Str() << "\" "
-           << " to=\"" << peer_jid_.Str() << "\" "
-           << "version=\"1.0\"> \r\n";
+           << " from=\"" << user_jid_.Str() << "\" ";
+  if (peer_jid_.IsValid()) {
+    *output_ << " to=\"" << peer_jid_.Str() << "\" ";
+  } else {
+    fprintf(stderr, "FIXME: invalide peer_jid_! \n");
+    *output_ << " to=\"test@xlive.com" << peer_jid_.Str() << "\" ";
+  }
+  *output_<< "version=\"1.0\"> \r\n";
 }
 
 void XmppLocalEngine::InternalSendStanza(const XmlElement* element) {

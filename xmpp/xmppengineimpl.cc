@@ -37,24 +37,37 @@
 #include "talk/xmpp/constants.h"
 #include "talk/xmpp/saslhandler.h"
 #include "talk/xmpp/xmpplogintask.h"
+#include "talk/xmpp/xmpploginhandler.h"
+#include "talk/xmpp/saslmechanism.h"
+
 
 #include <stdio.h>
+#include <utils/Log.h>
 
 namespace buzz {
 
-XmppEngine* XmppEngine::Create() {
-  return new XmppEngineImpl();
+XmppEngine* XmppEngine::Create(bool as_client) {
+  return new XmppEngineImpl(as_client);
 }
 
 
-XmppEngineImpl::XmppEngineImpl()
+XmppLoginInterface *XmppEngineImpl::CreateLoginObj(bool as_client) {
+    if (as_client) {
+        return new XmppLoginTask(this);
+    } else {
+        return new XmppLoginHandler(this);
+    }
+}
+
+XmppEngineImpl::XmppEngineImpl(bool as_client)
     : stanza_parse_handler_(this),
       stanza_parser_(&stanza_parse_handler_),
       engine_entered_(0),
       password_(),
       requested_resource_(STR_EMPTY),
       tls_option_(buzz::TLS_REQUIRED),
-      login_task_(new XmppLoginTask(this)),
+      as_client_(as_client),
+      login_task_(CreateLoginObj(as_client)),
       next_id_(0),
       state_(STATE_START),
       encrypted_(false),
@@ -67,6 +80,7 @@ XmppEngineImpl::XmppEngineImpl()
       iq_entries_(new IqEntryVector()),
       sasl_handler_(NULL),
       output_(new std::stringstream()) {
+
   for (int i = 0; i < HL_COUNT; i+= 1) {
     stanza_handlers_[i].reset(new StanzaHandlerVector());
   }
@@ -164,11 +178,12 @@ const Jid& XmppEngineImpl::GetUser() {
 }
 
 XmppReturnStatus XmppEngineImpl::SetPeerUser(const Jid& jid) {
+  peer_jid_ = jid;
   return XMPP_RETURN_OK;
 }
 
 const Jid& XmppEngineImpl::GetPeerUser() {
-  return user_jid_;
+  return peer_jid_;
 }
 
 XmppReturnStatus XmppEngineImpl::SetSaslHandler(SaslHandler* sasl_handler) {
@@ -243,6 +258,15 @@ XmppReturnStatus XmppEngineImpl::Connect() {
   return XMPP_RETURN_OK;
 }
 
+void XmppEngineImpl::OnMessage(talk_base::Message *msg) {
+  EnterExit ee(this);
+  if (login_task_) {
+    login_task_->IncomingStanza(NULL, true);
+    if (login_task_->IsDone())
+      login_task_.reset();
+  }
+}
+
 XmppReturnStatus XmppEngineImpl::SendStanza(const XmlElement* element) {
   if (state_ == STATE_CLOSED)
     return XMPP_RETURN_BADSTATE;
@@ -292,6 +316,8 @@ void XmppEngineImpl::IncomingStart(const XmlElement* start) {
   if (HasError() || raised_reset_)
     return;
 
+  fprintf(stderr, "\n --IncomingStart:%s \n", start->Str().c_str());
+
   if (login_task_) {
     // start-stream should go to login task
     login_task_->IncomingStanza(start, true);
@@ -307,6 +333,8 @@ void XmppEngineImpl::IncomingStart(const XmlElement* start) {
 void XmppEngineImpl::IncomingStanza(const XmlElement* stanza) {
   if (HasError() || raised_reset_)
     return;
+
+  fprintf(stderr, "\n --IncomingStanza:%s \n", stanza->Str().c_str());
 
   if (stanza->Name() == QN_STREAM_ERROR) {
     // Explicit XMPP stream error
@@ -370,6 +398,154 @@ void XmppEngineImpl::InternalSendStart(const std::string& to) {
            << "xmlns=\"jabber:client\">\r\n";
 }
 
+void XmppEngineImpl::InternalSendStartResponse() {
+  std::string hostname = tls_server_hostname_;
+  if (hostname.empty()) {
+      hostname = "localhost";
+  }
+
+  // If not language is specified, the spec says use *
+  std::string lang = lang_;
+  if (lang.length() == 0)
+    lang = "*";
+
+  // send stream-beginning
+  // note, we put a \r\n at tne end fo the first line to cause non-XMPP
+  // line-oriented servers (e.g., Apache) to reveal themselves more quickly.
+  *output_ << "<?xml version='1.0'?>"
+           << "<stream:stream "
+           << "xmlns=\"jabber:client\" "
+           << "xmlns:stream=\"http://etherx.jabber.org/streams\" "
+           << "id=\"" << NextId() << "\" "
+           << "from=\"" << hostname << "\" "
+           << "version=\"1.0\" "
+           << "xml:lang=\"" << lang << "\" "
+           << "> \r\n";
+}
+
+
+void XmppEngineImpl::InternalSendFeatures(bool tls_handshake_finished, bool auth_finished) {
+  if (!tls_handshake_finished) {
+    *output_ << "<stream:features>"
+             << "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
+             << "<mechanisms xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>"
+             << "<mechanism>PLAIN</mechanism>"
+             << "<mechanism>DIGEST-MD5</mechanism>"
+             << "<mechanism>SCRAM-SHA-1</mechanism>"
+             << "</mechanisms>"
+             << "<c xmlns='http://jabber.org/protocol/caps' hash='sha-1' node='http://www.process-one.net/en/ejabberd/' ver='yy7di5kE0syuCXOQTXNBTclpNTo='/>"
+             << "<register xmlns='http://jabber.org/features/iq-register'/>"
+             << "</stream:features>"
+             << "\r\n";
+  } else if (!auth_finished) {
+    *output_ << "<stream:features>"
+             << "<mechanisms xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>"
+             << "<mechanism>PLAIN</mechanism>"
+             << "<mechanism>DIGEST-MD5</mechanism>"
+             << "<mechanism>SCRAM-SHA-1</mechanism>"
+             << "</mechanisms>"
+             << "<c xmlns='http://jabber.org/protocol/caps' hash='sha-1' node='http://www.process-one.net/en/ejabberd/' ver='yy7di5kE0syuCXOQTXNBTclpNTo='/>"
+             << "<register xmlns='http://jabber.org/features/iq-register'/>"
+             << "</stream:features>"
+             << "\r\n";
+  } else {
+      *output_ << "<str:features xmlns:str=\"http://etherx.jabber.org/streams\">"
+               << "<bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"/>"
+               << "<session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/>"
+               << "<c xmlns=\"http://jabber.org/protocol/caps\" hash=\"sha-1\" "
+               << "node=\"http://www.process-one.net/en/ejabberd/\" ver=\"yy7di5kE0syuCXOQTXNBTclpNTo=\"/>"
+               << "<register xmlns=\"http://jabber.org/features/iq-register\"/>"
+               << "</str:features>"
+               << "\r\n";
+  }
+
+#if 0                                   // for no tls
+    if (!auth) {
+      *output_ << "<stream:features>"
+               << "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
+               << "<mechanisms xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>"
+               << "<mechanism>PLAIN</mechanism>"
+               << "<mechanism>DIGEST-MD5</mechanism>"
+               << "<mechanism>SCRAM-SHA-1</mechanism>"
+               << "</mechanisms>"
+               << "<c xmlns='http://jabber.org/protocol/caps' hash='sha-1' node='http://www.process-one.net/en/ejabberd/' ver='yy7di5kE0syuCXOQTXNBTclpNTo='/>"
+               << "<register xmlns='http://jabber.org/features/iq-register'/>"
+               << "</stream:features>"
+               << "\r\n";
+    } else {
+      *output_ << "<stream:features>"
+               << "<bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'/>"
+               << "<session xmlns='urn:ietf:params:xml:ns:xmpp-session'/>"
+               << "<c xmlns='http://jabber.org/protocol/caps' hash='sha-1' node='http://www.process-one.net/en/ejabberd/' ver='yy7di5kE0syuCXOQTXNBTclpNTo='/>"
+               << "<register xmlns='http://jabber.org/features/iq-register'/>"
+               << "</stream:features> "
+               << "\r\n";
+    }
+#endif    
+}
+
+int XmppEngineImpl::DecodeSaslPlainAuth(
+    const std::string &encstr, std::string &user, std::string &pass) {
+    std::string decstr = SaslMechanism::Base64Decode(encstr);
+    const char *pb = decstr.data();
+    const size_t size = decstr.size();
+    if (size <= 0 || pb[0] != '\0') {
+        return -1;
+    }
+    ++pb;
+    const size_t len = strlen(pb);
+    if (len <= 0 || (len + 1) > size) {
+        return -1;
+    }
+    user = std::string(pb, len);
+    if (user.empty()) {
+        return -1;
+    }
+    pb += len;
+    if (*pb != '\0') {
+        return -1;
+    }
+    ++pb;
+    pass = std::string(pb, size - (len + 2));
+    if (pass.empty()) {
+        return -1;
+    }
+    return 0;
+}
+
+int XmppEngineImpl::ProcessSaslAuthStanza(const XmlElement* stanza) {
+  if (stanza->Name() != QN_SASL_AUTH) {
+      fprintf(stderr, "ERR: it's not an auth stanza! \n");
+      return -1;
+  }
+
+  if (stanza->Attr(QN_XMLNS) != NS_SASL) {
+      fprintf(stderr, "ERR: invalid auth stanza! \n");
+      return -1;
+  }
+
+  // <auth 
+  //     mechanism="PLAIN" 
+  //     auth:allow-non-google-login="true" 
+  //     auth:client-uses-full-bind-result="true" 
+  //     xmlns="urn:ietf:params:xml:ns:xmpp-sasl" 
+  //     xmlns:auth="http://www.google.com/talk/protocol/auth">AGtpdHR5ADIyMg==</auth>
+
+  std::string user, pass;
+  std::string auth = stanza->BodyText();
+  if (DecodeSaslPlainAuth(auth, user, pass)) {
+      fprintf(stderr, "ERR: on DecodeSaslPlainAuth! \n");
+      return -1;
+  }
+  fprintf(stderr, "==== [%s:%s] \n", user.c_str(), pass.c_str());
+  peer_jid_ = Jid(user, domain_, "");
+
+  // <success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>
+  XmlElement rsp(QN_SASL_SUCCESS, true);
+  InternalSendStanza(&rsp);
+  return 0;
+}
+
 void XmppEngineImpl::InternalSendStanza(const XmlElement* element) {
   // It should really never be necessary to set a FROM attribute on a stanza.
   // It is implied by the bind on the stream and if you get it wrong
@@ -391,6 +567,12 @@ SaslMechanism* XmppEngineImpl::GetSaslMechanism(const std::string& name) {
 void XmppEngineImpl::SignalBound(const Jid& fullJid) {
   if (state_ == STATE_OPENING) {
     bound_jid_ = fullJid;
+    state_ = STATE_OPEN;
+  }
+}
+
+void XmppEngineImpl::SignalSessionOpened() {
+  if (state_ == STATE_OPENING) {
     state_ = STATE_OPEN;
   }
 }

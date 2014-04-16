@@ -48,8 +48,15 @@ namespace buzz {
 
 class XmppSocket : public buzz::AsyncSocket, public sigslot::has_slots<> {
 public:
-  XmppSocket(buzz::TlsOptions tls);
+
+  enum SSLRole { SSL_CLIENT, SSL_SERVER };
+
+  XmppSocket(buzz::TlsOptions tls, SSLRole role = SSL_CLIENT);
   ~XmppSocket();
+
+  void OnSocketAccepted(talk_base::AsyncSocket *socket);
+    
+  static XmppSocket* CreateAcceptedSocket(buzz::TlsOptions tls, talk_base::AsyncSocket *socket);
 
   virtual buzz::AsyncSocket::State state();
   virtual buzz::AsyncSocket::Error error();
@@ -61,10 +68,19 @@ public:
   virtual bool Close();
   virtual bool StartTls(const std::string & domainname);
 
+  int SetPrivateKeyFile(const std::string &path);
+  int SetCertificateFile(const std::string &path);
+
   sigslot::signal1<int> SignalCloseEvent;
 
 private:
+
   void CreateCricketSocket(int family);
+
+  void InitAsyncSocket(talk_base::AsyncSocket *socket);
+    
+    // #define USE_SSLSTREAM
+
 #ifndef USE_SSLSTREAM
   void OnReadEvent(talk_base::AsyncSocket * socket);
   void OnWriteEvent(talk_base::AsyncSocket * socket);
@@ -81,6 +97,9 @@ private:
   buzz::AsyncSocket::State state_;
   talk_base::ByteBuffer buffer_;
   buzz::TlsOptions tls_;
+
+  SSLRole role_;
+
 };
 
 }  // namespace buzz

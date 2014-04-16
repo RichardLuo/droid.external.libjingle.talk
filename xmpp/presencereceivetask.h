@@ -50,7 +50,7 @@ class PresenceReceiveTask : public XmppTask {
   virtual int ProcessStart();
 
   // Slot for presence message callbacks
-  sigslot::signal1<const PresenceStatus&> PresenceUpdate;
+  sigslot::signal2<XmppTaskParentInterface*, const PresenceStatus&> PresenceUpdate;
 
  protected:
   // Called by the XMPP engine when presence stanzas are received from the
