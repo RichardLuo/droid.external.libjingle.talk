@@ -55,6 +55,8 @@ public:
   const std::string & domain() const { return domain_name_;  }
   const std::string & resource() const { return resource_name_; }
 
+  void SetResource(const std::string &res) { resource_name_ = res; }
+
   std::string Str() const;
   Jid BareJid() const;
 
