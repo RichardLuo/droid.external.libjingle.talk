@@ -193,6 +193,7 @@ void XmppSocket::OnConnectEvent(talk_base::AsyncSocket * socket) {
 
 void XmppSocket::OnCloseEvent(talk_base::AsyncSocket * socket, int error) {
   SignalCloseEvent(error);
+  SignalClosed();
 }
 
 #else  // USE_SSLSTREAM
