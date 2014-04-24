@@ -40,8 +40,6 @@
 #include "talk/xmpp/xmpploginhandler.h"
 #include "talk/xmpp/saslmechanism.h"
 
-
-#include <stdio.h>
 #include <utils/Log.h>
 
 namespace buzz {
@@ -91,7 +89,10 @@ XmppEngineImpl::XmppEngineImpl(bool as_client)
 }
 
 XmppEngineImpl::~XmppEngineImpl() {
+  LOGFL_this("--> XmppEngineImpl::~XmppEngineImpl()");
+  LOGFL(">> DeleteIqCookies();");
   DeleteIqCookies();
+  LOGFL("<< DeleteIqCookies();");
 }
 
 XmppReturnStatus XmppEngineImpl::SetOutputHandler(
@@ -128,14 +129,19 @@ XmppReturnStatus XmppEngineImpl::HandleInput(
 }
 
 XmppReturnStatus XmppEngineImpl::ConnectionClosed(int subcode) {
+  LOGFL_this("--> XmppEngineImpl::ConnectionClosed(subcode:%d)", subcode);
   if (state_ != STATE_CLOSED) {
     EnterExit ee(this);
     // If told that connection closed and not already closed,
     // then connection was unpexectedly dropped.
     if (subcode) {
+      LOGFL_this(">> SignalError(ERROR_SOCKET, subcode);");
       SignalError(ERROR_SOCKET, subcode);
+      LOGFL_this("<< SignalError(ERROR_SOCKET, subcode);");
     } else {
+      LOGFL_this(">> SignalError(ERROR_CONNECTION_CLOSED, 0);  // no subcode");
       SignalError(ERROR_CONNECTION_CLOSED, 0);  // no subcode
+      LOGFL_this("<< SignalError(ERROR_CONNECTION_CLOSED, 0);  // no subcode");
     }
   }
   return XMPP_RETURN_OK;
@@ -306,7 +312,9 @@ XmppReturnStatus XmppEngineImpl::Disconnect() {
     EnterExit ee(this);
     if (state_ == STATE_OPEN)
       *output_ << "</stream:stream>";
+    LOGFL_this(">> state_ = STATE_CLOSED;");
     state_ = STATE_CLOSED;
+    LOGFL_this("<< state_ = STATE_CLOSED;");
   }
 
   return XMPP_RETURN_OK;
@@ -550,7 +558,9 @@ void XmppEngineImpl::InternalSendStanza(const XmlElement* element) {
   // It should really never be necessary to set a FROM attribute on a stanza.
   // It is implied by the bind on the stream and if you get it wrong
   // (by flipping from/to on a message?) the server will close the stream.
-  ASSERT(!element->HasAttr(QN_FROM));
+  // ASSERT(!element->HasAttr(QN_FROM));
+  // commented by richard_luo, since the new class XmppServer needs QN_FROM
+
 
   XmlPrinter::PrintXml(output_.get(), element, &xmlns_stack_);
 }
@@ -580,7 +590,9 @@ void XmppEngineImpl::SignalSessionOpened() {
 void XmppEngineImpl::SignalStreamError(const XmlElement* stream_error) {
   if (state_ != STATE_CLOSED) {
     stream_error_.reset(new XmlElement(*stream_error));
+    LOGFL_this(">> SignalError(ERROR_STREAM, 0);");
     SignalError(ERROR_STREAM, 0);
+    LOGFL_this("<< SignalError(ERROR_STREAM, 0);");
   }
 }
 
@@ -588,7 +600,9 @@ void XmppEngineImpl::SignalError(Error error_code, int sub_code) {
   if (state_ != STATE_CLOSED) {
     error_code_ = error_code;
     subcode_ = sub_code;
+    LOGFL_this("    >> state_ = STATE_CLOSED;");
     state_ = STATE_CLOSED;
+    LOGFL_this("    << state_ = STATE_CLOSED;");
   }
 }
 
@@ -632,7 +646,9 @@ XmppEngineImpl::EnterExit::~EnterExit()  {
    engine->output_->str("");
 
    if (closing) {
+     LOGFL(">> engine->output_handler_->CloseConnection();");
      engine->output_handler_->CloseConnection();
+     LOGFL("<< engine->output_handler_->CloseConnection();");
      engine->output_handler_ = 0;
    }
  }
@@ -646,8 +662,11 @@ XmppEngineImpl::EnterExit::~EnterExit()  {
  }
 
  if (engine->session_handler_) {
-   if (engine->state_ != state_)
-     engine->session_handler_->OnStateChange(engine->state_);
+     if (engine->state_ != state_) {
+       LOGFL(">> engine->session_handler_->OnStateChange(), engine:%p", engine);
+       engine->session_handler_->OnStateChange(engine->state_);
+       LOGFL("<< engine->session_handler_->OnStateChange(), engine:%p", engine);
+     }
    // Note: Handling of OnStateChange(CLOSED) should allow for the
    // deletion of the engine, so no members should be accessed
    // after this line.
