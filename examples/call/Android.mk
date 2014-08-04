@@ -76,9 +76,6 @@ LOCAL_CFLAGS := \
 LOCAL_PRELINK_MODULE := false
 LOCAL_MODULE_TAGS := eng
 
-LOCAL_STATIC_LIBRARIES := \
-	libgtest
-
 LOCAL_SHARED_LIBRARIES := \
 	libjingle_media_android \
 	libjingle \
@@ -88,5 +85,13 @@ LOCAL_SHARED_LIBRARIES := \
 LOCAL_SHARED_LIBRARIES += libcutils
 LOCAL_SHARED_LIBRARIES += libbinder
 LOCAL_SHARED_LIBRARIES += liblog
+
+
+ifneq ($(TARGET_SIMULATOR),true)
+LOCAL_C_INCLUDES += bionic		# very important!
+LOCAL_C_INCLUDES += external/stlport/stlport 
+LOCAL_SHARED_LIBRARIES += libstlport libdl
+endif
+
 
 include $(BUILD_EXECUTABLE)

@@ -70,9 +70,6 @@ LOCAL_SRC_FILES := \
 	platformsoundsystemfactory.cc \
 	soundsysteminterface.cc \
 	soundsystemproxy.cc \
-	linuxsoundsystem.cc \
-	alsasoundsystem.cc \
-	alsasymboltable.cc \
 
 
 LOCAL_PRELINK_MODULE := false
@@ -83,7 +80,20 @@ LOCAL_SHARED_LIBRARIES += libjingle
 LOCAL_SHARED_LIBRARIES += liblog
 
 
-
+ifneq ($(TARGET_SIMULATOR),true)
+LOCAL_C_INCLUDES += bionic		# very important!
+LOCAL_C_INCLUDES += external/stlport/stlport 
+LOCAL_C_INCLUDES += external/libjingle/third_party/alsa_headers
+LOCAL_SHARED_LIBRARIES += libstlport libdl
+LOCAL_CFLAGS += '-D_POSIX_SOURCE'
+else
 LOCAL_LDLIBS += -lrt -lpthread
+endif
+
+
+LOCAL_SRC_FILES += 	\
+	alsasymboltable.cc \
+	linuxsoundsystem.cc \
+	alsasoundsystem.cc \
 
 include $(BUILD_SHARED_LIBRARY)

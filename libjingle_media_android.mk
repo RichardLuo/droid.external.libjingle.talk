@@ -107,6 +107,14 @@ LOCAL_SHARED_LIBRARIES += libwebrtc_voe_core
 LOCAL_SHARED_LIBRARIES += libjingle_sound
 
 
+ifneq ($(TARGET_SIMULATOR),true)
+LOCAL_C_INCLUDES += bionic		# very important!
+LOCAL_C_INCLUDES += external/stlport/stlport 
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/third_party/libudev
+LOCAL_SHARED_LIBRARIES += libstlport libdl
+endif
+
+
 LOCAL_PRELINK_MODULE := false
 LOCAL_MODULE_TAGS := eng
 

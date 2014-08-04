@@ -151,6 +151,9 @@ class CandidateTranslator {
       int component, std::string* channel_name) const = 0;
   virtual bool GetComponentFromChannelName(
       const std::string& channel_name, int* component) const = 0;
+
+  virtual ~CandidateTranslator() {}
+
 };
 
 // Content name => translator

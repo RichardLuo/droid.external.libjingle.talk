@@ -39,6 +39,7 @@ class RefCountInterface {
  public:
   virtual int AddRef() = 0;
   virtual int Release() = 0;
+    virtual ~RefCountInterface() {}
 };
 
 template <class T>

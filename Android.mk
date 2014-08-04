@@ -10,13 +10,22 @@ LOCAL_CFLAGS := \
 	$(JINGLE_CFLAGS) \
 
 LOCAL_C_INCLUDES := \
-	$(JINGLE_C_INCLUDES)
+	$(JINGLE_C_INCLUDES) \
+	$(path_openssl)/include \
+	$(path_third_party)/expat/files/lib \
+
 
 LOCAL_SHARED_LIBRARIES += libexpat
 LOCAL_SHARED_LIBRARIES += libjsoncpp
 LOCAL_SHARED_LIBRARIES += libopenssl
 LOCAL_SHARED_LIBRARIES += libcutils
 LOCAL_SHARED_LIBRARIES += liblog
+
+ifneq ($(TARGET_SIMULATOR),true)
+LOCAL_C_INCLUDES += external/stlport/stlport 
+LOCAL_C_INCLUDES += bionic		# very important!
+LOCAL_SHARED_LIBRARIES += libstlport libdl
+endif
 
 LOCAL_LDLIBS += -ldl -lrt -lpthread
 
@@ -27,4 +36,9 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(LOCAL_PATH)/libjingle_p2p_android.mk
 include $(LOCAL_PATH)/libjingle_media_android.mk
+
+ifeq ($(TARGET_SIMULATOR),true)
 include $(LOCAL_PATH)/libjingle_unittest_main_android.mk
+endif
+
+

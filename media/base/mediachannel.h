@@ -67,6 +67,8 @@ class Settable {
   Settable() : set_(false), val_() {}
   explicit Settable(T val) : set_(true), val_(val) {}
 
+  virtual ~Settable() {}
+
   bool IsSet() const {
     return set_;
   }
@@ -151,6 +153,9 @@ static std::string ToStringIfSet(const char* key, const Settable<T>& val) {
 // We are moving all of the setting of options to structs like this,
 // but some things currently still use flags.
 struct AudioOptions {
+
+  virtual ~AudioOptions() {}
+
   void SetAll(const AudioOptions& change) {
     echo_cancellation.SetFrom(change.echo_cancellation);
     auto_gain_control.SetFrom(change.auto_gain_control);
@@ -210,6 +215,9 @@ struct AudioOptions {
 // We are moving all of the setting of options to structs like this,
 // but some things currently still use flags.
 struct VideoOptions {
+
+  virtual ~VideoOptions() {}
+
   VideoOptions() {
     process_adaptation_threshhold.Set(kProcessCpuThreshold);
     system_low_adaptation_threshhold.Set(kLowSystemCpuThreshold);

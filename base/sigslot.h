@@ -432,6 +432,7 @@ namespace sigslot {
 	public:
 		virtual void slot_disconnect(has_slots_interface* pslot) = 0;
 		virtual void slot_duplicate(const has_slots_interface* poldslot, has_slots_interface* pnewslot) = 0;
+        virtual ~_signal_base_interface() {}
 	};
 
 	template<class mt_policy>
