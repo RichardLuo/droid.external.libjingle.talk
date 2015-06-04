@@ -39,10 +39,6 @@
 #include "talk/xmpp/saslmechanism.h"
 #include "talk/xmpp/xmppengineimpl.h"
 
-//#define LOG_NDEBUG 0
-#include <utils/Log.h>
-#include <utils/Errors.h>
-
 using talk_base::ConstantLabel;
 
 namespace buzz {
@@ -132,7 +128,7 @@ XmppLoginHandler::Advance() {
                 if (NULL == (element = NextStanza()))
                     return true;
 
-                LOGFL("got stream:stream:%s", element->Str().c_str());
+                LOG(LS_VERBOSE) << "got stream:stream" << element->Str();
                 
                 if (!isStart_ || !HandleStartStream(element))
                     return Failure(XmppEngine::ERROR_VERSION);
@@ -160,25 +156,24 @@ XmppLoginHandler::Advance() {
 
                 if (element->Name() == QN_SASL_AUTH) {
                     if (pctx_->ProcessSaslAuthStanza(element) < 0) {
-                        LOGE("Invalid sasl-auth xml:%s", element->Str().c_str());
+                        LOG(LS_ERROR) << "Invalid sasl-auth xml: " << element->Str();
                         return Failure(XmppEngine::ERROR_XML);
                     }
                     authFinished_ = true;
                     state_ = LOGINSTATE_INIT;
-                    LOGFL("auth-stanza processed ok!");
                     continue;
                 }
 
                 // <proceed xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>
                 if (element->Name() == QN_TLS_STARTTLS) {
                     if (element->Attr(QN_XMLNS) != NS_TLS) {
-                        LOGE("Invalid start-tls-xml:%s", element->Str().c_str());
+                        LOG(LS_ERROR) << "Invalid start-tls-xml: " << element->Str();
                         return Failure(XmppEngine::ERROR_XML);
                     }
                     XmlElement stanza(QN_TLS_PROCEED, true);
                     pctx_->InternalSendStanza(&stanza);
                     state_ = LOGINSTATE_TLS_INIT;
-                    LOGFL("tls-processed ok!");
+                    LOG(LS_VERBOSE) << "tls-processed ok!";
                     talk_base::Thread::Current()->Post(pctx_);
                     return true;
                 }
@@ -390,8 +385,6 @@ XmppLoginHandler::Advance() {
 //     version="1.0" 
 //     xmlns:stream="http://etherx.jabber.org/streams" xmlns="jabber:client"/> 
 bool XmppLoginHandler::HandleStartStream(const XmlElement *element) {
-
-    LOGFL("got start-stream:%s \n", element->Str().c_str());
 
     if (element->Name() != QN_STREAM_STREAM)
         return false;

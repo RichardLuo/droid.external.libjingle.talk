@@ -36,12 +36,15 @@
 #include "talk/xmpp/prexmppauth.h"
 #include "talk/xmpp/plainsaslhandler.h"
 
+#include <utils/Log.h>
+
 namespace buzz {
 
 class XmppClient::Private :
     public sigslot::has_slots<>,
     public XmppSessionHandler,
     public XmppOutputHandler {
+
 public:
 
   explicit Private(XmppClient* client) :
@@ -52,7 +55,8 @@ public:
     pre_engine_error_(XmppEngine::ERROR_NONE),
     pre_engine_subcode_(0),
     signal_closed_(false),
-    allow_plain_(false) {}
+    allow_plain_(false) {
+  }
 
   virtual ~Private() {
     // We need to disconnect from socket_ before engine_ is destructed (by
@@ -78,7 +82,6 @@ public:
   CaptchaChallenge captcha_challenge_;
   bool signal_closed_;
   bool allow_plain_;
-
   void ResetSocket() {
     if (socket_) {
       socket_->SignalConnected.disconnect(this);
@@ -302,9 +305,14 @@ int XmppClient::ProcessStartXmppLogin() {
 
 int XmppClient::ProcessResponse() {
   // Hang around while we are connected.
-  if (!delivering_signal_ &&
-      (!d_->engine_ || d_->engine_->GetState() == XmppEngine::STATE_CLOSED))
+
+  // if (!delivering_signal_ &&
+  //     (!d_->engine_ || d_->engine_->GetState() == XmppEngine::STATE_CLOSED))
+  //   return STATE_DONE;
+    
+  if (!delivering_signal_ && !d_->engine_)
     return STATE_DONE;
+
   return STATE_BLOCKED;
 }
 
@@ -312,8 +320,11 @@ XmppReturnStatus XmppClient::Disconnect() {
   if (!d_->socket_)
     return XMPP_RETURN_BADSTATE;
   Abort();
-  d_->engine_->Disconnect();
-  d_->ResetSocket();
+  LOGFL("================ do not call anything!");
+  // d_->engine_->Disconnect();
+  // LOGFL_this(">> d_->ResetSocket();");
+  // d_->ResetSocket();
+  // LOGFL_this("<< d_->ResetSocket();");
   return XMPP_RETURN_OK;
 }
 
@@ -326,6 +337,7 @@ XmppClient::XmppClient(TaskParent* parent)
 }
 
 XmppClient::~XmppClient() {
+  LOGFL_this("--> XmppClient::~XmppClient");
   valid_ = false;
 }
 
@@ -394,8 +406,11 @@ void XmppClient::Private::OnSocketRead() {
 }
 
 void XmppClient::Private::OnSocketClosed() {
-  int code = socket_->GetError();
-  engine_->ConnectionClosed(code);
+  socket_->SignalRead.disconnect(this);
+  socket_->SignalClosed.disconnect(this);
+  socket_->SignalConnected.disconnect(this);
+  int subcode = socket_->GetError();
+  engine_->ConnectionClosed(subcode);
 }
 
 void XmppClient::Private::OnStateChange(int state) {
@@ -424,7 +439,8 @@ void XmppClient::Private::StartTls(const std::string& domain) {
 }
 
 void XmppClient::Private::CloseConnection() {
-  socket_->Close();
+  LOGFL("--> XmppClient::Private::CloseConnection(), no socket_->Close()");
+  // socket_->Close();
 }
 
 void XmppClient::AddXmppTask(XmppTask* task, XmppEngine::HandlerLevel level) {

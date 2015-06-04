@@ -37,7 +37,7 @@ XmppPump::XmppPump(XmppPumpNotify * notify) {
 }
 
 void XmppPump::DoLogin(const buzz::XmppClientSettings & xcs,
-                       buzz::AsyncSocket* socket,
+                       XmppSocket* socket,
                        buzz::PreXmppAuth* auth) {
   OnStateChange(buzz::XmppEngine::STATE_START);
   if (!AllChildrenDone()) {

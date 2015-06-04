@@ -28,6 +28,7 @@
 #include "talk/xmpp/xmppthread.h"
 
 #include "talk/xmpp/xmppauth.h"
+#include "talk/xmpp/xmppsocket.h"
 #include "talk/xmpp/xmppclientsettings.h"
 
 namespace buzz {

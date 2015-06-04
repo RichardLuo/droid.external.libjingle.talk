@@ -46,6 +46,7 @@
 #endif  // FEATURE_ENABLE_SSL
 #endif  // USE_SSLSTREAM
 
+#define LOG_TAG "XmppSocket"
 #include <utils/Log.h>
 
 namespace buzz {
@@ -71,11 +72,11 @@ void XmppSocket::OnSocketAccepted(talk_base::AsyncSocket *socket) {
 
 int XmppSocket::SetPrivateKeyFile(const std::string &path) {
     if (role_ != SSL_SERVER) {
-        LOGE("ERR: only server need private key!");
+        LOG(LS_ERROR) << "ERR: only server need private key!";
         return -1;
     }
     if (cricket_socket_ == NULL) {
-        LOGE("ERR: cricket_socket_ is NULL!");
+        LOG(LS_ERROR) << "ERR: cricket_socket_ is NULL!";
         return -1;
     }
 #if defined(FEATURE_ENABLE_SSL)
@@ -86,7 +87,7 @@ int XmppSocket::SetPrivateKeyFile(const std::string &path) {
     static_cast<talk_base::SSLAdapter *>(cricket_socket_);
   ssl_adapter->SetPrivateKeyFile(path);
 #else  // USE_SSLSTREAM
-#error HHHHHHHHHHHHHHHH
+#error "USE_SSLSTREAM disabled by X-LIVE"
 #endif  // USE_SSLSTREAM
 #endif  // !defined(FEATURE_ENABLE_SSL)
     return 0;
@@ -94,11 +95,11 @@ int XmppSocket::SetPrivateKeyFile(const std::string &path) {
 
 int XmppSocket::SetCertificateFile(const std::string &path) {
     if (role_ != SSL_SERVER) {
-        LOGE("ERR: only server need CA!");
+        LOG(LS_ERROR) << "ERR: only server need CA!";
         return -1;
     }
     if (cricket_socket_ == NULL) {
-        LOGE("ERR: cricket_socket_ is NULL!");
+        LOG(LS_ERROR) << "ERR: cricket_socket_ is NULL!";
         return -1;
     }
 #if defined(FEATURE_ENABLE_SSL)
@@ -109,7 +110,7 @@ int XmppSocket::SetCertificateFile(const std::string &path) {
     static_cast<talk_base::SSLAdapter *>(cricket_socket_);
   ssl_adapter->SetCertificateFile(path);
 #else  // USE_SSLSTREAM
-#error HHHHHHHHHHHHHHHH
+#error "USE_SSLSTREAM disabled by X-LIVE"
 #endif  // USE_SSLSTREAM
 #endif  // !defined(FEATURE_ENABLE_SSL)
     return 0;
@@ -192,7 +193,14 @@ void XmppSocket::OnConnectEvent(talk_base::AsyncSocket * socket) {
 }
 
 void XmppSocket::OnCloseEvent(talk_base::AsyncSocket * socket, int error) {
-  SignalCloseEvent(error);
+  // SignalCloseEvent(error);
+
+  SignalClosed();
+
+  // LOGFL_this(">> Close();");
+  // Close();
+  // LOGFL_this("<< Close();");
+
 }
 
 #else  // USE_SSLSTREAM
@@ -212,8 +220,9 @@ void XmppSocket::OnEvent(talk_base::StreamInterface* stream,
       SignalConnected();
     }
   }
-  if ((events & talk_base::SE_READ))
+  if ((events & talk_base::SE_READ)) {
     SignalRead();
+  }
   if ((events & talk_base::SE_WRITE)) {
     // Write bytes if there are any
     while (buffer_.Length() != 0) {
@@ -233,8 +242,9 @@ void XmppSocket::OnEvent(talk_base::StreamInterface* stream,
       buffer_.Consume(written);
     }
   }
-  if ((events & talk_base::SE_CLOSE))
+  if ((events & talk_base::SE_CLOSE)) {
     SignalCloseEvent(err);
+  }
 }
 #endif  // USE_SSLSTREAM
 
@@ -247,7 +257,9 @@ buzz::AsyncSocket::Error XmppSocket::error() {
 }
 
 int XmppSocket::GetError() {
-  return 0;
+  if (cricket_socket_ != NULL) {
+    return cricket_socket_->GetError();
+  }
 }
 
 bool XmppSocket::Connect(const talk_base::SocketAddress& addr) {
@@ -286,8 +298,18 @@ bool XmppSocket::Write(const char * data, size_t len) {
 }
 
 bool XmppSocket::Close() {
-  if (state_ != buzz::AsyncSocket::STATE_OPEN)
+  bool is_tls_open = false;
+
+#if defined(FEATURE_ENABLE_SSL)
+  is_tls_open = (state_ == buzz::AsyncSocket::STATE_TLS_OPEN);
+#endif
+
+  const bool is_open = (state_ == buzz::AsyncSocket::STATE_OPEN);
+
+  if (!is_open && !is_tls_open) {
     return false;
+  }
+
 #ifndef USE_SSLSTREAM
   if (cricket_socket_->Close() == 0) {
     state_ = buzz::AsyncSocket::STATE_CLOSED;

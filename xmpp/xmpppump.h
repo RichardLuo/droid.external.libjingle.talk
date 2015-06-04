@@ -34,10 +34,11 @@
 #include "talk/base/timeutils.h"
 #include "talk/xmpp/xmppclient.h"
 #include "talk/xmpp/xmppengine.h"
+#include "talk/xmpp/xmppsocket.h"
 #include "talk/xmpp/xmpptask.h"
 
 namespace buzz {
-
+class XmppSocket;
 // Simple xmpp pump
 
 class XmppPumpNotify {
@@ -53,7 +54,7 @@ public:
   buzz::XmppClient *client() { return client_; }
 
   void DoLogin(const buzz::XmppClientSettings & xcs,
-               buzz::AsyncSocket* socket,
+               XmppSocket* socket,
                buzz::PreXmppAuth* auth);
   void DoDisconnect();
 

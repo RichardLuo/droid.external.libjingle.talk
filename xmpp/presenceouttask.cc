@@ -32,7 +32,15 @@
 #include "talk/xmpp/presenceouttask.h"
 #include "talk/xmpp/xmppclient.h"
 
+#include <utils/Log.h>
+
 namespace buzz {
+
+PresenceOutTask::PresenceOutTask(XmppTaskParentInterface* parent)
+        : XmppTask(parent) {
+  LOGFL_this("--> PresenceOutTask()");
+}
+
 
 XmppReturnStatus
 PresenceOutTask::Send(const PresenceStatus & s) {

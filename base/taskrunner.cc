@@ -96,7 +96,8 @@ void TaskRunner::InternalRunTasks(bool in_destructor) {
   }
   // Tasks are deleted when running has paused
   bool need_timeout_recalc = false;
-  for (size_t i = 0; i < tasks_.size(); ++i) {
+  for (int j = tasks_.size(); j > 0; --j) {
+    const int i = (j - 1);
     if (tasks_[i]->IsDone()) {
       Task* task = tasks_[i];
       if (next_timeout_task_ &&

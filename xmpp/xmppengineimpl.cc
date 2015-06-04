@@ -40,8 +40,6 @@
 #include "talk/xmpp/xmpploginhandler.h"
 #include "talk/xmpp/saslmechanism.h"
 
-
-#include <stdio.h>
 #include <utils/Log.h>
 
 namespace buzz {
@@ -316,7 +314,7 @@ void XmppEngineImpl::IncomingStart(const XmlElement* start) {
   if (HasError() || raised_reset_)
     return;
 
-  fprintf(stderr, "\n --IncomingStart:%s \n", start->Str().c_str());
+  LOGFL("--IncomingStart:{%s}", start->Str().c_str());
 
   if (login_task_) {
     // start-stream should go to login task
@@ -334,7 +332,7 @@ void XmppEngineImpl::IncomingStanza(const XmlElement* stanza) {
   if (HasError() || raised_reset_)
     return;
 
-  fprintf(stderr, "\n --IncomingStanza:%s \n", stanza->Str().c_str());
+  LOGFL("--IncomingStanza:{%s}", stanza->Str().c_str());
 
   if (stanza->Name() == QN_STREAM_ERROR) {
     // Explicit XMPP stream error
@@ -515,12 +513,12 @@ int XmppEngineImpl::DecodeSaslPlainAuth(
 
 int XmppEngineImpl::ProcessSaslAuthStanza(const XmlElement* stanza) {
   if (stanza->Name() != QN_SASL_AUTH) {
-      fprintf(stderr, "ERR: it's not an auth stanza! \n");
+      LOG(LS_ERROR) << "ERR: it's not an auth stanza!";
       return -1;
   }
 
   if (stanza->Attr(QN_XMLNS) != NS_SASL) {
-      fprintf(stderr, "ERR: invalid auth stanza! \n");
+      LOG(LS_ERROR) << "ERR: invalid auth stanza!";
       return -1;
   }
 
@@ -534,10 +532,9 @@ int XmppEngineImpl::ProcessSaslAuthStanza(const XmlElement* stanza) {
   std::string user, pass;
   std::string auth = stanza->BodyText();
   if (DecodeSaslPlainAuth(auth, user, pass)) {
-      fprintf(stderr, "ERR: on DecodeSaslPlainAuth! \n");
+      LOG(LS_ERROR) << "ERR: on DecodeSaslPlainAuth!";
       return -1;
   }
-  fprintf(stderr, "==== [%s:%s] \n", user.c_str(), pass.c_str());
   peer_jid_ = Jid(user, domain_, "");
 
   // <success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>
@@ -646,8 +643,9 @@ XmppEngineImpl::EnterExit::~EnterExit()  {
  }
 
  if (engine->session_handler_) {
-   if (engine->state_ != state_)
-     engine->session_handler_->OnStateChange(engine->state_);
+     if (engine->state_ != state_) {
+       engine->session_handler_->OnStateChange(engine->state_);
+     }
    // Note: Handling of OnStateChange(CLOSED) should allow for the
    // deletion of the engine, so no members should be accessed
    // after this line.
