@@ -117,6 +117,7 @@ XmppReturnStatus XmppEngineImpl::SetSessionHandler(
 
 XmppReturnStatus XmppEngineImpl::HandleInput(
     const char* bytes, size_t len) {
+  LOGD("%s:%d %s", __func__, __LINE__, bytes);
   if (state_ < STATE_OPENING || state_ > STATE_OPEN)
     return XMPP_RETURN_BADSTATE;
 
@@ -274,6 +275,7 @@ void XmppEngineImpl::OnMessage(talk_base::Message *msg) {
 }
 
 XmppReturnStatus XmppEngineImpl::SendStanza(const XmlElement* element) {
+  LOGD("%s:%d %s", __func__, __LINE__, element->Str().c_str());
   if (state_ == STATE_CLOSED)
     return XMPP_RETURN_BADSTATE;
 
@@ -435,13 +437,14 @@ void XmppEngineImpl::InternalSendStartResponse() {
 void XmppEngineImpl::InternalSendFeatures(bool tls_handshake_finished, bool auth_finished) {
   if (!tls_handshake_finished) {
     *output_ << "<stream:features>"
-             << "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
+             //<< "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
              << "<mechanisms xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>"
              << "<mechanism>PLAIN</mechanism>"
-             << "<mechanism>DIGEST-MD5</mechanism>"
-             << "<mechanism>SCRAM-SHA-1</mechanism>"
+             //<< "<mechanism>DIGEST-MD5</mechanism>"
+             //<< "<mechanism>SCRAM-SHA-1</mechanism>"
              << "</mechanisms>"
-             << "<c xmlns='http://jabber.org/protocol/caps' hash='sha-1' node='http://www.process-one.net/en/ejabberd/' ver='yy7di5kE0syuCXOQTXNBTclpNTo='/>"
+             //<< "<c xmlns='http://jabber.org/protocol/caps' hash='sha-1' node='http://www.process-one.net/en/ejabberd/' ver='yy7di5kE0syuCXOQTXNBTclpNTo='/>"
+             << "<auth xmlns='http://jabber.org/features/iq-auth'/>"
              << "<register xmlns='http://jabber.org/features/iq-register'/>"
              << "</stream:features>"
              << "\r\n";
@@ -449,10 +452,11 @@ void XmppEngineImpl::InternalSendFeatures(bool tls_handshake_finished, bool auth
     *output_ << "<stream:features>"
              << "<mechanisms xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>"
              << "<mechanism>PLAIN</mechanism>"
-             << "<mechanism>DIGEST-MD5</mechanism>"
-             << "<mechanism>SCRAM-SHA-1</mechanism>"
+             //<< "<mechanism>DIGEST-MD5</mechanism>"
+             //<< "<mechanism>SCRAM-SHA-1</mechanism>"
              << "</mechanisms>"
-             << "<c xmlns='http://jabber.org/protocol/caps' hash='sha-1' node='http://www.process-one.net/en/ejabberd/' ver='yy7di5kE0syuCXOQTXNBTclpNTo='/>"
+             //<< "<c xmlns='http://jabber.org/protocol/caps' hash='sha-1' node='http://www.process-one.net/en/ejabberd/' ver='yy7di5kE0syuCXOQTXNBTclpNTo='/>"
+             << "<auth xmlns='http://jabber.org/features/iq-auth'/>"
              << "<register xmlns='http://jabber.org/features/iq-register'/>"
              << "</stream:features>"
              << "\r\n";
@@ -545,7 +549,7 @@ int XmppEngineImpl::ProcessSaslAuthStanza(const XmlElement* stanza) {
       fprintf(stderr, "ERR: on DecodeSaslPlainAuth! \n");
       return -1;
   }
-  fprintf(stderr, "==== [%s:%s] \n", user.c_str(), pass.c_str());
+  fprintf(stderr, "==== [%s:%s] peer_jid_: %s\n", user.c_str(), pass.c_str(), peer_jid_.Str().c_str());
   peer_jid_ = Jid(user, domain_, "");
 
   // <success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>
@@ -663,9 +667,8 @@ XmppEngineImpl::EnterExit::~EnterExit()  {
 
  if (engine->session_handler_) {
      if (engine->state_ != state_) {
-       LOGFL(">> engine->session_handler_->OnStateChange(), engine:%p", engine);
+       LOGFL(">> engine->session_handler_->OnStateChange(), engine:%p engine->state_: %d  state_: %d", engine, engine->state_, state_);
        engine->session_handler_->OnStateChange(engine->state_);
-       LOGFL("<< engine->session_handler_->OnStateChange(), engine:%p", engine);
      }
    // Note: Handling of OnStateChange(CLOSED) should allow for the
    // deletion of the engine, so no members should be accessed

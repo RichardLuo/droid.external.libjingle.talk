@@ -143,8 +143,11 @@ XmppLoginHandler::Advance() {
             }
 
             case LOGINSTATE_STREAMSTART_RSP_SENT: {
-                pctx_->InternalSendFeatures(tlsHandshakeFinished_, authFinished_);
-                if (tlsHandshakeFinished_ && authFinished_) {
+                if(pctx_->tls_option_ == buzz::TLS_ENABLED)
+                    pctx_->InternalSendFeatures(tlsHandshakeFinished_, authFinished_);
+                else
+                    pctx_->InternalSendFeatures(true, authFinished_);
+                if (((pctx_->tls_option_ != buzz::TLS_ENABLED) || tlsHandshakeFinished_) && authFinished_) {
                     pctx_->SignalSessionOpened();
                     FlushQueuedStanzas();
                     state_ = LOGINSTATE_DONE;
