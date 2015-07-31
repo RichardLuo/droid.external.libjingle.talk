@@ -117,8 +117,10 @@ XmppReturnStatus XmppEngineImpl::SetSessionHandler(
 
 XmppReturnStatus XmppEngineImpl::HandleInput(
     const char* bytes, size_t len) {
-  if (state_ < STATE_OPENING || state_ > STATE_OPEN)
+  if (state_ < STATE_OPENING || state_ > STATE_OPEN) {
+    LOGW("%s bad state, it's: %d", state_);
     return XMPP_RETURN_BADSTATE;
+  }
 
   EnterExit ee(this);
 
