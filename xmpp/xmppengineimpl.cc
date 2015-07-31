@@ -117,7 +117,6 @@ XmppReturnStatus XmppEngineImpl::SetSessionHandler(
 
 XmppReturnStatus XmppEngineImpl::HandleInput(
     const char* bytes, size_t len) {
-  LOGD("%s:%d %s", __func__, __LINE__, bytes);
   if (state_ < STATE_OPENING || state_ > STATE_OPEN)
     return XMPP_RETURN_BADSTATE;
 
@@ -176,6 +175,10 @@ XmppReturnStatus XmppEngineImpl::SetUser(const Jid& jid) {
     return XMPP_RETURN_BADSTATE;
 
   user_jid_ = jid;
+  if(!as_client_) {
+      // it runs as server, the jid is assigned by user, not through bound
+      bound_jid_ = jid;
+  }
 
   return XMPP_RETURN_OK;
 }
@@ -344,7 +347,7 @@ void XmppEngineImpl::IncomingStanza(const XmlElement* stanza) {
   if (HasError() || raised_reset_)
     return;
 
-  fprintf(stderr, "\n --IncomingStanza:%s \n", stanza->Str().c_str());
+  LOGE("\n --IncomingStanza:%s \n", stanza->Str().c_str());
 
   if (stanza->Name() == QN_STREAM_ERROR) {
     // Explicit XMPP stream error
@@ -565,8 +568,16 @@ void XmppEngineImpl::InternalSendStanza(const XmlElement* element) {
   // ASSERT(!element->HasAttr(QN_FROM));
   // commented by richard_luo, since the new class XmppServer needs QN_FROM
 
-
-  XmlPrinter::PrintXml(output_.get(), element, &xmlns_stack_);
+  if(!as_client_ && !element->HasAttr(buzz::QN_FROM))
+  {
+      XmlElement elementWithFrom(*element);
+      elementWithFrom.AddAttr(buzz::QN_FROM, bound_jid_.Str());
+      LOGFL_this("<< InternalSendStanza, add from field %s", elementWithFrom.Str().c_str());
+      XmlPrinter::PrintXml(output_.get(), &elementWithFrom, &xmlns_stack_);
+  }
+  else {
+    XmlPrinter::PrintXml(output_.get(), element, &xmlns_stack_);
+  }
 }
 
 std::string XmppEngineImpl::ChooseBestSaslMechanism(
