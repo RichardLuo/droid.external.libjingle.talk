@@ -61,7 +61,7 @@ XmppSocket::XmppSocket(buzz::TlsOptions tls, SSLRole role)
 // static
 XmppSocket* XmppSocket::CreateAcceptedSocket(buzz::TlsOptions tls, talk_base::AsyncSocket *socket) {
     XmppSocket *s = new XmppSocket(tls, SSL_SERVER);
-    // s->OnSocketAccepted(socket);
+    s->OnSocketAccepted(socket);
     return s;
 }
 

@@ -991,6 +991,7 @@ SSL_CTX* OpenSSLAdapter::SetupSSLServerContext() {
       SSL_CTX_free(ctx);
       return NULL;
   }
+  //SSL_CTX_set_cipher_list(ctx, "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
 
   return ctx;
 }
