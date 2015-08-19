@@ -92,6 +92,7 @@ class XmppEngineImpl : public XmppEngine,
 
   //! Indicates the autentication to use.  Takes ownership of the object.
   virtual XmppReturnStatus SetSaslHandler(SaslHandler* sasl_handler);
+  virtual XmppReturnStatus SetRegistrationTask(XmppRegistrationTask* registration_task);
 
   //! Sets whether TLS will be used within the connection (default true).
   virtual XmppReturnStatus SetTls(TlsOptions use_tls);
@@ -204,6 +205,7 @@ class XmppEngineImpl : public XmppEngine,
   friend class XmppLoginTask;
   friend class XmppLoginHandler;
   friend class XmppIqEntry;
+  friend class XmppRegistrationTask;
 
   XmppLoginInterface *CreateLoginObj(bool as_client);
 
@@ -227,6 +229,7 @@ class XmppEngineImpl : public XmppEngine,
   void SignalSessionOpened();
   void SignalStreamError(const XmlElement* streamError);
   void SignalError(Error errorCode, int subCode);
+  void SignalSessionClosed();
   bool HasError();
   void DeleteIqCookies();
   bool HandleIqResponse(const XmlElement* element);

@@ -38,6 +38,7 @@
 #include "talk/xmpp/saslhandler.h"
 #include "talk/xmpp/xmpplogintask.h"
 #include "talk/xmpp/xmpploginhandler.h"
+#include "talk/xmpp/xmppregistrationtask.h"
 #include "talk/xmpp/saslmechanism.h"
 
 #include <utils/Log.h>
@@ -189,6 +190,16 @@ XmppReturnStatus XmppEngineImpl::SetSaslHandler(SaslHandler* sasl_handler) {
     return XMPP_RETURN_BADSTATE;
 
   sasl_handler_.reset(sasl_handler);
+  return XMPP_RETURN_OK;
+}
+
+XmppReturnStatus XmppEngineImpl::SetRegistrationTask(XmppRegistrationTask* registration_task) {
+  if (state_ != STATE_START)
+    return XMPP_RETURN_BADSTATE;
+
+  // since we use this engine instance for registration, it doesn't support login
+  // instead, it'll perform registration operation
+  login_task_.reset(registration_task);
   return XMPP_RETURN_OK;
 }
 
@@ -572,6 +583,10 @@ void XmppEngineImpl::SignalSessionOpened() {
   if (state_ == STATE_OPENING) {
     state_ = STATE_OPEN;
   }
+}
+
+void XmppEngineImpl::SignalSessionClosed() {
+    state_ = STATE_CLOSED;
 }
 
 void XmppEngineImpl::SignalStreamError(const XmlElement* stream_error) {
