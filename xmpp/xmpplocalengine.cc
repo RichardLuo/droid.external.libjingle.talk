@@ -179,6 +179,11 @@ XmppReturnStatus XmppLocalEngine::SetSaslHandler(SaslHandler* sasl_handler) {
   return XMPP_RETURN_OK;
 }
 
+XmppReturnStatus XmppLocalEngine::SetRegistrationTask(XmppRegistrationTask* registration_task) {
+    // it's not supported
+    return XMPP_RETURN_BADSTATE;
+}
+
 XmppReturnStatus XmppLocalEngine::SetRequestedResource(
     const std::string& resource) {
   if (state_ != STATE_START)

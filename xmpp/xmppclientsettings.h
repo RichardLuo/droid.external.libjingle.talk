@@ -89,6 +89,7 @@ class XmppClientSettings : public XmppUserSettings {
     : protocol_(cricket::PROTO_TCP),
       proxy_(talk_base::PROXY_NONE),
       proxy_port_(80),
+      for_registration_(false),
       use_proxy_auth_(false) {
   }
 
@@ -105,6 +106,7 @@ class XmppClientSettings : public XmppUserSettings {
   void set_certificate_file(const std::string &path) {
     certificate_file_ = path;
   }
+  void set_for_registration(bool for_registration) { for_registration_ = for_registration; }
   const std::string& certificate_file() const {
     return certificate_file_;
   }
@@ -117,6 +119,7 @@ class XmppClientSettings : public XmppUserSettings {
   bool use_proxy_auth() const { return use_proxy_auth_; }
   const std::string& proxy_user() const { return proxy_user_; }
   const talk_base::CryptString& proxy_pass() const { return proxy_pass_; }
+  bool for_registration() const { return for_registration_; }
 
  private:
   talk_base::SocketAddress server_;
@@ -125,6 +128,7 @@ class XmppClientSettings : public XmppUserSettings {
   std::string proxy_host_;
   int proxy_port_;
   bool use_proxy_auth_;
+  bool for_registration_;
   std::string proxy_user_;
   talk_base::CryptString proxy_pass_;
   std::string certificate_file_;

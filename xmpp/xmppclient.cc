@@ -35,6 +35,7 @@
 #include "talk/xmpp/saslplainmechanism.h"
 #include "talk/xmpp/prexmppauth.h"
 #include "talk/xmpp/plainsaslhandler.h"
+#include "talk/xmpp/xmppregistrationtask.h"
 
 namespace buzz {
 
@@ -122,6 +123,12 @@ XmppReturnStatus XmppClient::Connect(
   d_->socket_->SignalClosed.connect(d_.get(), &Private::OnSocketClosed);
 
   d_->engine_.reset(XmppEngine::Create());
+  if(settings.for_registration()) {
+      LOGFL("The xmppclient is for registration, replace login handler");
+      XmppRegistrationTask *registration_task = new XmppRegistrationTask(d_->engine_.get(), settings.pass());
+      d_->engine_->SetRegistrationTask(registration_task);
+  }
+  d_->engine_->SetSessionHandler(d_.get());
   d_->engine_->SetSessionHandler(d_.get());
   d_->engine_->SetOutputHandler(d_.get());
   if (!settings.resource().empty()) {
