@@ -781,6 +781,7 @@ XmppRosterModuleImpl::RequestRosterChange(
   return engine()->SendIq(&roster_add, this, NULL);
 }
 
+#include <utils/Log.h>
 XmppReturnStatus
 XmppRosterModuleImpl::RequestRosterRemove(const Jid& jid) {
   if (!jid.IsValid())
@@ -789,14 +790,17 @@ XmppRosterModuleImpl::RequestRosterRemove(const Jid& jid) {
   if (!engine())
     return XMPP_RETURN_BADSTATE;
 
-  XmlElement roster_add(QN_IQ);
-  roster_add.AddAttr(QN_TYPE, "set");
-  roster_add.AddAttr(QN_ID, engine()->NextId());
-  roster_add.AddElement(new XmlElement(QN_ROSTER_QUERY, true));
-  roster_add.AddAttr(QN_JID, jid.Str(), 1);
-  roster_add.AddAttr(QN_SUBSCRIPTION, "remove", 1);
+  XmlElement roster_remove(QN_IQ);
+  roster_remove.AddAttr(QN_TYPE, "set");
+  roster_remove.AddAttr(QN_ID, engine()->NextId());
+  XmlElement *query = new XmlElement(QN_ROSTER_QUERY, true);
+  roster_remove.AddElement(query);
+  XmlElement *item = new XmlElement(QN_ROSTER_ITEM, true);
+  query->AddElement(item);
+  item->SetAttr(QN_JID, jid.Str());
+  item->SetAttr(QN_SUBSCRIPTION, "remove");
 
-  return engine()->SendIq(&roster_add, this, NULL);
+  return engine()->SendIq(&roster_remove, this, NULL);
 }
 
 XmppReturnStatus

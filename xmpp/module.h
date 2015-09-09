@@ -31,7 +31,7 @@
 namespace buzz {
 
 class XmppEngine;
-enum XmppReturnStatus;
+//enum XmppReturnStatus;
 
 //! This is the base class for extension modules.
 //! An engine is registered with the module and the module then hooks the
