@@ -343,7 +343,7 @@ void XmppEngineImpl::IncomingStanza(const XmlElement* stanza) {
   if (HasError() || raised_reset_)
     return;
 
-  LOGFL("--IncomingStanza:{%s}", stanza->Str().c_str());
+  LOGD("XmppEngineImpl::IncomingStanza:{%s}", stanza->Str().c_str());
 
   if (stanza->Name() == QN_STREAM_ERROR) {
     // Explicit XMPP stream error

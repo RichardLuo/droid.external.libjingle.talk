@@ -54,6 +54,7 @@ class PingTask : public buzz::XmppTask, private talk_base::MessageHandler {
   // Raised if there is no response to a ping within ping_timeout_millis.
   // The task is automatically aborted after a timeout.
   sigslot::signal0<> SignalTimeout;
+  sigslot::signal0<> SignalPingResponse;
 
  private:
   // Implementation of MessageHandler.

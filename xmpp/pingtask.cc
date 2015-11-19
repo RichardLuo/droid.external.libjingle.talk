@@ -33,6 +33,7 @@ bool PingTask::HandleStanza(const buzz::XmlElement* stanza) {
   }
 
   QueueStanza(stanza);
+  SignalPingResponse();
   return true;
 }
 
