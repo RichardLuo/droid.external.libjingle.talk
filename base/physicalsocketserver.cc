@@ -912,7 +912,7 @@ class SocketDispatcher : public Dispatcher, public PhysicalSocket {
 
 class FileDispatcher: public Dispatcher, public AsyncFile {
  public:
-  FileDispatcher(int fd, PhysicalSocketServer *ss) : ss_(ss), fd_(fd) {
+  FileDispatcher(int fd, PhysicalSocketServer *ss) : ss_(ss), fd_(fd), flags_(0) {
     set_readable(true);
 
     ss_->Add(this);
