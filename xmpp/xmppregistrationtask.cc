@@ -203,8 +203,8 @@ XmppRegistrationTask::Advance() {
         XmlElement *username = new XmlElement(QN_REGISTER_USERNAME, true);
         username->SetBodyText(pctx_->user_jid_.node());
         XmlElement *password = new XmlElement(QN_REGISTER_PASSWORD, true);
-        talk_base::scoped_ptr<char> pass(new char[pass_.GetLength()]);
-        pass_.CopyTo(pass.get(), false);
+        talk_base::scoped_ptr<char> pass(new char[pass_.GetLength()+1]);
+        pass_.CopyTo(pass.get(), true);
         password->SetBodyText(pass.get());
         XmlElement *email = new XmlElement(QN_REGISTER_EMAIL, true);
         query->AddElement(username);
