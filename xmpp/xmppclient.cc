@@ -132,7 +132,6 @@ XmppReturnStatus XmppClient::Connect(
       d_->engine_->SetRegistrationTask(registration_task);
   }
   d_->engine_->SetSessionHandler(d_.get());
-  d_->engine_->SetSessionHandler(d_.get());
   d_->engine_->SetOutputHandler(d_.get());
   if (!settings.resource().empty()) {
     d_->engine_->SetRequestedResource(settings.resource());
