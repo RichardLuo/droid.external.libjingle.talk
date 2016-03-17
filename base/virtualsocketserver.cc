@@ -120,6 +120,26 @@ class VirtualSocket : public AsyncSocket, public MessageHandler {
     ASSERT(async_ || (type_ != SOCK_STREAM));  // We only support async streams
   }
 
+#ifdef ASYNC_BASE_INTERFACE
+  virtual int read(void *pv, size_t cb) {
+    return Recv(pv, cb);
+  }
+
+  virtual int write(const void *pv, size_t cb) {
+    return Send(pv, cb);
+  }
+    
+  // Determines whether the file will receive read events.
+  virtual bool readable() const {  return true; }
+  virtual void set_readable(bool value) {
+  }
+
+  // Determines whether the file will receive write events.
+  virtual bool writable() const { return true; }
+  virtual void set_writable(bool value) {
+  }
+#endif
+
   virtual ~VirtualSocket() {
     Close();
 

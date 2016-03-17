@@ -30,6 +30,7 @@
 
 #include "talk/base/common.h"
 #include "talk/base/sigslot.h"
+#include "talk/base/asyncbase.h"
 #include "talk/base/socket.h"
 
 namespace talk_base {
@@ -37,7 +38,8 @@ namespace talk_base {
 // TODO: Remove Socket and rename AsyncSocket to Socket.
 
 // Provides the ability to perform socket I/O asynchronously.
-class AsyncSocket : public Socket {
+class AsyncSocket : public Socket,
+                    public AsyncBase {
  public:
   AsyncSocket();
   virtual ~AsyncSocket();
@@ -58,6 +60,29 @@ class AsyncSocketAdapter : public AsyncSocket, public sigslot::has_slots<> {
   // avoid dereferencing a null pointer.
   explicit AsyncSocketAdapter(AsyncSocket* socket);
   virtual ~AsyncSocketAdapter();
+
+#ifdef ASYNC_BASE_INTERFACE
+  virtual int read(void *pv, size_t cb) {
+    return socket_->Recv(pv, cb);
+  }
+
+  virtual int write(const void *pv, size_t cb) {
+    return socket_->Send(pv, cb);
+  }
+
+  // Determines whether the file will receive read events.
+  virtual bool readable() const {  return socket_->readable(); }
+  virtual void set_readable(bool value) {
+      socket_->set_readable(value);
+  }
+
+  // Determines whether the file will receive write events.
+  virtual bool writable() const { return socket_->writable(); }
+  virtual void set_writable(bool value) {
+      return socket_->set_writable(value);
+  }
+#endif
+
   void Attach(AsyncSocket* socket);
   virtual SocketAddress GetLocalAddress() const {
     return socket_->GetLocalAddress();

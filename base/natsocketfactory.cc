@@ -94,6 +94,28 @@ class NATSocket : public AsyncSocket, public sigslot::has_slots<> {
     delete[] buf_;
   }
 
+#ifdef ASYNC_BASE_INTERFACE
+  virtual int read(void *pv, size_t cb) {
+    return socket_->Recv(pv, cb);
+  }
+
+  virtual int write(const void *pv, size_t cb) {
+    return socket_->Send(pv, cb);
+  }
+
+  // Determines whether the file will receive read events.
+  virtual bool readable() const {  return socket_->readable(); }
+  virtual void set_readable(bool value) {
+      socket_->set_readable(value);
+  }
+
+  // Determines whether the file will receive write events.
+  virtual bool writable() const { return socket_->writable(); }
+  virtual void set_writable(bool value) {
+      return socket_->set_writable(value);
+  }
+#endif
+
   virtual SocketAddress GetLocalAddress() const {
     return (socket_) ? socket_->GetLocalAddress() : SocketAddress();
   }

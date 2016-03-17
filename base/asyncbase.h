@@ -25,30 +25,37 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef TALK_BASE_ASYNCFILE_H__
-#define TALK_BASE_ASYNCFILE_H__
+#ifndef TALK_BASE_ASYNCBASE_H__
+#define TALK_BASE_ASYNCBASE_H__
 
 #include "talk/base/sigslot.h"
-#include "talk/base/asyncbase.h"
+
+#define ASYNC_BASE_INTERFACE
 
 namespace talk_base {
 
-// Provides the ability to perform file I/O asynchronously.
-// TODO: Create a common base class with AsyncSocket.
-class AsyncFile : public AsyncBase {
+class AsyncBase {
     
  public:
     
-  AsyncFile();
-    
-  virtual ~AsyncFile();
+  virtual ~AsyncBase() {}
 
-  sigslot::signal1<AsyncFile*>          SignalReadEvent;
-  sigslot::signal1<AsyncFile*>          SignalWriteEvent;
-  sigslot::signal2<AsyncFile*, int>     SignalCloseEvent;
-    
+#ifdef ASYNC_BASE_INTERFACE
+  virtual int read(void *pv, size_t cb) = 0;
+
+  virtual int write(const void *pv, size_t cb) = 0;
+
+  // Determines whether the file will receive read events.
+  virtual bool readable() const = 0;
+  virtual void set_readable(bool value) = 0;
+
+  // Determines whether the file will receive write events.
+  virtual bool writable() const = 0;
+  virtual void set_writable(bool value) = 0;
+#endif    
+
 };
 
 }  // namespace talk_base
 
-#endif  // TALK_BASE_ASYNCFILE_H__
+#endif  // TALK_BASE_ASYNCBASE_H__

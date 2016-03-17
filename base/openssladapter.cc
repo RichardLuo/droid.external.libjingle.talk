@@ -43,6 +43,7 @@
 #include <openssl/rand.h>
 #include <openssl/ssl.h>
 #include <openssl/x509v3.h>
+#include <utils/Log.h>
 
 #if HAVE_CONFIG_H
 #include "config.h"
@@ -147,9 +148,11 @@ static int socket_read(BIO* b, char* out, int outl) {
 static int socket_write(BIO* b, const char* in, int inl) {
   if (!in)
     return -1;
+
   talk_base::AsyncSocket* socket = static_cast<talk_base::AsyncSocket*>(b->ptr);
   BIO_clear_retry_flags(b);
   int result = socket->Send(in, inl);
+  LOGE("--> socket_write result:%d", result);
   if (result > 0) {
     return result;
   } else if (socket->IsBlocking()) {

@@ -48,6 +48,7 @@
 #undef SetPort
 #endif
 
+#include <utils/Log.h>
 #include <algorithm>
 #include <map>
 
@@ -134,6 +135,42 @@ class PhysicalSocket : public AsyncSocket, public sigslot::has_slots<> {
     Close();
   }
 
+#ifdef ASYNC_BASE_INTERFACE
+  virtual int read(void *pv, size_t cb) {
+    return Recv(pv, cb);
+  }
+
+  virtual int write(const void *pv, size_t cb) {
+    return Send(pv, cb);
+  }
+
+  // Determines whether the file will receive read events.
+  virtual bool readable() const {
+      return (enabled_events_ & DE_READ);
+  }
+
+  virtual void set_readable(bool value) {
+      if (value) {
+          enabled_events_ |= DE_READ;
+      } else {
+          enabled_events_ &= ~DE_READ;
+      }
+  }
+
+  // Determines whether the file will receive write events.
+  virtual bool writable() const {
+      return (enabled_events_ & DE_WRITE);
+  }
+    
+  virtual void set_writable(bool value) {
+      if (value) {
+          enabled_events_ |= DE_WRITE;
+      } else {
+          enabled_events_ &= ~DE_WRITE;
+      }
+  }
+#endif
+    
   // Creates the underlying OS socket (same as the "socket" function).
   virtual bool Create(int family, int type) {
     Close();
@@ -299,6 +336,7 @@ class PhysicalSocket : public AsyncSocket, public sigslot::has_slots<> {
         0
 #endif
         );
+    LOGE("<<< send, bytes:%d", sent);
     UpdateLastError();
     // We have seen minidumps where this may be false.
     ASSERT(sent <= static_cast<int>(cb));
@@ -630,8 +668,8 @@ class PosixSignalHandler {
 
   // Returns true if the given signal number is set.
   bool IsSignalSet(int signum) const {
-    ASSERT(signum < ARRAY_SIZE(received_signal_));
-    if (signum < ARRAY_SIZE(received_signal_)) {
+    ASSERT(signum < (int)ARRAY_SIZE(received_signal_));
+   if (signum < (int)ARRAY_SIZE(received_signal_)) {
       return received_signal_[signum];
     } else {
       return false;
@@ -640,8 +678,8 @@ class PosixSignalHandler {
 
   // Clears the given signal number.
   void ClearSignal(int signum) {
-    ASSERT(signum < ARRAY_SIZE(received_signal_));
-    if (signum < ARRAY_SIZE(received_signal_)) {
+    ASSERT(signum < (int)ARRAY_SIZE(received_signal_));
+    if (signum < (int)ARRAY_SIZE(received_signal_)) {
       received_signal_[signum] = false;
     }
   }
@@ -656,7 +694,7 @@ class PosixSignalHandler {
   // user-level state of the process, since the handler could be executed at any
   // time on any thread.
   void OnPosixSignalReceived(int signum) {
-    if (signum >= ARRAY_SIZE(received_signal_)) {
+    if (signum >= (int)ARRAY_SIZE(received_signal_)) {
       // We don't have space in our array for this.
       return;
     }
@@ -926,13 +964,13 @@ class FileDispatcher: public Dispatcher, public AsyncFile {
 
   SocketServer* socketserver() { return ss_; }
 
-    virtual int read(void *pv, size_t cb) {
-        return ::read(fd_, pv, cb);
-    }
+  virtual int read(void *pv, size_t cb) {
+      return ::read(fd_, pv, cb);
+  }
 
-    virtual int write(const void *pv, size_t cb) {
-        return ::write(fd_, pv, cb);
-    }
+  virtual int write(const void *pv, size_t cb) {
+    return ::write(fd_, pv, cb);
+  }
 
   virtual int GetDescriptor() {
     return fd_;
@@ -958,7 +996,7 @@ class FileDispatcher: public Dispatcher, public AsyncFile {
       SignalCloseEvent(this, err);
   }
 
-  virtual bool readable() {
+  virtual bool readable() const {
     return (flags_ & DE_READ) != 0;
   }
 
@@ -966,7 +1004,7 @@ class FileDispatcher: public Dispatcher, public AsyncFile {
     flags_ = value ? (flags_ | DE_READ) : (flags_ & ~DE_READ);
   }
 
-  virtual bool writable() {
+  virtual bool writable() const {
     return (flags_ & DE_WRITE) != 0;
   }
 
