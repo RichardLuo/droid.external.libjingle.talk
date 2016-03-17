@@ -587,6 +587,13 @@ const StaticQName QN_GOOGLE_MUC_USER_STATUS = { NS_GOOGLE_MUC_USER, "status" };
 const StaticQName QN_CLIENT_VERSION = { NS_GOOGLE_MUC_USER, "client-version" };
 const StaticQName QN_LABEL = { STR_EMPTY, "label" };
 
+// XEP 0077 - In-Band Registration
+const char NS_REGISTER[] = "jabber:iq:register";
+const StaticQName QN_REGISTER_QUERY = { NS_REGISTER, "query" };
+const StaticQName QN_REGISTER_USERNAME = { NS_REGISTER, "username" };
+const StaticQName QN_REGISTER_PASSWORD = { NS_REGISTER, "password" };
+const StaticQName QN_REGISTER_EMAIL = { NS_REGISTER, "email" };
+
 const char NS_GOOGLE_MUC_MEDIA[] = "google:muc#media";
 const StaticQName QN_GOOGLE_MUC_AUDIO_MUTE =
     { NS_GOOGLE_MUC_MEDIA, "audio-mute" };

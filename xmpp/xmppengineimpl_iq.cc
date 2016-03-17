@@ -275,7 +275,7 @@ XmppEngineImpl::HandleIqResponse(const XmlElement * element) {
   for (std::vector<XmppIqEntry *>::iterator it = iq_entries_->begin();
        it != iq_entries_->end(); it += 1) {
     XmppIqEntry * iq_entry = *it;
-    if (iq_entry->id_ == id && iq_entry->to_ == from) {
+    if (iq_entry->id_ == id && (iq_entry->to_.length() == 0 || iq_entry->to_ == from)) {
       iq_entries_->erase(it);
       iq_entry->iq_handler_->IqResponse(iq_entry, element);
       delete iq_entry;

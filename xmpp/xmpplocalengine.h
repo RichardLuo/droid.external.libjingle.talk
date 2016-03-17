@@ -81,6 +81,7 @@ class XmppLocalEngine : public XmppEngine {
 
   //! Indicates the autentication to use.  Takes ownership of the object.
   virtual XmppReturnStatus SetSaslHandler(SaslHandler* sasl_handler);
+  virtual XmppReturnStatus SetRegistrationTask(XmppRegistrationTask* registration_task);
 
   //! Sets whether TLS will be used within the connection (default true).
   virtual XmppReturnStatus SetTls(TlsOptions use_tls);

@@ -531,6 +531,13 @@ extern const StaticQName QN_GOOGLE_MUC_USER_SRC_ID;
 extern const StaticQName QN_GOOGLE_MUC_USER_STATUS;
 extern const StaticQName QN_LABEL;
 
+// XEP 0077 - In-Band Registration
+extern const char NS_REGISTER[];
+extern const StaticQName QN_REGISTER_QUERY;
+extern const StaticQName QN_REGISTER_USERNAME;
+extern const StaticQName QN_REGISTER_PASSWORD;
+extern const StaticQName QN_REGISTER_EMAIL;
+
 extern const char NS_GOOGLE_MUC_MEDIA[];
 extern const StaticQName QN_GOOGLE_MUC_AUDIO_MUTE;
 extern const StaticQName QN_GOOGLE_MUC_VIDEO_MUTE;

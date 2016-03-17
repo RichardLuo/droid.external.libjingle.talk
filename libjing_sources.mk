@@ -117,6 +117,7 @@ LOCAL_SRC_FILES := \
 	xmpp/xmppengineimpl_iq.cc \
 	xmpp/xmpplogintask.cc \
 	xmpp/xmpploginhandler.cc \
+	xmpp/xmppregistrationtask.cc \
 	xmpp/xmppstanzaparser.cc \
 	xmpp/xmpptask.cc \
 	xmpp/xmppauth.cc \

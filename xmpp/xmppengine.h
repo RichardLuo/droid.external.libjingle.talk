@@ -38,6 +38,7 @@ namespace buzz {
 
 class XmppEngine;
 class SaslHandler;
+class XmppRegistrationTask;
 typedef void * XmppIqCookie;
 
 //! XMPP stanza error codes.
@@ -169,7 +170,9 @@ public:
     ERROR_DOCUMENT_CLOSED,  //!< Closed by </stream:stream>
     ERROR_SOCKET,           //!< Socket error
     ERROR_NETWORK_TIMEOUT,  //!< Some sort of timeout (eg., we never got the roster)
-    ERROR_MISSING_USERNAME  //!< User has a Google Account but no nickname
+    ERROR_MISSING_USERNAME, //!< User has a Google Account but no nickname
+    ERROR_REGISTER,         //!< Register faiure
+    ERROR_REGISTER_CONFLICT //!< Register faiure due to user name conflict
   };
 
   //! States.  See GetState().
@@ -209,6 +212,10 @@ public:
   //! Provides different methods for credentials for login.
   //! Takes ownership of this object; deletes when login is done
   virtual XmppReturnStatus SetSaslHandler(SaslHandler * h) = 0;
+
+  //! Provides method for xep0077 in-band registration
+  //! Takes ownership of this object; deletes when login is done
+  virtual XmppReturnStatus SetRegistrationTask(XmppRegistrationTask * t) = 0;
 
   //! Sets whether TLS will be used within the connection (default true).
   virtual XmppReturnStatus SetTls(TlsOptions useTls) = 0;
