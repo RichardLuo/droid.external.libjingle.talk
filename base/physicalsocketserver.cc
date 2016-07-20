@@ -269,6 +269,15 @@ class PhysicalSocket : public AsyncSocket, public sigslot::has_slots<> {
     size_t len = connect_addr.ToSockAddrStorage(&addr_storage);
     sockaddr* addr = reinterpret_cast<sockaddr*>(&addr_storage);
     int err = ::connect(s_, addr, static_cast<int>(len));
+    {
+      int my_errcode = 0;
+      socklen_t len = sizeof(my_errcode);
+      int kerr = ::getsockopt(s_, SOL_SOCKET, SO_ERROR, &my_errcode, &len);
+      // fprintf(stderr, "<< ::getsockopt kerr:%d my_errcode:%d \n", kerr, my_errcode);
+      if (my_errcode != 0) {
+          return SOCKET_ERROR;
+      }
+    }
     UpdateLastError();
     if (err == 0) {
       state_ = CS_CONNECTED;
