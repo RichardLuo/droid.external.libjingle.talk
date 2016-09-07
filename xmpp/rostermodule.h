@@ -335,7 +335,7 @@ public:
   virtual XmppReturnStatus ApproveSubscriber(const Jid& jid) = 0;
 
   //! Deny or cancel presence notification deliver to a jid
-  virtual XmppReturnStatus CancelSubscriber(const Jid& jid) = 0;
+  virtual XmppReturnStatus CancelSubscriber(const Jid& jid, const char* code=NULL) = 0;
 };
 
 }
