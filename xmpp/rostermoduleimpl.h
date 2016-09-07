@@ -259,7 +259,7 @@ public:
   virtual XmppReturnStatus ApproveSubscriber(const Jid& jid);
 
   //! Deny or cancel presence notification deliver to a jid
-  virtual XmppReturnStatus CancelSubscriber(const Jid& jid);
+  virtual XmppReturnStatus CancelSubscriber(const Jid& jid, const char* code=NULL);
 
   // XmppIqHandler IMPLEMENTATION ----------------------------------------------
   virtual void IqResponse(XmppIqCookie cookie, const XmlElement * stanza);

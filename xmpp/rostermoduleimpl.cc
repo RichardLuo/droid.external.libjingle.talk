@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <sstream>
 #include <iostream>
+#include <string.h>
 #include "talk/base/common.h"
 #include "talk/base/stringencode.h"
 #include "talk/xmpp/constants.h"
@@ -818,8 +819,8 @@ XmppRosterModuleImpl::ApproveSubscriber(const Jid& jid) {
 }
 
 XmppReturnStatus
-XmppRosterModuleImpl::CancelSubscriber(const Jid& jid) {
-  return SendSubscriptionRequest(jid, "unsubscribed");
+XmppRosterModuleImpl::CancelSubscriber(const Jid& jid, const char* code) {
+  return SendSubscriptionRequest(jid, "unsubscribed", code);
 }
 
 void
