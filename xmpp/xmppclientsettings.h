@@ -127,8 +127,8 @@ class XmppClientSettings : public XmppUserSettings {
   talk_base::ProxyType proxy_;
   std::string proxy_host_;
   int proxy_port_;
-  bool use_proxy_auth_;
   bool for_registration_;
+  bool use_proxy_auth_;
   std::string proxy_user_;
   talk_base::CryptString proxy_pass_;
   std::string certificate_file_;
