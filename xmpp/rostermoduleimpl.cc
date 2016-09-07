@@ -804,8 +804,8 @@ XmppRosterModuleImpl::RequestRosterRemove(const Jid& jid) {
 }
 
 XmppReturnStatus
-XmppRosterModuleImpl::RequestSubscription(const Jid& jid) {
-  return SendSubscriptionRequest(jid, "subscribe");
+XmppRosterModuleImpl::RequestSubscription(const Jid& jid, const char* code) {
+  return SendSubscriptionRequest(jid, "subscribe", code);
 }
 
 XmppReturnStatus
@@ -930,7 +930,8 @@ XmppRosterModuleImpl::DeleteContacts() {
 
 XmppReturnStatus
 XmppRosterModuleImpl::SendSubscriptionRequest(const Jid& jid,
-                                              const std::string& type) {
+                                              const std::string& type,
+                                              const char* code) {
   if (!jid.IsValid())
     return XMPP_RETURN_BADARGUMENT;
 
@@ -938,8 +939,11 @@ XmppRosterModuleImpl::SendSubscriptionRequest(const Jid& jid,
     return XMPP_RETURN_BADSTATE;
 
   XmlElement presence_request(QN_PRESENCE);
+  presence_request.AddAttr(QN_ID, engine()->NextId());
   presence_request.AddAttr(QN_TO, jid.Str());
   presence_request.AddAttr(QN_TYPE, type);
+  if(code != NULL && strlen(code) > 0)
+      presence_request.AddAttr(QN_CODE, code);
 
   return engine()->SendStanza(&presence_request);
 }
