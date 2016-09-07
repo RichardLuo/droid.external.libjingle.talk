@@ -326,7 +326,7 @@ public:
   // SUBSCRIPTION MANAGEMENT ---------------------------------------------------
 
   //! Request a subscription to presence notifications form a Jid
-  virtual XmppReturnStatus RequestSubscription(const Jid& jid) = 0;
+  virtual XmppReturnStatus RequestSubscription(const Jid& jid, const char* code=NULL) = 0;
 
   //! Cancel a subscription to presence notifications from a Jid
   virtual XmppReturnStatus CancelSubscription(const Jid& jid) = 0;

@@ -250,7 +250,7 @@ public:
   // SUBSCRIPTION MANAGEMENT ---------------------------------------------------
 
   //! Request a subscription to presence notifications form a Jid
-  virtual XmppReturnStatus RequestSubscription(const Jid& jid);
+  virtual XmppReturnStatus RequestSubscription(const Jid& jid, const char* code=NULL);
 
   //! Cancel a subscription to presence notifications from a Jid
   virtual XmppReturnStatus CancelSubscription(const Jid& jid);
@@ -277,7 +277,8 @@ private:
   void DeleteIncomingPresence();
   void DeleteContacts();
   XmppReturnStatus SendSubscriptionRequest(const Jid& jid,
-                                           const std::string& type);
+                                           const std::string& type,
+                                           const char* code=NULL);
   void InternalSubscriptionRequest(const Jid& jid, const XmlElement* stanza,
                                    XmppSubscriptionRequestType request_type);
   void InternalIncomingPresence(const Jid& jid, const XmlElement* stanza);
