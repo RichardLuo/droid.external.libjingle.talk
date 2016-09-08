@@ -58,6 +58,8 @@ public:
   int priority() const { return pri_; }
   Show show() const { return show_; }
   const std::string& status() const { return status_; }
+  const std::string& type() const { return type_; }
+  const std::string& code() const { return code_; }
   const std::string& nick() const { return nick_; }
   bool available() const { return available_ ; }
   int error_code() const { return e_code_; }
@@ -76,6 +78,8 @@ public:
   void set_priority(int pri) { pri_ = pri; }
   void set_show(Show show) { show_ = show; }
   void set_status(const std::string& status) { status_ = status; }
+  void set_type(const std::string& type) { type_ = type; }
+  void set_code(const std::string& code) { code_ = code; }
   void set_nick(const std::string& nick) { nick_ = nick; }
   void set_available(bool a) { available_ = a; }
   void set_error(int e_code, const std::string e_str)
@@ -184,6 +188,8 @@ private:
   int e_code_;
   std::string e_str_;
   bool feedback_probation_;
+  std::string type_;
+  std::string code_;
 
   // capabilities (valid only if know_capabilities_
   bool know_capabilities_;
