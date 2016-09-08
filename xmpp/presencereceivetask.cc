@@ -84,6 +84,12 @@ void PresenceReceiveTask::DecodeStatus(const Jid& from,
                                        const XmlElement* stanza,
                                        PresenceStatus* presence_status) {
   presence_status->set_jid(from);
+  if (stanza->HasAttr(QN_TYPE)) {
+    presence_status->set_type(stanza->Attr(QN_TYPE));
+  }
+  if (stanza->HasAttr(QN_CODE)) {
+    presence_status->set_code(stanza->Attr(QN_CODE));
+  }
   if (stanza->Attr(QN_TYPE) == STR_UNAVAILABLE) {
     presence_status->set_available(false);
   } else {
