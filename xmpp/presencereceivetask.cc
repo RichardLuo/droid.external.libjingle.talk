@@ -86,6 +86,8 @@ void PresenceReceiveTask::DecodeStatus(const Jid& from,
   presence_status->set_jid(from);
   if (stanza->HasAttr(QN_TYPE)) {
     presence_status->set_type(stanza->Attr(QN_TYPE));
+  } else {
+    presence_status->set_type("available");
   }
   if (stanza->HasAttr(QN_CODE)) {
     presence_status->set_code(stanza->Attr(QN_CODE));
