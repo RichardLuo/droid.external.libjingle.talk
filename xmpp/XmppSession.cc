@@ -401,7 +401,7 @@ void XmppSession::Private::OnSocketRead() {
         //#ifdef _DEBUG
         client_->SignalLogInput(bytes, bytes_read);
         //#endif
-        hexdump_info(bytes, bytes_read, "OnSocketRead:%d", bytes_read);
+        // hexdump_info(bytes, bytes_read, "OnSocketRead:%d", bytes_read);
         engine_->HandleInput(bytes, bytes_read);
     }
 }

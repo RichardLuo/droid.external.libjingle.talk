@@ -221,7 +221,7 @@ int main_test(int argc, char *argv[])
   buzz::XmppPump pump;
   fprintf(stderr, "pump.client:%p \n", pump.client_);
 
-  hexdump_info(&pump, sizeof(pump), "dump pump, sizeof pump:%d", sizeof(buzz::XmppPump));
+  // hexdump_info(&pump, sizeof(pump), "dump pump, sizeof pump:%d", sizeof(buzz::XmppPump));
 
   if (pump.client() == NULL) {
       printf("ERR: pump.client() is NULL \n");

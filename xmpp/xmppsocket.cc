@@ -47,6 +47,7 @@
 #endif  // USE_SSLSTREAM
 
 #include <utils/Log.h>
+#include <cutils/easyutils.h>
 
 namespace buzz {
 

@@ -10,6 +10,7 @@ LOCAL_CFLAGS := \
 	$(JINGLE_CFLAGS) \
 
 LOCAL_C_INCLUDES := \
+	external/cppformat \
 	$(JINGLE_C_INCLUDES) \
 	$(path_openssl)/include \
 	$(path_third_party)/expat/files/lib \
@@ -18,6 +19,8 @@ LOCAL_C_INCLUDES := \
 LOCAL_SHARED_LIBRARIES += libexpat
 LOCAL_SHARED_LIBRARIES += libjsoncpp
 LOCAL_SHARED_LIBRARIES += libopenssl
+LOCAL_SHARED_LIBRARIES += libeasyutils
+LOCAL_SHARED_LIBRARIES += libcppformat
 LOCAL_SHARED_LIBRARIES += libcutils
 LOCAL_SHARED_LIBRARIES += liblog
 
