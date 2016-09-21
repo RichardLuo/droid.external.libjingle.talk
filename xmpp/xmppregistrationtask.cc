@@ -64,8 +64,8 @@ XmppRegistrationTask::XmppRegistrationTask(XmppEngine * pctx, talk_base::CryptSt
   pelFeatures_(NULL),
   fullJid_(STR_EMPTY),
   streamId_(STR_EMPTY),
-  pvecQueuedStanzas_(new std::vector<XmlElement *>()),
-  pass_(pass) {
+  pass_(pass),
+  pvecQueuedStanzas_(new std::vector<XmlElement *>()) {
       pctx_ = (XmppEngineImpl*)pctx;
 }
 
