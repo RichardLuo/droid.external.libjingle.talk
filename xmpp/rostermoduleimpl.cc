@@ -455,7 +455,7 @@ XmppRosterContactImpl::GetGroupCount() const {
       group_element = group_element->NextNamed(QN_ROSTER_GROUP);
     }
 
-    ASSERT(group_count > 0); // protect the cast
+    //ASSERT(group_count > 0); // protect the cast
     XmppRosterContactImpl * me = const_cast<XmppRosterContactImpl*>(this);
     me->group_count_ = group_count;
   }
