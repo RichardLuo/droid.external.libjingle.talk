@@ -39,6 +39,7 @@ namespace talk_base {
 static const int64 kNumMillisecsPerSec = 1000;
 static const int64 kNumMicrosecsPerSec = 1000000;
 static const int64 kNumNanosecsPerSec = 1000000000;
+static const int64 kNumNanosecsPerMicrosec = 1000;
 
 static const int64 kNumMicrosecsPerMillisec = kNumMicrosecsPerSec /
     kNumMillisecsPerSec;
@@ -48,6 +49,7 @@ static const int64 kNumNanosecsPerMillisec =  kNumNanosecsPerSec /
 typedef uint32 TimeStamp;
 
 uint64 TimeMs();
+uint64 TimeUs();
 
 // Returns the current time in milliseconds.
 uint32 Time();

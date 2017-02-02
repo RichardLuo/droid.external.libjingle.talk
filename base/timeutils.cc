@@ -90,6 +90,10 @@ uint64 TimeNanos() {
   return ticks;
 }
 
+uint64 TimeUs() {
+    return TimeNanos() / kNumNanosecsPerMicrosec;
+}
+
 uint64 TimeMs() {
     return TimeNanos() / kNumNanosecsPerMillisec;
 }
