@@ -7,7 +7,7 @@ include $(LOCAL_PATH)/libjing_sources.mk
 LOCAL_MODULE := libjingle
 
 LOCAL_CFLAGS := \
-	$(JINGLE_CFLAGS) \
+	$(JINGLE_CFLAGS) -DNDEBUG\
 
 LOCAL_C_INCLUDES := \
 	$(JINGLE_C_INCLUDES)

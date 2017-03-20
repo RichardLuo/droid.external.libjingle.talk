@@ -167,7 +167,7 @@ void XmppSocket::OnReadEvent(talk_base::AsyncSocket * socket) {
 void XmppSocket::OnWriteEvent(talk_base::AsyncSocket * socket) {
   // Write bytes if there are any
   while (buffer_.Length() != 0) {
-    hexdump_info(buffer_.Data(), buffer_.Length(), ">> send to socket:");
+    //hexdump_info(buffer_.Data(), buffer_.Length(), ">> send to socket:");
     int written = cricket_socket_->Send(buffer_.Data(), buffer_.Length());
     if (written > 0) {
       buffer_.Consume(written);
