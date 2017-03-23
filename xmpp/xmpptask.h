@@ -145,7 +145,6 @@ class XmppTask : public XmppTaskBase,
 #ifdef _DEBUG
   void set_debug_force_timeout(const bool f) { debug_force_timeout_ = f; }
 #else
-#error HHHHHHHHHHHHHHHH    
 #endif
 
   virtual bool HandleStanza(const XmlElement* stanza) { return false; }
@@ -195,7 +194,6 @@ private:
 #ifdef _DEBUG
   bool debug_force_timeout_;
 #else
-#error HHHHHHHHHHHHHHHH    
 #endif
 };
 
