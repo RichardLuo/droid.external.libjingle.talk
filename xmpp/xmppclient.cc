@@ -186,8 +186,9 @@ XmppEngine::Error XmppClient::GetError(int* subcode) {
   if (subcode) {
     *subcode = 0;
   }
-  if (!d_->engine_)
+  if (!d_->engine_) {
     return XmppEngine::ERROR_NONE;
+  }
   if (d_->pre_engine_error_ != XmppEngine::ERROR_NONE) {
     if (subcode) {
       *subcode = d_->pre_engine_subcode_;
@@ -293,13 +294,24 @@ int XmppClient::ProcessTokenLogin() {
   return STATE_START_XMPP_LOGIN;
 }
 
+void XmppClient::OnMessage(talk_base::Message* msg) {
+    LOGI("wait 4 seconds done, check if connection is ok");
+    if(XmppEngine::STATE_OPEN == this->GetState()) {
+        LOGI("connect ok before timeout");
+    } else {
+        d_->pre_engine_error_ = XmppEngine::ERROR_SOCKET;
+        LOGI("connect not ok before timeout, disconnect, set error to ERROR_SOCKET");
+        this->EnsureClosed();
+    }
+}
+
 int XmppClient::ProcessStartXmppLogin() {
   // Should not happen, but was observed in crash reports
   if (!d_->socket_) {
     LOG(LS_ERROR) << "socket_ already reset";
     return STATE_DONE;
   }
-
+  talk_base::Thread::Current()->PostDelayed(4000, this);
   // Done with pre-connect tasks - connect!
   if (!d_->socket_->Connect(d_->server_)) {
     EnsureClosed();

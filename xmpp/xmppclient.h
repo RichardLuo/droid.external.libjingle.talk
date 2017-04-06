@@ -70,7 +70,8 @@ class CaptchaChallenge;
 
 class XmppClient : public XmppTaskParentInterface,
                    public XmppClientInterface,
-                   public sigslot::has_slots<>
+                   public sigslot::has_slots<>,
+                   public talk_base::MessageHandler
 {
 public:
   explicit XmppClient(talk_base::TaskParent * parent);
@@ -149,6 +150,8 @@ public:
       default: return Task::GetStateName(state);
     }
   }
+
+  virtual void OnMessage(talk_base::Message* msg);
 
   int ProcessTokenLogin();
   int ProcessStartXmppLogin();
