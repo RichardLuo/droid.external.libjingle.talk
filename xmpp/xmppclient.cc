@@ -295,8 +295,8 @@ int XmppClient::ProcessTokenLogin() {
 }
 
 void XmppClient::OnMessage(talk_base::Message* msg) {
-    LOGI("wait 4 seconds done, check if connection is ok");
-    if(XmppEngine::STATE_OPEN == this->GetState()) {
+    LOGI("wait 3 seconds done, check if connection is ok");
+    if(XmppEngine::STATE_OPENING <= this->GetState()) {
         LOGI("connect ok before timeout");
     } else {
         d_->pre_engine_error_ = XmppEngine::ERROR_SOCKET;
@@ -311,7 +311,7 @@ int XmppClient::ProcessStartXmppLogin() {
     LOG(LS_ERROR) << "socket_ already reset";
     return STATE_DONE;
   }
-  talk_base::Thread::Current()->PostDelayed(4000, this);
+  talk_base::Thread::Current()->PostDelayed(3000, this);
   // Done with pre-connect tasks - connect!
   if (!d_->socket_->Connect(d_->server_)) {
     EnsureClosed();
