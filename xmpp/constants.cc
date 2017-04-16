@@ -323,6 +323,7 @@ const StaticQName QN_TITLE1 = { STR_EMPTY, "title1" };
 const StaticQName QN_TITLE2 = { STR_EMPTY, "title2" };
 const StaticQName QN_SOURCE = { STR_EMPTY, "source" };
 const StaticQName QN_TIME = { STR_EMPTY, "time" };
+const StaticQName QN_TIMEZONE = { STR_EMPTY, "timezone" };
 
 const StaticQName QN_XMLNS_CLIENT = { NS_XMLNS, STR_CLIENT };
 const StaticQName QN_XMLNS_SERVER = { NS_XMLNS, STR_SERVER };
