@@ -293,6 +293,7 @@ extern const StaticQName QN_TITLE2;
 extern const StaticQName QN_AFFILIATION;
 extern const StaticQName QN_ROLE;
 extern const StaticQName QN_TIME;
+extern const StaticQName QN_TIMEZONE;
 
 extern const StaticQName QN_XMLNS_CLIENT;
 extern const StaticQName QN_XMLNS_SERVER;
