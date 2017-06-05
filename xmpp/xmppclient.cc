@@ -62,8 +62,6 @@ public:
   virtual ~Private() {
     // We need to disconnect from socket_ before engine_ is destructed (by
     // the auto-generated destructor code).
-    engine_.reset(NULL);
-    pre_auth_.reset(NULL);
     ResetSocket();
   }
 
@@ -339,6 +337,7 @@ int XmppClient::ProcessResponse() {
 XmppReturnStatus XmppClient::Disconnect() {
   if (!d_->socket_)
     return XMPP_RETURN_BADSTATE;
+  Abort();
   LOGFL("================ do not call anything!");
   // d_->engine_->Disconnect();
   // LOGFL_this(">> d_->ResetSocket();");
