@@ -47,6 +47,9 @@ protected:
   //! already an engine registered.
   XmppReturnStatus RegisterEngine(XmppEngine* engine);
 
+  //! Unregister the engine with the module.
+  XmppReturnStatus UnregisterEngine();
+
   //! Gets the engine that this module is attached to.
   XmppEngine* engine();
 

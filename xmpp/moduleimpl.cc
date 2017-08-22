@@ -37,10 +37,16 @@ XmppModuleImpl::XmppModuleImpl() :
 
 XmppModuleImpl::~XmppModuleImpl()
 {
+}
+
+XmppReturnStatus
+XmppModuleImpl::UnregisterEngine()
+{
   if (engine_ != NULL) {
     engine_->RemoveStanzaHandler(&stanza_handler_);
     engine_ = NULL;
   }
+  return XMPP_RETURN_OK;
 }
 
 XmppReturnStatus

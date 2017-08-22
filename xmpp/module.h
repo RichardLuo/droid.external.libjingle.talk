@@ -45,6 +45,7 @@ public:
   //! with a module at a time.  This method will return an error if there is
   //! already an engine registered.
   virtual XmppReturnStatus RegisterEngine(XmppEngine* engine) = 0;
+  virtual XmppReturnStatus UnregisterEngine() { return XMPP_RETURN_OK; }
 };
 
 }
