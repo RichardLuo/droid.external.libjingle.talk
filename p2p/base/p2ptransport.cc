@@ -118,7 +118,7 @@ bool P2PTransportParser::WriteTransportDescription(
   // Fail if we get HYBRID or ICE right now.
   // TODO(juberti): Add ICE and HYBRID serialization.
   if (proto != ICEPROTO_GOOGLE) {
-    LOG(LS_ERROR) << "Failed to serialize non-GICE TransportDescription";
+    BLOG(LS_ERROR) << "Failed to serialize non-GICE TransportDescription";
     return false;
   }
 

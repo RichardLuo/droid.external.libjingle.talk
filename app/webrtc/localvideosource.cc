@@ -153,7 +153,7 @@ bool NewFormatWithConstraints(
     // regardless of the format.
     return true;
   }
-  LOG(LS_WARNING) << "Found unknown MediaStream constraint. Name:"
+  BLOG(LS_WARNING) << "Found unknown MediaStream constraint. Name:"
       <<  constraint.key << " Value:" << constraint.value;
   return false;
 }
@@ -266,7 +266,7 @@ bool FromConstraints(const MediaConstraintsInterface::Constraints& constraints,
     }
 
     if (is_option && !got_value) {
-      LOG(LS_WARNING) << "Option " << iter->key << " has unexpected value " <<
+      BLOG(LS_WARNING) << "Option " << iter->key << " has unexpected value " <<
           iter->value;
       all_valid = false;
     }
@@ -335,7 +335,7 @@ void LocalVideoSource::Initialize(
       FromConstraints(optional_constraints, &options);
 
       if (!FromConstraints(mandatory_constraints, &options)) {
-        LOG(LS_WARNING) << "Could not satisfy mandatory options.";
+        BLOG(LS_WARNING) << "Could not satisfy mandatory options.";
         SetState(kEnded);
         return;
       }
@@ -344,7 +344,7 @@ void LocalVideoSource::Initialize(
   }
 
   if (formats.size() == 0) {
-    LOG(LS_WARNING) << "Failed to find a suitable video format.";
+    BLOG(LS_WARNING) << "Failed to find a suitable video format.";
     SetState(kEnded);
     return;
   }

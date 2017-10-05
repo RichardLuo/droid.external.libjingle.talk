@@ -61,18 +61,18 @@ AutoDetectProxy::~AutoDetectProxy() {
 void AutoDetectProxy::DoWork() {
   // TODO: Try connecting to server_url without proxy first here?
   if (!server_url_.empty()) {
-    LOG(LS_INFO) << "GetProxySettingsForUrl(" << server_url_ << ") - start";
+    BLOG(LS_INFO) << "GetProxySettingsForUrl(" << server_url_ << ") - start";
     GetProxySettingsForUrl(agent_.c_str(), server_url_.c_str(), proxy_, true);
-    LOG(LS_INFO) << "GetProxySettingsForUrl - stop";
+    BLOG(LS_INFO) << "GetProxySettingsForUrl - stop";
   }
   Url<char> url(proxy_.address.HostAsURIString());
   if (url.valid()) {
-    LOG(LS_WARNING) << "AutoDetectProxy removing http prefix on proxy host";
+    BLOG(LS_WARNING) << "AutoDetectProxy removing http prefix on proxy host";
     proxy_.address.SetIP(url.host());
   }
-  LOG(LS_INFO) << "AutoDetectProxy found proxy at " << proxy_.address;
+  BLOG(LS_INFO) << "AutoDetectProxy found proxy at " << proxy_.address;
   if (proxy_.type == PROXY_UNKNOWN) {
-    LOG(LS_INFO) << "AutoDetectProxy initiating proxy classification";
+    BLOG(LS_INFO) << "AutoDetectProxy initiating proxy classification";
     Next();
     // Process I/O until Stop()
     Thread::Current()->ProcessMessages(kForever);
@@ -132,7 +132,7 @@ void AutoDetectProxy::OnMessage(Message *msg) {
 
     // Log the gathered data at a log level that will never actually be enabled
     // so that the compiler is forced to retain the data on the stack.
-    LOG(LS_SENSITIVE) << agent << " " << next << " " << type << " "
+    BLOG(LS_SENSITIVE) << agent << " " << next << " " << type << " "
                       << address_hostname << " " << address_ip << " "
                       << address_port << " " << autoconfig_url << " "
                       << autodetect << " " << bypass_list << " " << username;
@@ -145,12 +145,12 @@ void AutoDetectProxy::OnResolveResult(SignalThread* thread) {
   }
   int error = resolver_->error();
   if (error == 0) {
-    LOG(LS_VERBOSE) << "Resolved " << proxy_.address << " to "
+    BLOG(LS_VERBOSE) << "Resolved " << proxy_.address << " to "
                     << resolver_->address();
     proxy_.address = resolver_->address();
     DoConnect();
   } else {
-    LOG(LS_INFO) << "Failed to resolve " << resolver_->address();
+    BLOG(LS_INFO) << "Failed to resolve " << resolver_->address();
     resolver_->Destroy(false);
     resolver_ = NULL;
     proxy_.address = SocketAddress();
@@ -164,7 +164,7 @@ void AutoDetectProxy::Next() {
     return;
   }
 
-  LOG(LS_VERBOSE) << "AutoDetectProxy connecting to "
+  BLOG(LS_VERBOSE) << "AutoDetectProxy connecting to "
                   << proxy_.address.ToString();
 
   if (socket_) {
@@ -199,7 +199,7 @@ void AutoDetectProxy::DoConnect() {
       Thread::Current()->socketserver()->CreateAsyncSocket(
           proxy_.address.family(), SOCK_STREAM);
   if (!socket_) {
-    LOG(LS_VERBOSE) << "Unable to create socket for " << proxy_.address;
+    BLOG(LS_VERBOSE) << "Unable to create socket for " << proxy_.address;
     return;
   }
   socket_->SignalConnectEvent.connect(this, &AutoDetectProxy::OnConnectEvent);
@@ -244,7 +244,7 @@ void AutoDetectProxy::OnConnectEvent(AsyncSocket * socket) {
       return;
   }
 
-  LOG(LS_VERBOSE) << "AutoDetectProxy probing type " << TEST_ORDER[next_]
+  BLOG(LS_VERBOSE) << "AutoDetectProxy probing type " << TEST_ORDER[next_]
                   << " sending " << probe.size() << " bytes";
   socket_->Send(probe.data(), probe.size());
 }
@@ -254,7 +254,7 @@ void AutoDetectProxy::OnReadEvent(AsyncSocket * socket) {
   int len = socket_->Recv(data, 256);
   if (len > 0) {
     data[len] = 0;
-    LOG(LS_VERBOSE) << "AutoDetectProxy read " << len << " bytes";
+    BLOG(LS_VERBOSE) << "AutoDetectProxy read " << len << " bytes";
   }
 
   switch (TEST_ORDER[next_]) {
@@ -284,7 +284,7 @@ void AutoDetectProxy::OnReadEvent(AsyncSocket * socket) {
 }
 
 void AutoDetectProxy::OnCloseEvent(AsyncSocket * socket, int error) {
-  LOG(LS_VERBOSE) << "AutoDetectProxy closed with error: " << error;
+  BLOG(LS_VERBOSE) << "AutoDetectProxy closed with error: " << error;
   ++next_;
   Next();
 }

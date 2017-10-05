@@ -187,7 +187,7 @@ bool TurnPort::Init() {
 void TurnPort::PrepareAddress() {
   if (credentials_.username.empty() ||
       credentials_.password.empty()) {
-    LOG(LS_ERROR) << "Allocation can't be started without setting the"
+    BLOG(LS_ERROR) << "Allocation can't be started without setting the"
                   << " TURN server credentials for the user.";
     SignalAddressError(this);
     return;

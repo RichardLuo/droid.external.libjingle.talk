@@ -154,27 +154,27 @@ void HttpPortAllocatorSessionBase::GetPortConfigurations() {
 
 void HttpPortAllocatorSessionBase::TryCreateRelaySession() {
   if (allocator()->flags() & PORTALLOCATOR_DISABLE_RELAY) {
-    LOG(LS_VERBOSE) << "HttpPortAllocator: Relay ports disabled, skipping.";
+    BLOG(LS_VERBOSE) << "HttpPortAllocator: Relay ports disabled, skipping.";
     return;
   }
 
   if (attempts_ == HttpPortAllocator::kNumRetries) {
-    LOG(LS_ERROR) << "HttpPortAllocator: maximum number of requests reached; "
+    BLOG(LS_ERROR) << "HttpPortAllocator: maximum number of requests reached; "
                   << "giving up on relay.";
     return;
   }
 
   if (relay_hosts_.size() == 0) {
-    LOG(LS_ERROR) << "HttpPortAllocator: no relay hosts configured.";
+    BLOG(LS_ERROR) << "HttpPortAllocator: no relay hosts configured.";
     return;
   }
 
   // Choose the next host to try.
   std::string host = relay_hosts_[attempts_ % relay_hosts_.size()];
   attempts_++;
-  LOG(LS_INFO) << "HTTPPortAllocator: sending to relay host " << host;
+  BLOG(LS_INFO) << "HTTPPortAllocator: sending to relay host " << host;
   if (relay_token_.empty()) {
-    LOG(LS_WARNING) << "No relay auth token found.";
+    BLOG(LS_WARNING) << "No relay auth token found.";
   }
 
   SendSessionRequest(host, talk_base::HTTP_SECURE_PORT);
@@ -198,10 +198,10 @@ void HttpPortAllocatorSessionBase::ReceiveSessionResponse(
   ParseMap(response, map);
 
   if (!username().empty() && map["username"] != username()) {
-    LOG(LS_WARNING) << "Received unexpected username value from relay server.";
+    BLOG(LS_WARNING) << "Received unexpected username value from relay server.";
   }
   if (!password().empty() && map["password"] != password()) {
-    LOG(LS_WARNING) << "Received unexpected password value from relay server.";
+    BLOG(LS_WARNING) << "Received unexpected password value from relay server.";
   }
 
   std::string relay_ip = map["relay.ip"];
@@ -315,12 +315,12 @@ void HttpPortAllocatorSession::OnRequestDone(talk_base::SignalThread* data) {
   }
 
   if (request->response().scode != 200) {
-    LOG(LS_WARNING) << "HTTPPortAllocator: request "
+    BLOG(LS_WARNING) << "HTTPPortAllocator: request "
                     << " received error " << request->response().scode;
     TryCreateRelaySession();
     return;
   }
-  LOG(LS_INFO) << "HTTPPortAllocator: request succeeded";
+  BLOG(LS_INFO) << "HTTPPortAllocator: request succeeded";
 
   talk_base::MemoryStream* stream =
       static_cast<talk_base::MemoryStream*>(request->response().document.get());

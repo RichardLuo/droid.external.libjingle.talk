@@ -34,21 +34,21 @@
 #include "talk/base/systeminfo.h"
 
 TEST(CpuInfoTest, CpuId) {
-  LOG(LS_INFO) << "ARM: "
+  BLOG(LS_INFO) << "ARM: "
       << cricket::CpuInfo::TestCpuFlag(cricket::CpuInfo::kCpuHasARM);
-  LOG(LS_INFO) << "NEON: "
+  BLOG(LS_INFO) << "NEON: "
       << cricket::CpuInfo::TestCpuFlag(cricket::CpuInfo::kCpuHasNEON);
-  LOG(LS_INFO) << "X86: "
+  BLOG(LS_INFO) << "X86: "
       << cricket::CpuInfo::TestCpuFlag(cricket::CpuInfo::kCpuHasX86);
-  LOG(LS_INFO) << "SSE2: "
+  BLOG(LS_INFO) << "SSE2: "
       << cricket::CpuInfo::TestCpuFlag(cricket::CpuInfo::kCpuHasSSE2);
-  LOG(LS_INFO) << "SSSE3: "
+  BLOG(LS_INFO) << "SSSE3: "
       << cricket::CpuInfo::TestCpuFlag(cricket::CpuInfo::kCpuHasSSSE3);
-  LOG(LS_INFO) << "SSE41: "
+  BLOG(LS_INFO) << "SSE41: "
       << cricket::CpuInfo::TestCpuFlag(cricket::CpuInfo::kCpuHasSSE41);
-  LOG(LS_INFO) << "SSE42: "
+  BLOG(LS_INFO) << "SSE42: "
       << cricket::CpuInfo::TestCpuFlag(cricket::CpuInfo::kCpuHasSSE42);
-  LOG(LS_INFO) << "AVX: "
+  BLOG(LS_INFO) << "AVX: "
       << cricket::CpuInfo::TestCpuFlag(cricket::CpuInfo::kCpuHasAVX);
   bool has_arm = cricket::CpuInfo::TestCpuFlag(cricket::CpuInfo::kCpuHasARM);
   bool has_x86 = cricket::CpuInfo::TestCpuFlag(cricket::CpuInfo::kCpuHasX86);
@@ -58,7 +58,7 @@ TEST(CpuInfoTest, CpuId) {
 TEST(CpuInfoTest, IsCoreIOrBetter) {
   bool core_i_or_better = cricket::IsCoreIOrBetter();
   // Tests the function is callable.  Run on known hardware to confirm.
-  LOG(LS_INFO) << "IsCoreIOrBetter: " << core_i_or_better;
+  BLOG(LS_INFO) << "IsCoreIOrBetter: " << core_i_or_better;
 
   // All Core I CPUs have SSE 4.1.
   if (core_i_or_better) {

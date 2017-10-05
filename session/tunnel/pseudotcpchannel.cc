@@ -196,7 +196,7 @@ void PseudoTcpChannel::OnSessionTerminate(Session* session) {
     ASSERT(session == session_);
     ASSERT(worker_thread_ == NULL);
     ASSERT(tcp_ == NULL);
-    LOG(LS_INFO) << "Destroying unconnected PseudoTcpChannel";
+    BLOG(LS_INFO) << "Destroying unconnected PseudoTcpChannel";
     session_ = NULL;
     if (stream_ != NULL)
       stream_thread_->Post(this, MSG_ST_EVENT, new EventData(SE_CLOSE, -1));
@@ -445,7 +445,7 @@ void PseudoTcpChannel::OnMessage(Message* pmsg) {
   if (pmsg->message_id == MSG_WK_CLOCK) {
 
     ASSERT(worker_thread_->IsCurrent());
-    //LOG(LS_INFO) << "PseudoTcpChannel::OnMessage(MSG_WK_CLOCK)";
+    //BLOG(LS_INFO) << "PseudoTcpChannel::OnMessage(MSG_WK_CLOCK)";
     CritScope lock(&cs_);
     if (tcp_) {
       tcp_->NotifyClock(PseudoTcp::Now());
@@ -466,7 +466,7 @@ void PseudoTcpChannel::OnMessage(Message* pmsg) {
   } else if (pmsg->message_id == MSG_ST_EVENT) {
 
     ASSERT(stream_thread_->IsCurrent());
-    //LOG(LS_INFO) << "PseudoTcpChannel::OnMessage(MSG_ST_EVENT, "
+    //BLOG(LS_INFO) << "PseudoTcpChannel::OnMessage(MSG_ST_EVENT, "
     //             << data->event << ", " << data->error << ")";
     ASSERT(stream_ != NULL);
     EventData* data = static_cast<EventData*>(pmsg->pdata);

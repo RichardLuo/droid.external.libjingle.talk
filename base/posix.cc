@@ -117,28 +117,28 @@ bool RunAsDaemon(const char *file, const char *const argv[]) {
   }
   if (child != pid) {
     // Should never happen (see man page).
-    LOG(LS_ERROR) << "waitpid() chose wrong child???";
+    BLOG(LS_ERROR) << "waitpid() chose wrong child???";
     return false;
   }
   if (!WIFEXITED(status)) {
-    LOG(LS_ERROR) << "Intermediate child killed uncleanly";  // Probably crashed
+    BLOG(LS_ERROR) << "Intermediate child killed uncleanly";  // Probably crashed
     return false;
   }
 
   int exit_code = WEXITSTATUS(status);
   if (exit_code & EXIT_FLAG_CHDIR_ERRORS) {
-    LOG(LS_WARNING) << "Child reported probles calling chdir()";
+    BLOG(LS_WARNING) << "Child reported probles calling chdir()";
   }
 #ifdef LINUX
   if (exit_code & EXIT_FLAG_FDWALK_ERRORS) {
-    LOG(LS_WARNING) << "Child reported problems calling fdwalk()";
+    BLOG(LS_WARNING) << "Child reported problems calling fdwalk()";
   }
   if (exit_code & EXIT_FLAG_CLOSE_ERRORS) {
-    LOG(LS_WARNING) << "Child reported problems calling close()";
+    BLOG(LS_WARNING) << "Child reported problems calling close()";
   }
 #endif
   if (exit_code & EXIT_FLAG_SECOND_FORK_FAILED) {
-    LOG(LS_ERROR) << "Failed to daemonize";
+    BLOG(LS_ERROR) << "Failed to daemonize";
     // This means the command was not launched, so failure.
     return false;
   }

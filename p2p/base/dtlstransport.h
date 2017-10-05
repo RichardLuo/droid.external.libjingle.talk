@@ -69,11 +69,11 @@ class DtlsTransport : public Base {
                                               identity_));
         ASSERT(local_fp_tmp.get() != NULL);
         if (!(*local_fp_tmp == *local_fp)) {
-          LOG(LS_WARNING) << "Local fingerprint does not match identity";
+          BLOG(LS_WARNING) << "Local fingerprint does not match identity";
           return false;
         }
       } else {
-        LOG(LS_WARNING)
+        BLOG(LS_WARNING)
             << "Local fingerprint provided but no identity available";
         return false;
       }
@@ -97,7 +97,7 @@ class DtlsTransport : public Base {
     if (remote_fp && local_fp) {
       remote_fingerprint_.reset(new talk_base::SSLFingerprint(*remote_fp));
     } else if (local_fp && (local_role == CA_ANSWER)) {
-      LOG(LS_ERROR)
+      BLOG(LS_ERROR)
           << "Local fingerprint supplied when caller didn't offer DTLS";
       return false;
     } else {

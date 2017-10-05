@@ -163,7 +163,7 @@ float CpuSampler::UpdateCpuLoad(uint64 current_total_times,
   float result = 0.f;
   if (current_total_times < *prev_total_times ||
       current_cpu_times < *prev_cpu_times) {
-    LOG(LS_ERROR) << "Inconsistent time values are passed. ignored";
+    BLOG(LS_ERROR) << "Inconsistent time values are passed. ignored";
   } else {
     const uint64 cpu_diff = current_cpu_times - *prev_cpu_times;
     const uint64 total_diff = current_total_times - *prev_total_times;
@@ -199,7 +199,7 @@ float CpuSampler::GetSystemLoad() {
   if (get_system_times) {
     FILETIME idle_time, kernel_time, user_time;
     if (!get_system_times(&idle_time, &kernel_time, &user_time)) {
-      LOG(LS_ERROR) << "::GetSystemTimes() failed: " << ::GetLastError();
+      BLOG(LS_ERROR) << "::GetSystemTimes() failed: " << ::GetLastError();
       return 0.f;
     }
     // kernel_time includes Kernel idle time, so no need to
@@ -220,7 +220,7 @@ float CpuSampler::GetSystemLoad() {
 
       if (returned_length !=
           (cpus_ * sizeof(SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION))) {
-        LOG(LS_ERROR) << "NtQuerySystemInformation has unexpected size";
+        BLOG(LS_ERROR) << "NtQuerySystemInformation has unexpected size";
         return 0.f;
       }
 
@@ -246,7 +246,7 @@ float CpuSampler::GetSystemLoad() {
   if (KERN_SUCCESS != host_statistics(mach_host_self(), HOST_CPU_LOAD_INFO,
                                       reinterpret_cast<host_info_t>(&cpu_info),
                                       &info_count)) {
-    LOG(LS_ERROR) << "::host_statistics() failed";
+    BLOG(LS_ERROR) << "::host_statistics() failed";
     return 0.f;
   }
 
@@ -258,7 +258,7 @@ float CpuSampler::GetSystemLoad() {
 
 #if defined(LINUX) || defined(ANDROID)
   if (!sfile_) {
-    LOG(LS_ERROR) << "Invalid handle for proc/stat";
+    BLOG(LS_ERROR) << "Invalid handle for proc/stat";
     return 0.f;
   }
   std::string statbuf;
@@ -303,7 +303,7 @@ float CpuSampler::GetProcessLoad() {
   FILETIME create_time, exit_time, kernel_time, user_time;
   if (!::GetProcessTimes(::GetCurrentProcess(),
                          &create_time, &exit_time, &kernel_time, &user_time)) {
-    LOG(LS_ERROR) << "::GetProcessTimes() failed: " << ::GetLastError();
+    BLOG(LS_ERROR) << "::GetProcessTimes() failed: " << ::GetLastError();
     return 0.f;
   }
 
@@ -328,7 +328,7 @@ float CpuSampler::GetProcessLoad() {
   if (KERN_SUCCESS != task_info(mach_task_self(), TASK_THREAD_TIMES_INFO,
                                 reinterpret_cast<task_info_t>(&task_times_info),
                                 &info_count)) {
-    LOG(LS_ERROR) << "::task_info(TASK_THREAD_TIMES_INFO) failed";
+    BLOG(LS_ERROR) << "::task_info(TASK_THREAD_TIMES_INFO) failed";
     return 0.f;
   }
 
@@ -338,7 +338,7 @@ float CpuSampler::GetProcessLoad() {
   if (KERN_SUCCESS != task_info(mach_task_self(), TASK_BASIC_INFO,
                                 reinterpret_cast<task_info_t>(&task_term_info),
                                 &info_count)) {
-    LOG(LS_ERROR) << "::task_info(TASK_BASIC_INFO) failed";
+    BLOG(LS_ERROR) << "::task_info(TASK_BASIC_INFO) failed";
     return 0.f;
   }
 

@@ -64,7 +64,7 @@ void Break() {
 void LogAssert(const char * function, const char * file, int line,
                const char * expression) {
   // TODO - if we put hooks in here, we can do a lot fancier logging
-  LOG(LS_ERROR) << file << "(" << line << ")" << ": ASSERT FAILED: "
+  BLOG(LS_ERROR) << file << "(" << line << ")" << ": ASSERT FAILED: "
                 << expression << " @ " << function;
 }
 

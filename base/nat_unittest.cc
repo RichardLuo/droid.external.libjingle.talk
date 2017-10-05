@@ -217,7 +217,7 @@ void TestPhysicalInternal(const SocketAddress& int_addr) {
   std::vector<Network*> networks;
   network_manager.GetNetworks(&networks);
   if (networks.empty()) {
-    LOG(LS_WARNING) << "Not enough network adapters for test.";
+    BLOG(LS_WARNING) << "Not enough network adapters for test.";
     return;
   }
 
@@ -234,11 +234,11 @@ void TestPhysicalInternal(const SocketAddress& int_addr) {
     }
   }
   if (ext_addr2.IsNil()) {
-    LOG(LS_WARNING) << "No available IP of same family as " << int_addr;
+    BLOG(LS_WARNING) << "No available IP of same family as " << int_addr;
     return;
   }
 
-  LOG(LS_INFO) << "selected ip " << ext_addr2.ipaddr();
+  BLOG(LS_INFO) << "selected ip " << ext_addr2.ipaddr();
 
   SocketAddress ext_addrs[4] = {
       SocketAddress(ext_addr1),
@@ -262,7 +262,7 @@ TEST(NatTest, TestPhysicalIPv6) {
   if (HasIPv6Enabled()) {
     TestPhysicalInternal(SocketAddress("::1", 0));
   } else {
-    LOG(LS_WARNING) << "No IPv6, skipping";
+    BLOG(LS_WARNING) << "No IPv6, skipping";
   }
 }
 
@@ -300,7 +300,7 @@ TEST(NatTest, TestVirtualIPv6) {
   if (HasIPv6Enabled()) {
     TestVirtualInternal(AF_INET6);
   } else {
-    LOG(LS_WARNING) << "No IPv6, skipping";
+    BLOG(LS_WARNING) << "No IPv6, skipping";
   }
 }
 

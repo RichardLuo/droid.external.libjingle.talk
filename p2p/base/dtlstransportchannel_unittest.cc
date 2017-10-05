@@ -42,7 +42,7 @@
 
 #define MAYBE_SKIP_TEST(feature)                    \
   if (!(talk_base::SSLStreamAdapter::feature())) {  \
-    LOG(LS_INFO) << "Feature disabled... skipping"; \
+    BLOG(LS_INFO) << "Feature disabled... skipping"; \
     return;                                         \
   }
 
@@ -258,12 +258,12 @@ class DtlsTestClient : public sigslot::has_slots<> {
 
   // Transport callbacks
   void OnTransportWritableState(cricket::Transport* transport) {
-    LOG(LS_INFO) << name_ << ": is writable";
+    BLOG(LS_INFO) << name_ << ": is writable";
   }
 
   // Transport channel callbacks
   void OnTransportChannelWritableState(cricket::TransportChannel* channel) {
-    LOG(LS_INFO) << name_ << ": Channel '" << channel->component()
+    BLOG(LS_INFO) << name_ << ": Channel '" << channel->component()
                  << "' is writable";
   }
 
@@ -402,7 +402,7 @@ class DtlsTransportChannelTest : public testing::Test {
   }
 
   void TestTransfer(size_t channel, size_t size, size_t count, bool srtp) {
-    LOG(LS_INFO) << "Expect packets, size=" << size;
+    BLOG(LS_INFO) << "Expect packets, size=" << size;
     client2_.ExpectPackets(channel, size);
     client1_.SendPackets(channel, size, count, srtp);
     EXPECT_EQ_WAIT(count, client2_.NumPacketsReceived(), 10000);

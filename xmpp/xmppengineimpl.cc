@@ -90,10 +90,10 @@ XmppEngineImpl::XmppEngineImpl(bool as_client)
 }
 
 XmppEngineImpl::~XmppEngineImpl() {
-  LOGFL_this("--> XmppEngineImpl::~XmppEngineImpl()");
-  LOGFL(">> DeleteIqCookies();");
+  // LOGFL_this("--> XmppEngineImpl::~XmppEngineImpl()");
+  // LOGFL(">> DeleteIqCookies();");
   DeleteIqCookies();
-  LOGFL("<< DeleteIqCookies();");
+  // LOGFL("<< DeleteIqCookies();");
 }
 
 XmppReturnStatus XmppEngineImpl::SetOutputHandler(
@@ -119,7 +119,7 @@ XmppReturnStatus XmppEngineImpl::SetSessionHandler(
 XmppReturnStatus XmppEngineImpl::HandleInput(
     const char* bytes, size_t len) {
   if (state_ < STATE_OPENING || state_ > STATE_OPEN) {
-    LOGW("bad state, it's: %d", state_);
+      // LOGW("bad state, it's: %d", state_);
     return XMPP_RETURN_BADSTATE;
   }
 
@@ -132,19 +132,19 @@ XmppReturnStatus XmppEngineImpl::HandleInput(
 }
 
 XmppReturnStatus XmppEngineImpl::ConnectionClosed(int subcode) {
-  LOGFL_this("--> XmppEngineImpl::ConnectionClosed(subcode:%d)", subcode);
+    // LOGFL_this("--> XmppEngineImpl::ConnectionClosed(subcode:%d)", subcode);
   if (state_ != STATE_CLOSED) {
     EnterExit ee(this);
     // If told that connection closed and not already closed,
     // then connection was unpexectedly dropped.
     if (subcode) {
-      LOGFL_this(">> SignalError(ERROR_SOCKET, subcode);");
+        // LOGFL_this(">> SignalError(ERROR_SOCKET, subcode);");
       SignalError(ERROR_SOCKET, subcode);
-      LOGFL_this("<< SignalError(ERROR_SOCKET, subcode);");
+      // LOGFL_this("<< SignalError(ERROR_SOCKET, subcode);");
     } else {
-      LOGFL_this(">> SignalError(ERROR_CONNECTION_CLOSED, 0);  // no subcode");
+        // LOGFL_this(">> SignalError(ERROR_CONNECTION_CLOSED, 0);  // no subcode");
       SignalError(ERROR_CONNECTION_CLOSED, 0);  // no subcode
-      LOGFL_this("<< SignalError(ERROR_CONNECTION_CLOSED, 0);  // no subcode");
+      // LOGFL_this("<< SignalError(ERROR_CONNECTION_CLOSED, 0);  // no subcode");
     }
   }
   return XMPP_RETURN_OK;
@@ -291,7 +291,7 @@ void XmppEngineImpl::OnMessage(talk_base::Message *msg) {
 }
 
 XmppReturnStatus XmppEngineImpl::SendStanza(const XmlElement* element) {
-  LOGD("%s:%d %s", __func__, __LINE__, element->Str().c_str());
+    // LOGD("%s:%d %s", __func__, __LINE__, element->Str().c_str());
   if (state_ == STATE_CLOSED)
     return XMPP_RETURN_BADSTATE;
 
@@ -330,9 +330,9 @@ XmppReturnStatus XmppEngineImpl::Disconnect() {
     EnterExit ee(this);
     if (state_ == STATE_OPEN)
       *output_ << "</stream:stream>";
-    LOGFL_this(">> state_ = STATE_CLOSED;");
+    // LOGFL_this(">> state_ = STATE_CLOSED;");
     state_ = STATE_CLOSED;
-    LOGFL_this("<< state_ = STATE_CLOSED;");
+    // LOGFL_this("<< state_ = STATE_CLOSED;");
   }
 
   return XMPP_RETURN_OK;
@@ -360,7 +360,7 @@ void XmppEngineImpl::IncomingStanza(const XmlElement* stanza) {
   if (HasError() || raised_reset_)
     return;
 
-  LOGE("\n --IncomingStanza:%s \n", stanza->Str().c_str());
+  // LOGE("\n --IncomingStanza:%s \n", stanza->Str().c_str());
 
   if (stanza->Name() == QN_STREAM_ERROR) {
     // Explicit XMPP stream error
@@ -585,7 +585,7 @@ void XmppEngineImpl::InternalSendStanza(const XmlElement* element) {
   {
       XmlElement elementWithFrom(*element);
       elementWithFrom.AddAttr(buzz::QN_FROM, bound_jid_.Str());
-      LOGFL_this("<< InternalSendStanza, add from field %s", elementWithFrom.Str().c_str());
+      // LOGFL_this("<< InternalSendStanza, add from field %s", elementWithFrom.Str().c_str());
       XmlPrinter::PrintXml(output_.get(), &elementWithFrom, &xmlns_stack_);
   }
   else {
@@ -622,9 +622,9 @@ void XmppEngineImpl::SignalSessionClosed() {
 void XmppEngineImpl::SignalStreamError(const XmlElement* stream_error) {
   if (state_ != STATE_CLOSED) {
     stream_error_.reset(new XmlElement(*stream_error));
-    LOGFL_this(">> SignalError(ERROR_STREAM, 0);");
+    // LOGFL_this(">> SignalError(ERROR_STREAM, 0);");
     SignalError(ERROR_STREAM, 0);
-    LOGFL_this("<< SignalError(ERROR_STREAM, 0);");
+    // LOGFL_this("<< SignalError(ERROR_STREAM, 0);");
   }
 }
 
@@ -632,9 +632,9 @@ void XmppEngineImpl::SignalError(Error error_code, int sub_code) {
   if (state_ != STATE_CLOSED) {
     error_code_ = error_code;
     subcode_ = sub_code;
-    LOGFL_this("    >> state_ = STATE_CLOSED;");
+    // LOGFL_this("    >> state_ = STATE_CLOSED;");
     state_ = STATE_CLOSED;
-    LOGFL_this("    << state_ = STATE_CLOSED;");
+    // LOGFL_this("    << state_ = STATE_CLOSED;");
   }
 }
 
@@ -678,9 +678,9 @@ XmppEngineImpl::EnterExit::~EnterExit()  {
    engine->output_->str("");
 
    if (closing) {
-     LOGFL(">> engine->output_handler_->CloseConnection();");
+       // LOGFL(">> engine->output_handler_->CloseConnection();");
      engine->output_handler_->CloseConnection();
-     LOGFL("<< engine->output_handler_->CloseConnection();");
+     // LOGFL("<< engine->output_handler_->CloseConnection();");
      engine->output_handler_ = 0;
    }
  }
@@ -695,7 +695,7 @@ XmppEngineImpl::EnterExit::~EnterExit()  {
 
  if (engine->session_handler_) {
      if (engine->state_ != state_) {
-       LOGFL(">> engine->session_handler_->OnStateChange(), engine:%p engine->state_: %d  state_: %d", engine, engine->state_, state_);
+         // LOGFL(">> engine->session_handler_->OnStateChange(), engine:%p engine->state_: %d  state_: %d", engine, engine->state_, state_);
        engine->session_handler_->OnStateChange(engine->state_);
      }
    // Note: Handling of OnStateChange(CLOSED) should allow for the

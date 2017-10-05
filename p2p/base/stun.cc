@@ -247,7 +247,7 @@ bool StunMessage::AddMessageIntegrity(const char* key,
                                       hmac, sizeof(hmac));
   ASSERT(ret == sizeof(hmac));
   if (ret != sizeof(hmac)) {
-    LOG(LS_ERROR) << "HMAC computation failed. Message-Integrity "
+    BLOG(LS_ERROR) << "HMAC computation failed. Message-Integrity "
                   << "has dummy value.";
     return false;
   }
@@ -548,7 +548,7 @@ bool StunAddressAttribute::Read(ByteBuffer* buf) {
 bool StunAddressAttribute::Write(ByteBuffer* buf) const {
   StunAddressFamily address_family = family();
   if (address_family == STUN_ADDRESS_UNDEF) {
-    LOG(LS_ERROR) << "Error writing address attribute: unknown family.";
+    BLOG(LS_ERROR) << "Error writing address attribute: unknown family.";
     return false;
   }
   buf->WriteUInt8(0);
@@ -627,7 +627,7 @@ bool StunXorAddressAttribute::Read(ByteBuffer* buf) {
 bool StunXorAddressAttribute::Write(ByteBuffer* buf) const {
   StunAddressFamily address_family = family();
   if (address_family == STUN_ADDRESS_UNDEF) {
-    LOG(LS_ERROR) << "Error writing xor-address attribute: unknown family.";
+    BLOG(LS_ERROR) << "Error writing xor-address attribute: unknown family.";
     return false;
   }
   talk_base::IPAddress xored_ip = GetXoredIP();
@@ -804,7 +804,7 @@ bool StunErrorCodeAttribute::Read(ByteBuffer* buf) {
     return false;
 
   if ((val >> 11) != 0)
-    LOG(LS_ERROR) << "error-code bits not zero";
+    BLOG(LS_ERROR) << "error-code bits not zero";
 
   class_ = ((val >> 8) & 0x7);
   number_ = (val & 0xff);

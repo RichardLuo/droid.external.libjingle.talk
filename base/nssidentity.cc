@@ -70,7 +70,7 @@ NSSKeyPair *NSSKeyPair::Generate() {
                                  &rsaparams, &pubkey, PR_FALSE,
                                  PR_TRUE, NULL);
   if (!privkey) {
-    LOG(LS_ERROR) << "Couldn't generate key pair";
+    BLOG(LS_ERROR) << "Couldn't generate key pair";
     return NULL;
   }
 
@@ -246,24 +246,24 @@ NSSIdentity *NSSIdentity::Generate(const std::string &common_name) {
   inner_der.data = NULL;
 
   if (!keypair) {
-    LOG(LS_ERROR) << "Couldn't generate key pair";
+    BLOG(LS_ERROR) << "Couldn't generate key pair";
     goto fail;
   }
 
   if (!subject_name) {
-    LOG(LS_ERROR) << "Couldn't convert subject name " << subject_name;
+    BLOG(LS_ERROR) << "Couldn't convert subject name " << subject_name;
     goto fail;
   }
 
   spki = SECKEY_CreateSubjectPublicKeyInfo(keypair->pubkey());
   if (!spki) {
-    LOG(LS_ERROR) << "Couldn't create SPKI";
+    BLOG(LS_ERROR) << "Couldn't create SPKI";
     goto fail;
   }
 
   certreq = CERT_CreateCertificateRequest(subject_name, spki, NULL);
   if (!certreq) {
-    LOG(LS_ERROR) << "Couldn't create certificate signing request";
+    BLOG(LS_ERROR) << "Couldn't create certificate signing request";
     goto fail;
   }
 
@@ -274,7 +274,7 @@ NSSIdentity *NSSIdentity::Generate(const std::string &common_name) {
 
   validity = CERT_CreateValidity(not_before, not_after);
   if (!validity) {
-    LOG(LS_ERROR) << "Couldn't create validity";
+    BLOG(LS_ERROR) << "Couldn't create validity";
     goto fail;
   }
 
@@ -283,13 +283,13 @@ NSSIdentity *NSSIdentity::Generate(const std::string &common_name) {
   rv = PK11_GenerateRandom(reinterpret_cast<unsigned char *>(&serial),
                            sizeof(serial));
   if (rv != SECSuccess) {
-    LOG(LS_ERROR) << "Couldn't generate random serial";
+    BLOG(LS_ERROR) << "Couldn't generate random serial";
     goto fail;
   }
 
   certificate = CERT_CreateCertificate(serial, subject_name, validity, certreq);
   if (!certificate) {
-    LOG(LS_ERROR) << "Couldn't create certificate";
+    BLOG(LS_ERROR) << "Couldn't create certificate";
     goto fail;
   }
 
@@ -312,7 +312,7 @@ NSSIdentity *NSSIdentity::Generate(const std::string &common_name) {
                        keypair->privkey(),
                        SEC_OID_PKCS1_SHA1_WITH_RSA_ENCRYPTION);
   if (rv != SECSuccess) {
-    LOG(LS_ERROR) << "Couldn't sign certificate";
+    BLOG(LS_ERROR) << "Couldn't sign certificate";
     goto fail;
   }
   certificate->derCert = signed_cert;

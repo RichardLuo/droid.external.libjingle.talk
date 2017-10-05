@@ -132,7 +132,7 @@ bool VideoCapturer::GetBestCaptureFormat(const VideoFormat& format,
   if (supported_formats->empty()) {
     return false;
   }
-  LOG(LS_INFO) << " Capture Requested " << format.ToString();
+  BLOG(LS_INFO) << " Capture Requested " << format.ToString();
   int64 best_distance = kMaxDistance;
   std::vector<VideoFormat>::const_iterator best = supported_formats->end();
   std::vector<VideoFormat>::const_iterator i;
@@ -140,7 +140,7 @@ bool VideoCapturer::GetBestCaptureFormat(const VideoFormat& format,
     int64 distance = GetFormatDistance(format, *i);
     // TODO(fbarchard): Reduce to LS_VERBOSE if/when camera capture is
     // relatively bug free.
-    LOG(LS_INFO) << " Supported " << i->ToString()
+    BLOG(LS_INFO) << " Supported " << i->ToString()
                  << " distance " << distance;
     if (distance < best_distance) {
       best_distance = distance;
@@ -148,7 +148,7 @@ bool VideoCapturer::GetBestCaptureFormat(const VideoFormat& format,
     }
   }
   if (supported_formats->end() == best) {
-    LOG(LS_ERROR) << " No acceptable camera format found";
+    BLOG(LS_ERROR) << " No acceptable camera format found";
     return false;
   }
 
@@ -157,7 +157,7 @@ bool VideoCapturer::GetBestCaptureFormat(const VideoFormat& format,
     best_format->height = best->height;
     best_format->fourcc = best->fourcc;
     best_format->interval = talk_base::_max(format.interval, best->interval);
-    LOG(LS_INFO) << " Best " << best_format->ToString()
+    BLOG(LS_INFO) << " Best " << best_format->ToString()
                  << " Interval " << best_format->interval
                  << " distance " << best_distance;
   }
@@ -258,8 +258,8 @@ void VideoCapturer::OnFrameCaptured(VideoCapturer*,
 
   VIDEO_FRAME_NAME i420_frame;
   if (!i420_frame.Init(captured_frame, desired_width, desired_height)) {
-    // TODO(fbarchard): LOG more information about captured frame attributes.
-    LOG(LS_ERROR) << "Couldn't convert to I420! "
+    // TODO(fbarchard): BLOG more information about captured frame attributes.
+    BLOG(LS_ERROR) << "Couldn't convert to I420! "
                   << "From " << ToString(captured_frame)
                   << " To " << desired_width << " x " << desired_height;
     return;

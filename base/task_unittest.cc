@@ -164,7 +164,7 @@ class TaskTest : public sigslot::has_slots<> {
       stuck_[i].timed_out_ = false;
       stuck_[i].xlat_ = stuck_[i].task_->unique_id();
       stuck_[i].task_->set_timeout_seconds(i + 1);
-      // LOG(LS_INFO) << "Task " << stuck_[i].xlat_ << " created with timeout "
+      // BLOG(LS_INFO) << "Task " << stuck_[i].xlat_ << " created with timeout "
       //              << stuck_[i].task_->timeout_seconds();
       fprintf(stderr, "Task %d created with timeout value:%d \n",
               stuck_[i].xlat_, stuck_[i].task_->timeout_seconds());
@@ -209,7 +209,7 @@ class TaskTest : public sigslot::has_slots<> {
     ASSERT_EQ(HAPPY_TASK_COUNT, happy_index);
 
     // run the unblocked tasks
-    // LOG(LS_INFO) << "Running tasks";
+    // BLOG(LS_INFO) << "Running tasks";
     fprintf(stderr, "Running tasks\n");
     task_runner_.RunTasks();
 
@@ -224,7 +224,7 @@ class TaskTest : public sigslot::has_slots<> {
           happy_[j].task_->Wake();
         }
       }
-      // LOG(LS_INFO) << "Polling tasks";
+      // BLOG(LS_INFO) << "Polling tasks";
       fprintf(stderr, "Polling tasks \n");
       task_runner_.PollTasks();
     }
@@ -237,7 +237,7 @@ class TaskTest : public sigslot::has_slots<> {
   }
 
   void OnTimeoutStuck(const int id) {
-      // LOG(LS_INFO) << "Timed out task " << id;
+      // BLOG(LS_INFO) << "Timed out task " << id;
       fprintf(stderr, "Timed out task:%d \n", id);
 
     int i;

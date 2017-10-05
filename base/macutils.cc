@@ -172,13 +172,13 @@ bool RunAppleScript(const std::string& script) {
 
   component = OpenDefaultComponent(kOSAComponentType, typeAppleScript);
   if (component == NULL) {
-    LOG(LS_ERROR) << "Failed opening Apple Script component";
+    BLOG(LS_ERROR) << "Failed opening Apple Script component";
     return false;
   }
   err = AECreateDesc(typeUTF8Text, script.data(), script.size(), &script_desc);
   if (err != noErr) {
     CloseComponent(component);
-    LOG(LS_ERROR) << "Failed creating Apple Script description";
+    BLOG(LS_ERROR) << "Failed creating Apple Script description";
     return false;
   }
 
@@ -189,7 +189,7 @@ bool RunAppleScript(const std::string& script) {
       OSADispose(component, script_id);
     }
     CloseComponent(component);
-    LOG(LS_ERROR) << "Error compiling Apple Script";
+    BLOG(LS_ERROR) << "Error compiling Apple Script";
     return false;
   }
 
@@ -197,14 +197,14 @@ bool RunAppleScript(const std::string& script) {
                    &result_id);
 
   if (err == errOSAScriptError) {
-    LOG(LS_ERROR) << "Error when executing Apple Script: " << script;
+    BLOG(LS_ERROR) << "Error when executing Apple Script: " << script;
     AECreateDesc(typeNull, NULL, 0, &result_data);
     OSAScriptError(component, kOSAErrorMessage, typeChar, &result_data);
     int len = AEGetDescDataSize(&result_data);
     char* data = (char*) malloc(len);
     if (data != NULL) {
       err = AEGetDescData(&result_data, data, len);
-      LOG(LS_ERROR) << "Script error: " << data;
+      BLOG(LS_ERROR) << "Script error: " << data;
     }
     AEDisposeDesc(&script_desc);
     AEDisposeDesc(&result_data);

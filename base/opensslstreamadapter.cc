@@ -228,7 +228,7 @@ bool OpenSSLStreamAdapter::SetPeerCertificateDigest(const std::string
   size_t expected_len;
 
   if (!OpenSSLDigest::GetDigestSize(digest_alg, &expected_len)) {
-    LOG(LS_WARNING) << "Unknown digest algorithm: " << digest_alg;
+    BLOG(LS_WARNING) << "Unknown digest algorithm: " << digest_alg;
     return false;
   }
   if (expected_len != digest_len)
@@ -287,7 +287,7 @@ bool OpenSSLStreamAdapter::SetDtlsSrtpCiphers(
     }
 
     if (!found) {
-      LOG(LS_ERROR) << "Could not find cipher: " << *cipher;
+      BLOG(LS_ERROR) << "Could not find cipher: " << *cipher;
       return false;
     }
   }
@@ -353,7 +353,7 @@ void OpenSSLStreamAdapter::SetMode(SSLMode mode) {
 
 StreamResult OpenSSLStreamAdapter::Write(const void* data, size_t data_len,
                                          size_t* written, int* error) {
-  LOG(LS_INFO) << "OpenSSLStreamAdapter::Write(" << data_len << ")";
+  BLOG(LS_INFO) << "OpenSSLStreamAdapter::Write(" << data_len << ")";
 
   switch (state_) {
   case SSL_NONE:
@@ -388,17 +388,17 @@ StreamResult OpenSSLStreamAdapter::Write(const void* data, size_t data_len,
   int ssl_error = SSL_get_error(ssl_, code);
   switch (ssl_error) {
   case SSL_ERROR_NONE:
-    LOG(LS_INFO) << " -- success";
+    BLOG(LS_INFO) << " -- success";
     ASSERT(0 < code && static_cast<unsigned>(code) <= data_len);
     if (written)
       *written = code;
     return SR_SUCCESS;
   case SSL_ERROR_WANT_READ:
-    LOG(LS_INFO) << " -- error want read";
+    BLOG(LS_INFO) << " -- error want read";
     ssl_write_needs_read_ = true;
     return SR_BLOCK;
   case SSL_ERROR_WANT_WRITE:
-    LOG(LS_INFO) << " -- error want write";
+    BLOG(LS_INFO) << " -- error want write";
     return SR_BLOCK;
 
   case SSL_ERROR_ZERO_RETURN:
@@ -413,7 +413,7 @@ StreamResult OpenSSLStreamAdapter::Write(const void* data, size_t data_len,
 
 StreamResult OpenSSLStreamAdapter::Read(void* data, size_t data_len,
                                         size_t* read, int* error) {
-  LOG(LS_INFO) << "OpenSSLStreamAdapter::Read(" << data_len << ")";
+  BLOG(LS_INFO) << "OpenSSLStreamAdapter::Read(" << data_len << ")";
   switch (state_) {
     case SSL_NONE:
       // pass-through in clear text
@@ -449,7 +449,7 @@ StreamResult OpenSSLStreamAdapter::Read(void* data, size_t data_len,
   int ssl_error = SSL_get_error(ssl_, code);
   switch (ssl_error) {
     case SSL_ERROR_NONE:
-      LOG(LS_INFO) << " -- success";
+      BLOG(LS_INFO) << " -- success";
       ASSERT(0 < code && static_cast<unsigned>(code) <= data_len);
       if (read)
         *read = code;
@@ -459,7 +459,7 @@ StreamResult OpenSSLStreamAdapter::Read(void* data, size_t data_len,
         unsigned int pending = SSL_pending(ssl_);
 
         if (pending) {
-          LOG(LS_INFO) << " -- short DTLS read. flushing";
+          BLOG(LS_INFO) << " -- short DTLS read. flushing";
           FlushInput(pending);
           if (error)
             *error = SSE_MSG_TRUNC;
@@ -468,18 +468,18 @@ StreamResult OpenSSLStreamAdapter::Read(void* data, size_t data_len,
       }
       return SR_SUCCESS;
     case SSL_ERROR_WANT_READ:
-      LOG(LS_INFO) << " -- error want read";
+      BLOG(LS_INFO) << " -- error want read";
       return SR_BLOCK;
     case SSL_ERROR_WANT_WRITE:
-      LOG(LS_INFO) << " -- error want write";
+      BLOG(LS_INFO) << " -- error want write";
       ssl_read_needs_write_ = true;
       return SR_BLOCK;
     case SSL_ERROR_ZERO_RETURN:
-      LOG(LS_INFO) << " -- remote side closed";
+      BLOG(LS_INFO) << " -- remote side closed";
       return SR_EOS;
       break;
     default:
-      LOG(LS_INFO) << " -- error " << code;
+      BLOG(LS_INFO) << " -- error " << code;
       Error("SSL_read", (ssl_error ? ssl_error : -1), false);
       if (error)
         *error = ssl_error_code_;
@@ -500,11 +500,11 @@ void OpenSSLStreamAdapter::FlushInput(unsigned int left) {
     ASSERT(ssl_error == SSL_ERROR_NONE);
 
     if (ssl_error != SSL_ERROR_NONE) {
-      LOG(LS_INFO) << " -- error " << code;
+      BLOG(LS_INFO) << " -- error " << code;
       Error("SSL_read", (ssl_error ? ssl_error : -1), false);
       return;
     }
-    LOG(LS_INFO) << " -- flushed " << code << " bytes";
+    BLOG(LS_INFO) << " -- flushed " << code << " bytes";
     left -= code;
   }
 }
@@ -534,7 +534,7 @@ void OpenSSLStreamAdapter::OnEvent(StreamInterface* stream, int events,
   int signal_error = 0;
   ASSERT(stream == this->stream());
   if ((events & SE_OPEN)) {
-    LOG(LS_INFO) << "OpenSSLStreamAdapter::OnEvent SE_OPEN";
+    BLOG(LS_INFO) << "OpenSSLStreamAdapter::OnEvent SE_OPEN";
     if (state_ != SSL_WAIT) {
       ASSERT(state_ == SSL_NONE);
       events_to_signal |= SE_OPEN;
@@ -547,7 +547,7 @@ void OpenSSLStreamAdapter::OnEvent(StreamInterface* stream, int events,
     }
   }
   if ((events & (SE_READ|SE_WRITE))) {
-    LOG(LS_INFO) << "OpenSSLStreamAdapter::OnEvent"
+    BLOG(LS_INFO) << "OpenSSLStreamAdapter::OnEvent"
                  << ((events & SE_READ) ? " SE_READ" : "")
                  << ((events & SE_WRITE) ? " SE_WRITE" : "");
     if (state_ == SSL_NONE) {
@@ -560,18 +560,18 @@ void OpenSSLStreamAdapter::OnEvent(StreamInterface* stream, int events,
     } else if (state_ == SSL_CONNECTED) {
       if (((events & SE_READ) && ssl_write_needs_read_) ||
           (events & SE_WRITE)) {
-        LOG(LS_INFO) << " -- onStreamWriteable";
+        BLOG(LS_INFO) << " -- onStreamWriteable";
         events_to_signal |= SE_WRITE;
       }
       if (((events & SE_WRITE) && ssl_read_needs_write_) ||
           (events & SE_READ)) {
-        LOG(LS_INFO) << " -- onStreamReadable";
+        BLOG(LS_INFO) << " -- onStreamReadable";
         events_to_signal |= SE_READ;
       }
     }
   }
   if ((events & SE_CLOSE)) {
-    LOG(LS_INFO) << "OpenSSLStreamAdapter::OnEvent(SE_CLOSE, " << err << ")";
+    BLOG(LS_INFO) << "OpenSSLStreamAdapter::OnEvent(SE_CLOSE, " << err << ")";
     Cleanup();
     events_to_signal |= SE_CLOSE;
     // SE_CLOSE is the only event that uses the final parameter to OnEvent().
@@ -606,7 +606,7 @@ int OpenSSLStreamAdapter::BeginSSL() {
   ASSERT(!ssl_server_name_.empty() ||
          peer_certificate_ ||
          !peer_certificate_digest_algorithm_.empty());
-  LOG(LS_INFO) << "BeginSSL: "
+  BLOG(LS_INFO) << "BeginSSL: "
                << (!ssl_server_name_.empty() ? ssl_server_name_ :
                                                "with peer");
 
@@ -640,7 +640,7 @@ int OpenSSLStreamAdapter::BeginSSL() {
 }
 
 int OpenSSLStreamAdapter::ContinueSSL() {
-  LOG(LS_INFO) << "ContinueSSL";
+  BLOG(LS_INFO) << "ContinueSSL";
   ASSERT(state_ == SSL_CONNECTING);
 
   // Clear the DTLS timer
@@ -650,13 +650,13 @@ int OpenSSLStreamAdapter::ContinueSSL() {
   int ssl_error;
   switch (ssl_error = SSL_get_error(ssl_, code)) {
     case SSL_ERROR_NONE:
-      LOG(LS_INFO) << " -- success";
+      BLOG(LS_INFO) << " -- success";
 
       if (!SSLPostConnectionCheck(ssl_, ssl_server_name_.c_str(),
                                   peer_certificate_ ?
                                       peer_certificate_->x509() : NULL,
                                   peer_certificate_digest_algorithm_)) {
-        LOG(LS_ERROR) << "TLS post connection check failed";
+        BLOG(LS_ERROR) << "TLS post connection check failed";
         return -1;
       }
 
@@ -665,7 +665,7 @@ int OpenSSLStreamAdapter::ContinueSSL() {
       break;
 
     case SSL_ERROR_WANT_READ: {
-        LOG(LS_INFO) << " -- error want read";
+        BLOG(LS_INFO) << " -- error want read";
 #ifdef HAVE_DTLS
         struct timeval timeout;
         if (DTLSv1_get_timeout(ssl_, &timeout)) {
@@ -678,12 +678,12 @@ int OpenSSLStreamAdapter::ContinueSSL() {
       break;
 
     case SSL_ERROR_WANT_WRITE:
-      LOG(LS_INFO) << " -- error want write";
+      BLOG(LS_INFO) << " -- error want write";
       break;
 
     case SSL_ERROR_ZERO_RETURN:
     default:
-      LOG(LS_INFO) << " -- error " << code;
+      BLOG(LS_INFO) << " -- error " << code;
       return (ssl_error != 0) ? ssl_error : -1;
   }
 
@@ -691,7 +691,7 @@ int OpenSSLStreamAdapter::ContinueSSL() {
 }
 
 void OpenSSLStreamAdapter::Error(const char* context, int err, bool signal) {
-  LOG(LS_WARNING) << "OpenSSLStreamAdapter::Error("
+  BLOG(LS_WARNING) << "OpenSSLStreamAdapter::Error("
                   << context << ", " << err << ")";
   state_ = SSL_ERROR;
   ssl_error_code_ = err;
@@ -701,7 +701,7 @@ void OpenSSLStreamAdapter::Error(const char* context, int err, bool signal) {
 }
 
 void OpenSSLStreamAdapter::Cleanup() {
-  LOG(LS_INFO) << "Cleanup";
+  BLOG(LS_INFO) << "Cleanup";
 
   if (state_ != SSL_ERROR) {
     state_ = SSL_CLOSED;
@@ -727,7 +727,7 @@ void OpenSSLStreamAdapter::Cleanup() {
 void OpenSSLStreamAdapter::OnMessage(Message* msg) {
   // Process our own messages and then pass others to the superclass
   if (MSG_TIMEOUT == msg->message_id) {
-    LOG(LS_INFO) << "DTLS timeout expired";
+    BLOG(LS_INFO) << "DTLS timeout expired";
 #ifdef HAVE_DTLS
     DTLSv1_handle_timeout(ssl_);
 #endif
@@ -804,12 +804,12 @@ int OpenSSLStreamAdapter::SSLVerifyCallback(int ok, X509_STORE_CTX* store) {
     int depth = X509_STORE_CTX_get_error_depth(store);
     int err = X509_STORE_CTX_get_error(store);
 
-    LOG(LS_INFO) << "Error with certificate at depth: " << depth;
+    BLOG(LS_INFO) << "Error with certificate at depth: " << depth;
     X509_NAME_oneline(X509_get_issuer_name(cert), data, sizeof(data));
-    LOG(LS_INFO) << "  issuer  = " << data;
+    BLOG(LS_INFO) << "  issuer  = " << data;
     X509_NAME_oneline(X509_get_subject_name(cert), data, sizeof(data));
-    LOG(LS_INFO) << "  subject = " << data;
-    LOG(LS_INFO) << "  err     = " << err
+    BLOG(LS_INFO) << "  subject = " << data;
+    BLOG(LS_INFO) << "  err     = " << err
       << ":" << X509_verify_cert_error_string(err);
   }
 #endif
@@ -833,7 +833,7 @@ int OpenSSLStreamAdapter::SSLVerifyCallback(int ok, X509_STORE_CTX* store) {
     // assuming it matches the cert that was specified.
     if (err == X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT &&
         X509_cmp(cert, stream->peer_certificate_->x509()) == 0) {
-      LOG(LS_INFO) << "Accepted self-signed peer certificate authority";
+      BLOG(LS_INFO) << "Accepted self-signed peer certificate authority";
       ok = 1;
     }
   } else if (!ok && !stream->peer_certificate_digest_algorithm_.empty()) {
@@ -853,7 +853,7 @@ int OpenSSLStreamAdapter::SSLVerifyCallback(int ok, X509_STORE_CTX* store) {
                        &digest_length)) {
         Buffer computed_digest(digest, digest_length);
         if (computed_digest == stream->peer_certificate_digest_value_) {
-          LOG(LS_INFO) <<
+          BLOG(LS_INFO) <<
               "Accepted self-signed peer certificate authority";
           ok = 1;
         }
@@ -865,13 +865,13 @@ int OpenSSLStreamAdapter::SSLVerifyCallback(int ok, X509_STORE_CTX* store) {
         reinterpret_cast<void*>(X509_STORE_CTX_get_current_cert(store));
     if (OpenSSLAdapter::custom_verify_callback_(cert)) {
       stream->custom_verification_succeeded_ = true;
-      LOG(LS_INFO) << "validated certificate using custom callback";
+      BLOG(LS_INFO) << "validated certificate using custom callback";
       ok = 1;
     }
   }
 
   if (!ok && stream->ignore_bad_cert()) {
-    LOG(LS_WARNING) << "Ignoring cert error while verifying cert chain";
+    BLOG(LS_WARNING) << "Ignoring cert error while verifying cert chain";
     ok = 1;
   }
 
@@ -901,9 +901,9 @@ bool OpenSSLStreamAdapter::SSLPostConnectionCheck(SSL* ssl,
   }
 
   if (!ok && ignore_bad_cert()) {
-    LOG(LS_ERROR) << "SSL_get_verify_result(ssl) = "
+    BLOG(LS_ERROR) << "SSL_get_verify_result(ssl) = "
                   << SSL_get_verify_result(ssl);
-    LOG(LS_INFO) << "Other TLS post connection checks failed.";
+    BLOG(LS_INFO) << "Other TLS post connection checks failed.";
     ok = true;
   }
 

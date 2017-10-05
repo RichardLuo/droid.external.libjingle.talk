@@ -48,7 +48,7 @@
 #undef SetPort
 #endif
 
-#include <utils/Log.h>
+// #include <utils/Log.h>
 #include <algorithm>
 #include <map>
 
@@ -192,7 +192,7 @@ class PhysicalSocket : public AsyncSocket, public sigslot::has_slots<> {
     if (result >= 0) {
       SocketAddressFromSockAddrStorage(addr_storage, &address);
     } else {
-      LOG(LS_WARNING) << "GetLocalAddress: unable to get local addr, socket="
+      BLOG(LS_WARNING) << "GetLocalAddress: unable to get local addr, socket="
                       << s_;
     }
     return address;
@@ -208,7 +208,7 @@ class PhysicalSocket : public AsyncSocket, public sigslot::has_slots<> {
     if (result >= 0) {
       SocketAddressFromSockAddrStorage(addr_storage, &address);
     } else {
-      LOG(LS_WARNING) << "GetRemoteAddress: unable to get remote addr, socket="
+      BLOG(LS_WARNING) << "GetRemoteAddress: unable to get remote addr, socket="
                       << s_;
     }
     return address;
@@ -248,7 +248,7 @@ class PhysicalSocket : public AsyncSocket, public sigslot::has_slots<> {
       return SOCKET_ERROR;
     }
     if (addr.IsUnresolved()) {
-      LOG(LS_VERBOSE) << "Resolving addr in PhysicalSocket::Connect";
+      BLOG(LS_VERBOSE) << "Resolving addr in PhysicalSocket::Connect";
       resolver_ = new AsyncResolver();
       resolver_->set_address(addr);
       resolver_->SignalWorkDone.connect(this, &PhysicalSocket::OnResolveResult);
@@ -345,7 +345,7 @@ class PhysicalSocket : public AsyncSocket, public sigslot::has_slots<> {
         0
 #endif
         );
-    LOGE("<<< send, bytes:%d", sent);
+    // LOGE("<<< send, bytes:%d", sent);
     UpdateLastError();
     // We have seen minidumps where this may be false.
     ASSERT(sent <= static_cast<int>(cb));
@@ -383,7 +383,7 @@ class PhysicalSocket : public AsyncSocket, public sigslot::has_slots<> {
       // Note: on graceful shutdown, recv can return 0.  In this case, we
       // pretend it is blocking, and then signal close, so that simplifying
       // assumptions can be made about Recv.
-      LOG(LS_WARNING) << "EOF from socket; deferring close event";
+      BLOG(LS_WARNING) << "EOF from socket; deferring close event";
       // Must turn this back on so that the select() loop will notice the close
       // event.
       enabled_events_ |= DE_READ;
@@ -556,7 +556,7 @@ class PhysicalSocket : public AsyncSocket, public sigslot::has_slots<> {
         *sopt = IP_DONTFRAGMENT;
         break;
 #elif defined(IOS) || defined(OSX) || defined(BSD)
-        LOG(LS_WARNING) << "Socket::OPT_DONTFRAGMENT not supported.";
+        BLOG(LS_WARNING) << "Socket::OPT_DONTFRAGMENT not supported.";
         return -1;
 #elif defined(POSIX)
         *slevel = IPPROTO_IP;
@@ -600,7 +600,7 @@ class EventDispatcher : public Dispatcher {
  public:
   EventDispatcher(PhysicalSocketServer* ss) : ss_(ss), fSignaled_(false) {
     if (pipe(afd_) < 0)
-      LOG(LERROR) << "pipe failed";
+      BLOG(LERROR) << "pipe failed";
     ss_->Add(this);
   }
 
@@ -792,7 +792,7 @@ class PosixSignalDispatcher : public Dispatcher {
     if (ret < 0) {
       LOG_ERR(LS_WARNING) << "Error in read()";
     } else if (ret == 0) {
-      LOG(LS_WARNING) << "Should have read at least one byte";
+      BLOG(LS_WARNING) << "Should have read at least one byte";
     }
   }
 
@@ -806,7 +806,7 @@ class PosixSignalDispatcher : public Dispatcher {
           // This can happen if a signal is delivered to our process at around
           // the same time as we unset our handler for it. It is not an error
           // condition, but it's unusual enough to be worth logging.
-          LOG(LS_INFO) << "Received signal with no handler: " << signum;
+          BLOG(LS_INFO) << "Received signal with no handler: " << signum;
         } else {
           // Otherwise, execute our handler.
           (*i->second)(signum);
@@ -1169,7 +1169,7 @@ class SocketDispatcher : public Dispatcher, public PhysicalSocket {
     // something like a READ followed by a CONNECT, which would be odd.
     if (((ff & DE_CONNECT) != 0) && (id_ == cache_id)) {
       if (ff != DE_CONNECT)
-        LOG(LS_VERBOSE) << "Signalled with DE_CONNECT: " << ff;
+        BLOG(LS_VERBOSE) << "Signalled with DE_CONNECT: " << ff;
       enabled_events_ &= ~DE_CONNECT;
 #ifdef _DEBUG
       dbg_addr_ = "Connected @ ";
@@ -1601,7 +1601,7 @@ bool PhysicalSocketServer::Wait(int cmsWait, bool process_io) {
     last_tick_dispatch_count_++;
     if (last_tick_dispatch_count_ >= 1000) {
       int32 elapsed = TimeSince(last_tick_tracked_);
-      LOG(INFO) << "PhysicalSocketServer took " << elapsed
+      BLOG(INFO) << "PhysicalSocketServer took " << elapsed
                 << "ms for 1000 events";
 
       // If we get more than 1000 events in a second, we are spinning badly
@@ -1648,27 +1648,27 @@ bool PhysicalSocketServer::Wait(int cmsWait, bool process_io) {
             {
               if ((wsaEvents.lNetworkEvents & FD_READ) &&
                   wsaEvents.iErrorCode[FD_READ_BIT] != 0) {
-                LOG(WARNING) << "PhysicalSocketServer got FD_READ_BIT error "
+                BLOG(WARNING) << "PhysicalSocketServer got FD_READ_BIT error "
                              << wsaEvents.iErrorCode[FD_READ_BIT];
               }
               if ((wsaEvents.lNetworkEvents & FD_WRITE) &&
                   wsaEvents.iErrorCode[FD_WRITE_BIT] != 0) {
-                LOG(WARNING) << "PhysicalSocketServer got FD_WRITE_BIT error "
+                BLOG(WARNING) << "PhysicalSocketServer got FD_WRITE_BIT error "
                              << wsaEvents.iErrorCode[FD_WRITE_BIT];
               }
               if ((wsaEvents.lNetworkEvents & FD_CONNECT) &&
                   wsaEvents.iErrorCode[FD_CONNECT_BIT] != 0) {
-                LOG(WARNING) << "PhysicalSocketServer got FD_CONNECT_BIT error "
+                BLOG(WARNING) << "PhysicalSocketServer got FD_CONNECT_BIT error "
                              << wsaEvents.iErrorCode[FD_CONNECT_BIT];
               }
               if ((wsaEvents.lNetworkEvents & FD_ACCEPT) &&
                   wsaEvents.iErrorCode[FD_ACCEPT_BIT] != 0) {
-                LOG(WARNING) << "PhysicalSocketServer got FD_ACCEPT_BIT error "
+                BLOG(WARNING) << "PhysicalSocketServer got FD_ACCEPT_BIT error "
                              << wsaEvents.iErrorCode[FD_ACCEPT_BIT];
               }
               if ((wsaEvents.lNetworkEvents & FD_CLOSE) &&
                   wsaEvents.iErrorCode[FD_CLOSE_BIT] != 0) {
-                LOG(WARNING) << "PhysicalSocketServer got FD_CLOSE_BIT error "
+                BLOG(WARNING) << "PhysicalSocketServer got FD_CLOSE_BIT error "
                              << wsaEvents.iErrorCode[FD_CLOSE_BIT];
               }
             }

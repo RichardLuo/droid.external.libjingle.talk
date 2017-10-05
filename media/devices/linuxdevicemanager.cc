@@ -110,7 +110,7 @@ bool LinuxDeviceManager::GetAudioDevices(bool input,
     success = sound_system_->EnumeratePlaybackDevices(&list);
   }
   if (!success) {
-    LOG(LS_ERROR) << "Can't enumerate devices";
+    BLOG(LS_ERROR) << "Can't enumerate devices";
     sound_system_.release();
     return false;
   }
@@ -160,7 +160,7 @@ static std::string GetVideoDeviceNameK2_6(const std::string& device_meta_path) {
 
   if (device_meta_stream) {
     if (device_meta_stream->ReadLine(&device_name) != talk_base::SR_SUCCESS) {
-      LOG(LS_ERROR) << "Failed to read V4L2 device meta " << device_meta_path;
+      BLOG(LS_ERROR) << "Failed to read V4L2 device meta " << device_meta_path;
     }
     device_meta_stream->Close();
   }
@@ -212,34 +212,34 @@ static std::string GetVideoDeviceName(MetaType meta,
   if (meta == M2_6) {
     meta_file_path = kVideoMetaPathK2_6 + device_file_name + "/name";
 
-    LOG(LS_INFO) << "Trying " + meta_file_path;
+    BLOG(LS_INFO) << "Trying " + meta_file_path;
     device_name = GetVideoDeviceNameK2_6(meta_file_path);
 
     if (device_name.empty()) {
       meta_file_path = kVideoMetaPathK2_6 + device_file_name + "/model";
 
-      LOG(LS_INFO) << "Trying " << meta_file_path;
+      BLOG(LS_INFO) << "Trying " << meta_file_path;
       device_name = GetVideoDeviceNameK2_6(meta_file_path);
     }
   } else {
     meta_file_path = kVideoMetaPathK2_4 + device_file_name;
-    LOG(LS_INFO) << "Trying " << meta_file_path;
+    BLOG(LS_INFO) << "Trying " << meta_file_path;
     device_name = GetVideoDeviceNameK2_4(meta_file_path);
   }
 
   if (device_name.empty()) {
     device_name = "/dev/" + device_file_name;
-    LOG(LS_ERROR)
+    BLOG(LS_ERROR)
       << "Device name not found, defaulting to device path " << device_name;
   }
 
-  LOG(LS_INFO) << "Name for " << device_file_name << " is " << device_name;
+  BLOG(LS_INFO) << "Name for " << device_file_name << " is " << device_name;
 
   return Trim(device_name);
 }
 
 static void ScanV4L2Devices(std::vector<Device>* devices) {
-  LOG(LS_INFO) << ("Enumerating V4L2 devices");
+  BLOG(LS_INFO) << ("Enumerating V4L2 devices");
 
   MetaType meta;
   std::string metadata_dir;
@@ -259,7 +259,7 @@ static void ScanV4L2Devices(std::vector<Device>* devices) {
   }
 
   if (meta != NONE) {
-    LOG(LS_INFO) << "V4L2 device metadata found at " << metadata_dir;
+    BLOG(LS_INFO) << "V4L2 device metadata found at " << metadata_dir;
 
     do {
       std::string filename = directoryIterator->Name();
@@ -274,15 +274,15 @@ static void ScanV4L2Devices(std::vector<Device>* devices) {
       }
     } while (directoryIterator->Next());
   } else {
-    LOG(LS_ERROR) << "Unable to detect v4l2 metadata directory";
+    BLOG(LS_ERROR) << "Unable to detect v4l2 metadata directory";
   }
 
   if (devices->size() == 0) {
-    LOG(LS_INFO) << "Plan B. Scanning all video devices in /dev directory";
+    BLOG(LS_INFO) << "Plan B. Scanning all video devices in /dev directory";
     ScanDeviceDirectory("/dev/", devices);
   }
 
-  LOG(LS_INFO) << "Total V4L2 devices found : " << devices->size();
+  BLOG(LS_INFO) << "Total V4L2 devices found : " << devices->size();
 }
 
 bool LinuxDeviceManager::GetVideoCaptureDevices(std::vector<Device>* devices) {
@@ -307,7 +307,7 @@ bool LinuxDeviceWatcher::Start() {
   // not a critical component of a Linux system so it may not be present/usable,
   // and we don't want to halt LinuxDeviceManager initialization in such a case.
   if (!libudev_.Load()) {
-    LOG(LS_WARNING) << "libudev not present/usable; LinuxDeviceWatcher disabled";
+    BLOG(LS_WARNING) << "libudev not present/usable; LinuxDeviceWatcher disabled";
     return true;
   }
   udev_ = libudev_.udev_new()();

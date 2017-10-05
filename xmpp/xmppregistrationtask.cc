@@ -97,9 +97,9 @@ XmppRegistrationTask::Advance() {
 
     const XmlElement * element = NULL;
 
-    LOGD("%s:%d advance, current state: %d\n", __func__, __LINE__, state_);
+    // LOGD("%s:%d advance, current state: %d\n", __func__, __LINE__, state_);
 #if _DEBUG
-    LOG(LS_VERBOSE) << "XmppRegistrationTask::Advance - "
+    BLOG(LS_VERBOSE) << "XmppRegistrationTask::Advance - "
       << talk_base::ErrorName(state_, REGISTRATIONTASK_STATES);
 #endif  // _DEBUG
 
@@ -158,7 +158,7 @@ XmppRegistrationTask::Advance() {
         XmlElement *query = new XmlElement(QN_REGISTER_QUERY, true);
         fetch_fields->AddElement(query);
         pctx_->InternalSendStanza(fetch_fields.get());
-        LOGFL("<< SendFetchFields:%s", fetch_fields->Str().c_str());
+        // LOGFL("<< SendFetchFields:%s", fetch_fields->Str().c_str());
         state_ = REGISTRATIONSTATE_FETCHFIELDS_SENT;
         return true;
       }
@@ -212,7 +212,7 @@ XmppRegistrationTask::Advance() {
         query->AddElement(email);
         registration->AddElement(query);
         pctx_->InternalSendStanza(registration.get());
-        LOGFL("<< SendRegistration:%s", registration->Str().c_str());
+        // LOGFL("<< SendRegistration:%s", registration->Str().c_str());
         state_ = REGISTRATIONSTATE_REGISTER_SENT;
         return true;
       }
@@ -232,7 +232,7 @@ XmppRegistrationTask::Advance() {
         const XmlElement* error_xml_elem = element->FirstNamed(QN_ERROR);
         if (error_xml_elem != NULL) {//QN_STANZA_CONFLICT
             if(error_xml_elem->FirstNamed(QN_STANZA_CONFLICT)) {
-                LOGFL("error_xml_elem: %s", error_xml_elem->Str().c_str());
+                // LOGFL("error_xml_elem: %s", error_xml_elem->Str().c_str());
                 return Failure(XmppEngine::ERROR_REGISTER_CONFLICT);
             }
         }

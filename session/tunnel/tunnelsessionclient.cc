@@ -119,7 +119,7 @@ TunnelSessionClientBase::~TunnelSessionClientBase() {
 }
 
 void TunnelSessionClientBase::OnSessionCreate(Session* session, bool received) {
-  LOG(LS_INFO) << "TunnelSessionClientBase::OnSessionCreate: received=" 
+  BLOG(LS_INFO) << "TunnelSessionClientBase::OnSessionCreate: received=" 
                << received;
   ASSERT(session_manager_->signaling_thread()->IsCurrent());
   if (received)
@@ -128,7 +128,7 @@ void TunnelSessionClientBase::OnSessionCreate(Session* session, bool received) {
 }
 
 void TunnelSessionClientBase::OnSessionDestroy(Session* session) {
-  LOG(LS_INFO) << "TunnelSessionClientBase::OnSessionDestroy";
+  BLOG(LS_INFO) << "TunnelSessionClientBase::OnSessionDestroy";
   ASSERT(session_manager_->signaling_thread()->IsCurrent());
   if (shutdown_)
     return;
@@ -374,7 +374,7 @@ Session* TunnelSession::ReleaseSession(bool channel_exists) {
 
 void TunnelSession::OnSessionState(BaseSession* session,
                                    BaseSession::State state) {
-  LOG(LS_INFO) << "TunnelSession::OnSessionState("
+  BLOG(LS_INFO) << "TunnelSession::OnSessionState("
                << talk_base::nonnull(
                     talk_base::FindLabel(state, SESSION_STATES), "Unknown")
                << ")";

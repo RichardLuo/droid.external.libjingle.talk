@@ -213,7 +213,7 @@ void P2PTransportChannel::SetRole(TransportRole role) {
 void P2PTransportChannel::SetTiebreaker(uint64 tiebreaker) {
   ASSERT(worker_thread_ == talk_base::Thread::Current());
   if (!ports_.empty()) {
-    LOG(LS_ERROR)
+    BLOG(LS_ERROR)
         << "Attempt to change tiebreaker after Port has been allocated.";
     return;
   }
@@ -244,7 +244,7 @@ void P2PTransportChannel::Connect() {
   ASSERT(worker_thread_ == talk_base::Thread::Current());
   if (ice_ufrag_.empty() || ice_pwd_.empty()) {
     ASSERT(false);
-    LOG(LS_ERROR) << "P2PTransportChannel::Connect: The ice_ufrag_ and the "
+    BLOG(LS_ERROR) << "P2PTransportChannel::Connect: The ice_ufrag_ and the "
                   << "ice_pwd_ are not set.";
     return;
   }
@@ -545,7 +545,7 @@ bool P2PTransportChannel::CreateConnection(PortInterface* port,
     // It is not legal to try to change any of the parameters of an existing
     // connection; however, the other side can send a duplicate candidate.
     if (!remote_candidate.IsEquivalent(connection->remote_candidate())) {
-      LOG(INFO) << "Attempt to change a remote candidate";
+      BLOG(INFO) << "Attempt to change a remote candidate";
       return false;
     }
   } else {
@@ -597,7 +597,7 @@ void P2PTransportChannel::RememberRemoteCandidate(
   uint32 i = 0;
   while (i < remote_candidates_.size()) {
     if (remote_candidates_[i].generation() < remote_candidate.generation()) {
-      LOG(INFO) << "Pruning candidate from old generation: "
+      BLOG(INFO) << "Pruning candidate from old generation: "
                 << remote_candidates_[i].address().ToString();
       remote_candidates_.erase(remote_candidates_.begin() + i);
     } else {
@@ -608,7 +608,7 @@ void P2PTransportChannel::RememberRemoteCandidate(
   // Make sure this candidate is not a duplicate.
   for (uint32 i = 0; i < remote_candidates_.size(); ++i) {
     if (remote_candidates_[i].IsEquivalent(remote_candidate)) {
-      LOG(INFO) << "Duplicate candidate: "
+      BLOG(INFO) << "Duplicate candidate: "
                 << remote_candidate.address().ToString();
       return;
     }
@@ -636,7 +636,7 @@ int P2PTransportChannel::SetOption(talk_base::Socket::Option opt, int value) {
     if (val < 0) {
       // Because this also occurs deferred, probably no point in reporting an
       // error
-      LOG(WARNING) << "SetOption(" << opt << ", " << value << ") failed: "
+      BLOG(WARNING) << "SetOption(" << opt << ", " << value << ") failed: "
                    << ports_[i]->GetError();
     }
   }
@@ -745,9 +745,9 @@ void P2PTransportChannel::SortConnections() {
 
   ConnectionCompare cmp;
   std::stable_sort(connections_.begin(), connections_.end(), cmp);
-  LOG(LS_VERBOSE) << "Sorting available connections:";
+  BLOG(LS_VERBOSE) << "Sorting available connections:";
   for (uint32 i = 0; i < connections_.size(); ++i) {
-    LOG(LS_VERBOSE) << connections_[i]->ToString();
+    BLOG(LS_VERBOSE) << connections_[i]->ToString();
   }
 
   Connection* top_connection = NULL;
@@ -842,7 +842,7 @@ void P2PTransportChannel::UpdateChannelState() {
       Connection::STATE_WRITABLE));
   ASSERT(writable == this->writable());
   if (writable != this->writable())
-    LOG(LS_ERROR) << "UpdateChannelState: writable state mismatch";
+    BLOG(LS_ERROR) << "UpdateChannelState: writable state mismatch";
 
   bool readable = false;
   for (uint32 i = 0; i < connections_.size(); ++i) {
@@ -1080,7 +1080,7 @@ void P2PTransportChannel::OnPortDestroyed(PortInterface* port) {
   if (iter != ports_.end())
     ports_.erase(iter);
 
-  LOG(INFO) << "Removed port from p2p socket: "
+  BLOG(INFO) << "Removed port from p2p socket: "
             << static_cast<int>(ports_.size()) << " remaining";
 }
 

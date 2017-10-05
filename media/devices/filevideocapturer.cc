@@ -41,7 +41,7 @@ bool VideoRecorder::Start(const std::string& filename, bool write_header) {
   write_header_ = write_header;
   int err;
   if (!video_file_.Open(filename, "wb", &err)) {
-    LOG(LS_ERROR) << "Unable to open file " << filename << " err=" << err;
+    BLOG(LS_ERROR) << "Unable to open file " << filename << " err=" << err;
     return false;
   }
   return true;
@@ -53,13 +53,13 @@ void VideoRecorder::Stop() {
 
 bool VideoRecorder::RecordFrame(const CapturedFrame& frame) {
   if (talk_base::SS_CLOSED == video_file_.GetState()) {
-    LOG(LS_ERROR) << "File not opened yet";
+    BLOG(LS_ERROR) << "File not opened yet";
     return false;
   }
 
   uint32 size = 0;
   if (!frame.GetDataSize(&size)) {
-    LOG(LS_ERROR) << "Unable to calculate the data size of the frame";
+    BLOG(LS_ERROR) << "Unable to calculate the data size of the frame";
     return false;
   }
 
@@ -80,7 +80,7 @@ bool VideoRecorder::RecordFrame(const CapturedFrame& frame) {
                                                    buffer.Length(),
                                                    NULL,
                                                    NULL)) {
-      LOG(LS_ERROR) << "Failed to write frame header";
+      BLOG(LS_ERROR) << "Failed to write frame header";
       return false;
     }
   }
@@ -89,7 +89,7 @@ bool VideoRecorder::RecordFrame(const CapturedFrame& frame) {
                                                  size,
                                                  NULL,
                                                  NULL)) {
-    LOG(LS_ERROR) << "Failed to write frame data";
+    BLOG(LS_ERROR) << "Failed to write frame data";
     return false;
   }
 
@@ -166,25 +166,25 @@ bool FileVideoCapturer::Init(const Device& device) {
   }
   std::string filename(device.name);
   if (IsRunning()) {
-    LOG(LS_ERROR) << "The file video capturer is already running";
+    BLOG(LS_ERROR) << "The file video capturer is already running";
     return false;
   }
   // Open the file.
   int err;
   if (!video_file_.Open(filename, "rb", &err)) {
-    LOG(LS_ERROR) << "Unable to open the file " << filename << " err=" << err;
+    BLOG(LS_ERROR) << "Unable to open the file " << filename << " err=" << err;
     return false;
   }
   // Read the first frame's header to determine the supported format.
   CapturedFrame frame;
   if (talk_base::SR_SUCCESS != ReadFrameHeader(&frame)) {
-    LOG(LS_ERROR) << "Failed to read the first frame header";
+    BLOG(LS_ERROR) << "Failed to read the first frame header";
     video_file_.Close();
     return false;
   }
   // Seek back to the start of the file.
   if (!video_file_.SetPosition(0)) {
-    LOG(LS_ERROR) << "Failed to seek back to beginning of the file";
+    BLOG(LS_ERROR) << "Failed to seek back to beginning of the file";
     video_file_.Close();
     return false;
   }
@@ -209,15 +209,15 @@ bool FileVideoCapturer::Init(const std::string& filename) {
 
 CaptureState FileVideoCapturer::Start(const VideoFormat& capture_format) {
   if (IsRunning()) {
-    LOG(LS_ERROR) << "The file video capturer is already running";
+    BLOG(LS_ERROR) << "The file video capturer is already running";
     return CS_FAILED;
   }
 
   if (talk_base::SS_CLOSED == video_file_.GetState()) {
-    LOG(LS_ERROR) << "File not opened yet";
+    BLOG(LS_ERROR) << "File not opened yet";
     return CS_NO_DEVICE;
   } else if (!video_file_.SetPosition(0)) {
-    LOG(LS_ERROR) << "Failed to seek back to beginning of the file";
+    BLOG(LS_ERROR) << "Failed to seek back to beginning of the file";
     return CS_FAILED;
   }
 
@@ -228,10 +228,10 @@ CaptureState FileVideoCapturer::Start(const VideoFormat& capture_format) {
   start_time_ns_ = kNumNanoSecsPerMilliSec *
       static_cast<int64>(talk_base::Time());
   if (ret) {
-    LOG(LS_INFO) << "File video capturer '" << GetId() << "' started";
+    BLOG(LS_INFO) << "File video capturer '" << GetId() << "' started";
     return CS_RUNNING;
   } else {
-    LOG(LS_ERROR) << "File video capturer '" << GetId() << "' failed to start";
+    BLOG(LS_ERROR) << "File video capturer '" << GetId() << "' failed to start";
     return CS_FAILED;
   }
 }
@@ -244,7 +244,7 @@ void FileVideoCapturer::Stop() {
   if (file_read_thread_) {
     file_read_thread_->Stop();
     file_read_thread_ = NULL;
-    LOG(LS_INFO) << "File video capturer '" << GetId() << "' stopped";
+    BLOG(LS_INFO) << "File video capturer '" << GetId() << "' stopped";
   }
   SetCaptureFormat(NULL);
 }
@@ -271,7 +271,7 @@ talk_base::StreamResult FileVideoCapturer::ReadFrameHeader(
                         CapturedFrame::kFrameHeaderSize,
                         &bytes_read,
                         &error);
-  LOG(LS_VERBOSE) << "Read frame header: stream_result = " << sr
+  BLOG(LS_VERBOSE) << "Read frame header: stream_result = " << sr
                   << ", bytes read = " << bytes_read << ", error = " << error;
   if (talk_base::SR_SUCCESS == sr) {
     if (CapturedFrame::kFrameHeaderSize != bytes_read) {
@@ -305,7 +305,7 @@ bool FileVideoCapturer::ReadFrame(bool first_frame, int* wait_time_ms) {
 
   // 2. Read the next frame.
   if (talk_base::SS_CLOSED == video_file_.GetState()) {
-    LOG(LS_ERROR) << "File not opened yet";
+    BLOG(LS_ERROR) << "File not opened yet";
     return false;
   }
   // 2.1 Read the frame header.
@@ -324,7 +324,7 @@ bool FileVideoCapturer::ReadFrame(bool first_frame, int* wait_time_ms) {
     }
   }
   if (talk_base::SR_SUCCESS != result) {
-    LOG(LS_ERROR) << "Failed to read the frame header";
+    BLOG(LS_ERROR) << "Failed to read the frame header";
     return false;
   }
   // 2.2 Reallocate memory for the frame data if necessary.
@@ -337,7 +337,7 @@ bool FileVideoCapturer::ReadFrame(bool first_frame, int* wait_time_ms) {
   if (talk_base::SR_SUCCESS != video_file_.Read(captured_frame_.data,
                                                 captured_frame_.data_size,
                                                 NULL, NULL)) {
-    LOG(LS_ERROR) << "Failed to read frame data";
+    BLOG(LS_ERROR) << "Failed to read frame data";
     return false;
   }
 

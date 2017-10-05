@@ -76,10 +76,10 @@ bool AutomaticallyChosenSoundSystem<kSoundSystemCreators,
     // Else it failed to initialize, so try the remaining ones.
   }
   if (!wrapped_) {
-    LOG(LS_ERROR) << "Failed to find a usable sound system";
+    BLOG(LS_ERROR) << "Failed to find a usable sound system";
     return false;
   }
-  LOG(LS_INFO) << "Selected " << wrapped_->GetName() << " sound system";
+  BLOG(LS_INFO) << "Selected " << wrapped_->GetName() << " sound system";
   return true;
 }
 

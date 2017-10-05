@@ -104,7 +104,7 @@ bool Win32DeviceManager::Init() {
     HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
     need_couninitialize_ = SUCCEEDED(hr);
     if (FAILED(hr)) {
-      LOG(LS_ERROR) << "CoInitialize failed, hr=" << hr;
+      BLOG(LS_ERROR) << "CoInitialize failed, hr=" << hr;
       if (hr != RPC_E_CHANGED_MODE) {
         return false;
       }
@@ -179,7 +179,7 @@ bool GetDevices(const CLSID& catid, std::vector<Device>* devices) {
   CComPtr<IEnumMoniker> cam_enum;
   if (FAILED(hr = sys_dev_enum.CoCreateInstance(CLSID_SystemDeviceEnum)) ||
       FAILED(hr = sys_dev_enum->CreateClassEnumerator(catid, &cam_enum, 0))) {
-    LOG(LS_ERROR) << "Failed to create device enumerator, hr="  << hr;
+    BLOG(LS_ERROR) << "Failed to create device enumerator, hr="  << hr;
     return false;
   }
 
@@ -286,7 +286,7 @@ bool GetCoreAudioDevices(
           if (SUCCEEDED(hr)) {
             devs->push_back(dev);
           } else {
-            LOG(LS_WARNING) << "Unable to query IMM Device, skipping.  HR="
+            BLOG(LS_WARNING) << "Unable to query IMM Device, skipping.  HR="
                             << hr;
             hr = S_FALSE;
           }
@@ -296,7 +296,7 @@ bool GetCoreAudioDevices(
   }
 
   if (FAILED(hr)) {
-    LOG(LS_WARNING) << "GetCoreAudioDevices failed with hr " << hr;
+    BLOG(LS_WARNING) << "GetCoreAudioDevices failed with hr " << hr;
     return false;
   }
   return true;

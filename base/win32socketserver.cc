@@ -140,7 +140,7 @@ LPCSTR WSAErrorToString(int error, LPCSTR *description_result) {
 void ReportWSAError(LPCSTR context, int error, const SocketAddress& address) {
   LPCSTR description_string;
   LPCSTR error_string = WSAErrorToString(error, &description_string);
-  LOG(LS_INFO) << context << " = " << error
+  BLOG(LS_INFO) << context << " = " << error
     << " (" << error_string << ":" << description_string << ") ["
     << address.ToString() << "]";
 }
@@ -229,7 +229,7 @@ bool Win32Socket::EventSink::OnDnsNotify(WPARAM wParam, LPARAM lParam,
 
 void Win32Socket::EventSink::OnNcDestroy() {
   if (parent_) {
-    LOG(LS_ERROR) << "EventSink hwnd is being destroyed, but the event sink"
+    BLOG(LS_ERROR) << "EventSink hwnd is being destroyed, but the event sink"
                      " hasn't yet been disposed.";
   } else {
     delete this;
@@ -295,7 +295,7 @@ SocketAddress Win32Socket::GetLocalAddress() const {
   if (result >= 0) {
     SocketAddressFromSockAddrStorage(addr, &address);
   } else {
-    LOG(LS_WARNING) << "GetLocalAddress: unable to get local addr, socket="
+    BLOG(LS_WARNING) << "GetLocalAddress: unable to get local addr, socket="
                     << socket_;
   }
   return address;
@@ -310,7 +310,7 @@ SocketAddress Win32Socket::GetRemoteAddress() const {
   if (result >= 0) {
     SocketAddressFromSockAddrStorage(addr, &address);
   } else {
-    LOG(LS_WARNING) << "GetRemoteAddress: unable to get remote addr, socket="
+    BLOG(LS_WARNING) << "GetRemoteAddress: unable to get remote addr, socket="
                     << socket_;
   }
   return address;
@@ -639,7 +639,7 @@ void Win32Socket::OnSocketNotify(SOCKET socket, int event, int error) {
         ReportWSAError("WSAAsync:connect notify", error, addr_);
 #ifdef _DEBUG
         int32 duration = TimeSince(connect_time_);
-        LOG(LS_INFO) << "WSAAsync:connect error (" << duration
+        BLOG(LS_INFO) << "WSAAsync:connect error (" << duration
                      << " ms), faking close";
 #endif
         state_ = CS_CLOSED;
@@ -652,7 +652,7 @@ void Win32Socket::OnSocketNotify(SOCKET socket, int event, int error) {
       } else {
 #ifdef _DEBUG
         int32 duration = TimeSince(connect_time_);
-        LOG(LS_INFO) << "WSAAsync:connect (" << duration << " ms)";
+        BLOG(LS_INFO) << "WSAAsync:connect (" << duration << " ms)";
 #endif
         state_ = CS_CONNECTED;
         SignalConnectEvent(this);

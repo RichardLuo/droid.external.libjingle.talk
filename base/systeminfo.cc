@@ -159,13 +159,13 @@ SystemInfo::SystemInfo()
   length = sizeof(sysctl_value64);
   if (!sysctlbyname("hw.l3cachesize", &sysctl_value64, &length, NULL, 0)) {
     cache_size_ = static_cast<int>(sysctl_value64);
-    LOG(LS_INFO) << "l3cachesize " << cache_size_;
+    BLOG(LS_INFO) << "l3cachesize " << cache_size_;
   }
   if (!cache_size_) {
     length = sizeof(sysctl_value64);
     if (!sysctlbyname("hw.l2cachesize", &sysctl_value64, &length, NULL, 0)) {
       cache_size_ = static_cast<int>(sysctl_value64);
-      LOG(LS_INFO) << "l2cachesize " << cache_size_;
+      BLOG(LS_INFO) << "l2cachesize " << cache_size_;
     }
   }
   length = sizeof(sysctl_value);
@@ -322,14 +322,14 @@ int SystemInfo::GetMaxCpuSpeed() {
                         &len) == ERROR_SUCCESS) {
       cpu_speed_ = data;
     } else {
-      LOG(LS_WARNING) << "Failed to query registry value HKLM\\" << keyName
+      BLOG(LS_WARNING) << "Failed to query registry value HKLM\\" << keyName
                       << "\\~Mhz";
       cpu_speed_ = -1;
     }
 
     RegCloseKey(key);
   } else {
-    LOG(LS_WARNING) << "Failed to open registry key HKLM\\" << keyName;
+    BLOG(LS_WARNING) << "Failed to open registry key HKLM\\" << keyName;
     cpu_speed_ = -1;
   }
 #elif defined(IOS) || defined(OSX)
@@ -392,7 +392,7 @@ int64 SystemInfo::GetMemorySize() {
   memory_ = static_cast<int64>(sysconf(_SC_PHYS_PAGES)) *
       static_cast<int64>(sysconf(_SC_PAGESIZE));
   if (memory_ < 0) {
-    LOG(LS_WARNING) << "sysconf(_SC_PHYS_PAGES) failed."
+    BLOG(LS_WARNING) << "sysconf(_SC_PHYS_PAGES) failed."
                     << "sysconf(_SC_PHYS_PAGES) " << sysconf(_SC_PHYS_PAGES)
                     << "sysconf(_SC_PAGESIZE) " << sysconf(_SC_PAGESIZE);
     memory_ = -1;
@@ -497,7 +497,7 @@ bool SystemInfo::GetGpuInfo(GpuInfo *info) {
   }
 
   if (hr != D3D_OK) {
-    LOG(LS_ERROR) << "Failed to access Direct3D9 information.";
+    BLOG(LS_ERROR) << "Failed to access Direct3D9 information.";
     return false;
   }
 

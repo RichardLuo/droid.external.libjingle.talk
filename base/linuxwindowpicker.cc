@@ -60,7 +60,7 @@ class XWindowProperty {
     if (!succeeded_) {
       data_ = NULL;  // Ensure nothing is freed.
     } else if (sizeof(PropertyType) * kBitsPerByte != actual_format) {
-      LOG(LS_WARNING) << "Returned type size differs from "
+      BLOG(LS_WARNING) << "Returned type size differs from "
           "requested type size.";
       succeeded_ = false;
       // We still need to call XFree in this case, so leave data_ alone.
@@ -110,7 +110,7 @@ class XErrorSuppressor {
   static int ErrorHandler(Display* display, XErrorEvent* e) {
     char buf[256];
     XGetErrorText(display, e->error_code, buf, sizeof buf);
-    LOG(LS_WARNING) << "Received X11 error \"" << buf << "\" for request code "
+    BLOG(LS_WARNING) << "Received X11 error \"" << buf << "\" for request code "
                     << static_cast<unsigned int>(e->request_code);
     return 0;
   }
@@ -126,7 +126,7 @@ class XErrorSuppressor {
     XSync(display_, False);
     XErrorHandler handler = XSetErrorHandler(original_error_handler_);
     if (handler != &ErrorHandler) {
-      LOG(LS_WARNING) << "Unbalanced XSetErrorHandler() calls detected. "
+      BLOG(LS_WARNING) << "Unbalanced XSetErrorHandler() calls detected. "
                       << "Final error handler may not be what you expect!";
     }
     original_error_handler_ = NULL;
@@ -161,7 +161,7 @@ class XWindowEnumerator {
     }
     display_ = XOpenDisplay(NULL);
     if (display_ == NULL) {
-      LOG(LS_ERROR) << "Failed to open display.";
+      BLOG(LS_ERROR) << "Failed to open display.";
       return false;
     }
 
@@ -177,7 +177,7 @@ class XWindowEnumerator {
         (major_version > 0 || minor_version >= 2)) {
       has_composite_extension_ = true;
     } else {
-      LOG(LS_INFO) << "Xcomposite extension not available or too old.";
+      BLOG(LS_INFO) << "Xcomposite extension not available or too old.";
     }
 
     if (XRenderQueryExtension(display_, &event_base, &error_base) &&
@@ -186,7 +186,7 @@ class XWindowEnumerator {
         (major_version > 0 || minor_version >= 6)) {
       has_render_extension_ = true;
     } else {
-      LOG(LS_INFO) << "Xrender extension not available or too old.";
+      BLOG(LS_INFO) << "Xrender extension not available or too old.";
     }
     return true;
   }
@@ -230,7 +230,7 @@ class XWindowEnumerator {
     XErrorSuppressor error_suppressor(display_);
     XWindowAttributes attr;
     if (!XGetWindowAttributes(display_, id.id(), &attr)) {
-      LOG(LS_ERROR) << "XGetWindowAttributes() failed";
+      BLOG(LS_ERROR) << "XGetWindowAttributes() failed";
       return false;
     }
     return attr.map_state == IsViewable;
@@ -250,7 +250,7 @@ class XWindowEnumerator {
     int status = XQueryTree(display_, id.id(), &root, &parent, &children,
                             &num_children);
     if (status == 0) {
-      LOG(LS_WARNING) << "Failed to query for child windows.";
+      BLOG(LS_WARNING) << "Failed to query for child windows.";
       return false;
     }
     if (children != NULL) {
@@ -309,7 +309,7 @@ class XWindowEnumerator {
         data) {
       XFree(data);
     } else {
-      LOG(LS_ERROR) << "Failed to get size of the icon.";
+      BLOG(LS_ERROR) << "Failed to get size of the icon.";
       return NULL;
     }
     // Get the icon data, the format is one uint32 each for width and height,
@@ -325,7 +325,7 @@ class XWindowEnumerator {
       h = data_ptr[1];
       if (size < static_cast<unsigned long>(w * h + 2)) {
         XFree(data);
-        LOG(LS_ERROR) << "Not a vaild icon.";
+        BLOG(LS_ERROR) << "Not a vaild icon.";
         return NULL;
       }
       uint8* rgba =
@@ -335,7 +335,7 @@ class XWindowEnumerator {
       *height = h;
       return rgba;
     } else {
-      LOG(LS_ERROR) << "Failed to get window icon data.";
+      BLOG(LS_ERROR) << "Failed to get window icon data.";
       return NULL;
     }
   }
@@ -350,7 +350,7 @@ class XWindowEnumerator {
       // the whole window is visible on screen and not covered by any
       // other window. This is not something we want so instead, just
       // bail out.
-      LOG(LS_INFO) << "No Xcomposite extension detected.";
+      BLOG(LS_INFO) << "No Xcomposite extension detected.";
       return NULL;
     }
     XErrorSuppressor error_suppressor(display_);
@@ -381,7 +381,7 @@ class XWindowEnumerator {
       // Even if the backing pixmap doesn't exist, this still should have
       // succeeded and returned a valid handle (it just wouldn't be a handle to
       // anything). So this is a real error path.
-      LOG(LS_ERROR) << "XCompositeNameWindowPixmap() failed";
+      BLOG(LS_ERROR) << "XCompositeNameWindowPixmap() failed";
       return NULL;
     }
     if (!XGetGeometry(display_, src_pixmap, &root, &x, &y,
@@ -389,7 +389,7 @@ class XWindowEnumerator {
                       &depth)) {
       // If the window does not actually have a backing pixmap, this is the path
       // that will "fail", so it's a warning rather than an error.
-      LOG(LS_WARNING) << "XGetGeometry() failed (probably composite is not in "
+      BLOG(LS_WARNING) << "XGetGeometry() failed (probably composite is not in "
                       << "use)";
       XFreePixmap(display_, src_pixmap);
       return NULL;
@@ -400,7 +400,7 @@ class XWindowEnumerator {
 
     XWindowAttributes attr;
     if (!XGetWindowAttributes(display_, id.id(), &attr)) {
-      LOG(LS_ERROR) << "XGetWindowAttributes() failed";
+      BLOG(LS_ERROR) << "XGetWindowAttributes() failed";
       XFreePixmap(display_, src_pixmap);
       return NULL;
     }
@@ -432,7 +432,7 @@ class XWindowEnumerator {
     Window root_window = id.id();
     XWindowAttributes attr;
     if (!XGetWindowAttributes(display_, root_window, &attr)) {
-      LOG(LS_ERROR) << "XGetWindowAttributes() failed";
+      BLOG(LS_ERROR) << "XGetWindowAttributes() failed";
       return NULL;
     }
 
@@ -451,7 +451,7 @@ class XWindowEnumerator {
     XErrorSuppressor error_suppressor(display_);
     XWindowAttributes attr;
     if (!XGetWindowAttributes(display_, id.id(), &attr)) {
-      LOG(LS_ERROR) << "XGetWindowAttributes() failed";
+      BLOG(LS_ERROR) << "XGetWindowAttributes() failed";
       return false;
     }
     *width = attr.width;
@@ -472,14 +472,14 @@ class XWindowEnumerator {
       // going to expend effort to support that situation. We still need to
       // check though because probably some virtual VNC displays are in this
       // category.
-      LOG(LS_INFO) << "No Xrender extension detected.";
+      BLOG(LS_INFO) << "No Xrender extension detected.";
       return NULL;
     }
 
     XRenderPictFormat* format = XRenderFindVisualFormat(display_,
                                                         visual);
     if (!format) {
-      LOG(LS_ERROR) << "XRenderFindVisualFormat() failed";
+      BLOG(LS_ERROR) << "XRenderFindVisualFormat() failed";
       return NULL;
     }
 
@@ -492,7 +492,7 @@ class XWindowEnumerator {
                                        CPSubwindowMode,
                                        &pa);
     if (!src) {
-      LOG(LS_ERROR) << "XRenderCreatePicture() failed";
+      BLOG(LS_ERROR) << "XRenderCreatePicture() failed";
       return NULL;
     }
 
@@ -503,14 +503,14 @@ class XWindowEnumerator {
                                       dst_height,
                                       format->depth);
     if (!dst_pixmap) {
-      LOG(LS_ERROR) << "XCreatePixmap() failed";
+      BLOG(LS_ERROR) << "XCreatePixmap() failed";
       XRenderFreePicture(display_, src);
       return NULL;
     }
 
     Picture dst = XRenderCreatePicture(display_, dst_pixmap, format, 0, NULL);
     if (!dst) {
-      LOG(LS_ERROR) << "XRenderCreatePicture() failed";
+      BLOG(LS_ERROR) << "XRenderCreatePicture() failed";
       XFreePixmap(display_, dst_pixmap);
       XRenderFreePicture(display_, src);
       return NULL;
@@ -627,7 +627,7 @@ class XWindowEnumerator {
     status = XQueryTree(display_, root_window, &root_window, &parent, &children,
                         &num_children);
     if (status == 0) {
-      LOG(LS_ERROR) << "Failed to query for child windows.";
+      BLOG(LS_ERROR) << "Failed to query for child windows.";
       return false;
     }
     for (unsigned int i = 0; i < num_children; ++i) {
@@ -669,7 +669,7 @@ class XWindowEnumerator {
                                              &cnt);
         if (status >= Success && cnt && *list) {
           if (cnt > 1) {
-            LOG(LS_INFO) << "Window has " << cnt
+            BLOG(LS_INFO) << "Window has " << cnt
                          << " text properties, only using the first one.";
           }
           *title = *list;
@@ -701,7 +701,7 @@ class XWindowEnumerator {
                                  False, wm_state_, &type, &format,
                                  &nitems, &after, &data);
     if (ret != Success) {
-      LOG(LS_ERROR) << "XGetWindowProperty failed with return code " << ret
+      BLOG(LS_ERROR) << "XGetWindowProperty failed with return code " << ret
                     << " for window " << window << ".";
       return 0;
     }
@@ -713,7 +713,7 @@ class XWindowEnumerator {
     XFree(data);
     if (!XQueryTree(display_, window, &root, &parent, &children,
                     &num_children)) {
-      LOG(LS_ERROR) << "Failed to query for child windows although window"
+      BLOG(LS_ERROR) << "Failed to query for child windows although window"
                     << "does not have a valid WM_STATE.";
       return 0;
     }
@@ -744,7 +744,7 @@ LinuxWindowPicker::~LinuxWindowPicker() {
 
 bool LinuxWindowPicker::IsDesktopElement(_XDisplay* display, Window window) {
   if (window == 0) {
-    LOG(LS_WARNING) << "Zero is never a valid window.";
+    BLOG(LS_WARNING) << "Zero is never a valid window.";
     return false;
   }
 

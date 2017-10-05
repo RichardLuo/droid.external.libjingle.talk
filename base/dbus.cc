@@ -54,7 +54,7 @@ static void InitializeDBusGlibSymbol() {
 
     // Loads dbus-glib
     if (NULL == g_dbus_symbol || !g_dbus_symbol->Load()) {
-      LOG(LS_WARNING) << "Failed to load dbus-glib symbol table.";
+      BLOG(LS_WARNING) << "Failed to load dbus-glib symbol table.";
       ReleaseDBusGlibSymbol();
     } else {
       // Nothing we can do if atexit() failed. Just ignore its returned value.
@@ -163,7 +163,7 @@ class DBusMonitor::DBusMonitoringThread : public talk_base::Thread {
     // Setup DBus connection and start monitoring.
     monitor_->OnMonitoringStatusChanged(DMS_INITIALIZING);
     if (!Setup()) {
-      LOG(LS_ERROR) << "DBus monitoring setup failed.";
+      BLOG(LS_ERROR) << "DBus monitoring setup failed.";
       monitor_->OnMonitoringStatusChanged(DMS_FAILED);
       CleanUp();
       return;
@@ -186,7 +186,7 @@ class DBusMonitor::DBusMonitoringThread : public talk_base::Thread {
       GetSymbols()->g_source_set_callback()(idle_source_, &Idle, this, NULL);
       GetSymbols()->g_source_attach()(idle_source_, context_);
     } else {
-      LOG(LS_ERROR) << "g_idle_source_new() failed.";
+      BLOG(LS_ERROR) << "g_idle_source_new() failed.";
       QuitGMainloop();  // Try to quit anyway.
     }
 
@@ -203,7 +203,7 @@ class DBusMonitor::DBusMonitoringThread : public talk_base::Thread {
          it != filter_list_->end(); ++it) {
       DBusSigFilter *filter = (*it);
       if (!filter) {
-        LOG(LS_ERROR) << "DBusSigFilter list corrupted.";
+        BLOG(LS_ERROR) << "DBusSigFilter list corrupted.";
         continue;
       }
 
@@ -214,7 +214,7 @@ class DBusMonitor::DBusMonitoringThread : public talk_base::Thread {
       if (!GetSymbols()->dbus_connection_add_filter()(
               GetSymbols()->dbus_g_connection_get_connection()(connection_),
               &DBusSigFilter::DBusCallback, filter, NULL)) {
-        LOG(LS_ERROR) << "dbus_connection_add_filter() failed."
+        BLOG(LS_ERROR) << "dbus_connection_add_filter() failed."
                       << "Filter: " << filter->filter();
         continue;
       }
@@ -230,7 +230,7 @@ class DBusMonitor::DBusMonitoringThread : public talk_base::Thread {
          it != filter_list_->end(); ++it) {
       DBusSigFilter *filter = (*it);
       if (!filter) {
-        LOG(LS_ERROR) << "DBusSigFilter list corrupted.";
+        BLOG(LS_ERROR) << "DBusSigFilter list corrupted.";
         continue;
       }
       GetSymbols()->dbus_connection_remove_filter()(
@@ -248,11 +248,11 @@ class DBusMonitor::DBusMonitoringThread : public talk_base::Thread {
     connection_ = GetSymbols()->dbus_g_bus_get_private()(monitor_->type_,
         context_, NULL);
     if (NULL == connection_) {
-      LOG(LS_ERROR) << "dbus_g_bus_get_private() unable to get connection.";
+      BLOG(LS_ERROR) << "dbus_g_bus_get_private() unable to get connection.";
       return false;
     }
     if (NULL == GetSymbols()->dbus_g_connection_get_connection()(connection_)) {
-      LOG(LS_ERROR) << "dbus_g_connection_get_connection() returns NULL. "
+      BLOG(LS_ERROR) << "dbus_g_connection_get_connection() returns NULL. "
                     << "DBus daemon is probably not running.";
       return false;
     }
@@ -360,13 +360,13 @@ bool DBusMonitor::StartMonitoring() {
 
     GMainContext *context = GetSymbols()->g_main_context_new()();
     if (NULL == context) {
-      LOG(LS_ERROR) << "g_main_context_new() failed.";
+      BLOG(LS_ERROR) << "g_main_context_new() failed.";
       return false;
     }
 
     GMainLoop *mainloop = GetSymbols()->g_main_loop_new()(context, FALSE);
     if (NULL == mainloop) {
-      LOG(LS_ERROR) << "g_main_loop_new() failed.";
+      BLOG(LS_ERROR) << "g_main_loop_new() failed.";
       GetSymbols()->g_main_context_unref()(context);
       return false;
     }
@@ -374,7 +374,7 @@ bool DBusMonitor::StartMonitoring() {
     monitoring_thread_ = new DBusMonitoringThread(this, context, mainloop,
                                                   &filter_list_);
     if (monitoring_thread_ == NULL) {
-      LOG(LS_ERROR) << "Failed to create DBus monitoring thread.";
+      BLOG(LS_ERROR) << "Failed to create DBus monitoring thread.";
       GetSymbols()->g_main_context_unref()(context);
       GetSymbols()->g_main_loop_unref()(mainloop);
       return false;

@@ -55,7 +55,7 @@ bool SsrcMuxFilter::DemuxPacket(const char* data, size_t len, bool rtcp) {
     if (!GetRtcpType(data, len, &pl_type)) return false;
     if (pl_type == kRtcpTypeSDES) {
       // SDES packet parsing not supported.
-      LOG(LS_INFO) << "SDES packet received for demux.";
+      BLOG(LS_INFO) << "SDES packet received for demux.";
       return true;
     } else {
       if (!GetRtcpSsrc(data, len, &ssrc)) return false;
@@ -72,7 +72,7 @@ bool SsrcMuxFilter::DemuxPacket(const char* data, size_t len, bool rtcp) {
 
 bool SsrcMuxFilter::AddStream(const StreamParams& stream) {
   if (GetStreamBySsrc(streams_, stream.first_ssrc(), NULL)) {
-      LOG(LS_WARNING) << "Stream already added to filter";
+      BLOG(LS_WARNING) << "Stream already added to filter";
       return false;
   }
   streams_.push_back(stream);

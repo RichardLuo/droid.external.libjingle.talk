@@ -268,7 +268,7 @@ class VideoCapturer
   int64 GetFormatDistance(const VideoFormat& desired,
                           const VideoFormat& supported);
 
-  // Convert captured frame to readable string for LOG messages.
+  // Convert captured frame to readable string for BLOG messages.
   std::string ToString(const CapturedFrame* frame) const;
 
   // Applies all registered processors. If any of the processors signal that

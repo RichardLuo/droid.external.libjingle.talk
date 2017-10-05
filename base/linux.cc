@@ -255,9 +255,9 @@ static bool ExpectLineFromStream(FileStream* stream,
   StreamResult res = stream->ReadLine(out);
   if (res != SR_SUCCESS) {
     if (res != SR_EOS) {
-      LOG(LS_ERROR) << "Error when reading from stream";
+      BLOG(LS_ERROR) << "Error when reading from stream";
     } else {
-      LOG(LS_ERROR) << "Incorrect number of lines in stream";
+      BLOG(LS_ERROR) << "Incorrect number of lines in stream";
     }
     return false;
   }
@@ -268,9 +268,9 @@ static void ExpectEofFromStream(FileStream* stream) {
   std::string unused;
   StreamResult res = stream->ReadLine(&unused);
   if (res == SR_SUCCESS) {
-    LOG(LS_WARNING) << "Ignoring unexpected extra lines from stream";
+    BLOG(LS_WARNING) << "Ignoring unexpected extra lines from stream";
   } else if (res != SR_EOS) {
-    LOG(LS_WARNING) << "Error when checking for extra lines from stream";
+    BLOG(LS_WARNING) << "Error when checking for extra lines from stream";
   }
 }
 
@@ -324,7 +324,7 @@ std::string ReadLinuxLsbRelease() {
   if (wait_status == -1 ||
       !WIFEXITED(wait_status) ||
       WEXITSTATUS(wait_status) != 0) {
-    LOG(LS_WARNING) << "Unexpected exit status from lsb_release";
+    BLOG(LS_WARNING) << "Unexpected exit status from lsb_release";
   }
 
   lsb_release_string = sstr.str();

@@ -186,7 +186,7 @@ class TunnelSessionClientTest : public testing::Test,
     }
     ASSERT(res != talk_base::SR_EOS);
     recv_stream_.GetPosition(&position);
-    LOG(LS_VERBOSE) << "Recv position: " << position;
+    BLOG(LS_VERBOSE) << "Recv position: " << position;
   }
   // Spool from send_stream into the tunnel. Back up if we get flow controlled.
   void WriteData(bool* done) {
@@ -197,7 +197,7 @@ class TunnelSessionClientTest : public testing::Test,
     if (res == talk_base::SR_BLOCK) {
       send_stream_.GetPosition(&position);
       send_stream_.SetPosition(position - leftover);
-      LOG(LS_VERBOSE) << "Send position: " << position - leftover;
+      BLOG(LS_VERBOSE) << "Send position: " << position - leftover;
       *done = false;
     } else if (res == talk_base::SR_SUCCESS) {
       *done = true;

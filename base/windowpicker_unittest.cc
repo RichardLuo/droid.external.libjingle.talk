@@ -11,7 +11,7 @@
 
 TEST(WindowPickerTest, GetWindowList) {
   if (!talk_base::WindowPickerFactory::IsSupported()) {
-    LOG(LS_INFO) << "skipping test: window capturing is not supported with "
+    BLOG(LS_INFO) << "skipping test: window capturing is not supported with "
                  << "current configuration.";
   }
   talk_base::scoped_ptr<talk_base::WindowPicker> picker(
@@ -25,7 +25,7 @@ TEST(WindowPickerTest, GetWindowList) {
 // upgrading to XCode 4.5.  The failure is GetDesktopList returning FALSE.
 TEST(WindowPickerTest, DISABLE_ON_MAC(GetDesktopList)) {
   if (!talk_base::WindowPickerFactory::IsSupported()) {
-    LOG(LS_INFO) << "skipping test: window capturing is not supported with "
+    BLOG(LS_INFO) << "skipping test: window capturing is not supported with "
                  << "current configuration.";
   }
   talk_base::scoped_ptr<talk_base::WindowPicker> picker(

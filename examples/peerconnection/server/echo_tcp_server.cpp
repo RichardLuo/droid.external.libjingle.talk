@@ -85,7 +85,7 @@ class EchoTcpServer : public sigslot::has_slots<> {
         if (len < 0) {
             // TODO: Do something better like forwarding the error to the user.
             if (!sock->IsBlocking()) {
-                //LOG(LS_ERROR) << "Recv() returned error: " << sock->GetError();
+                //BLOG(LS_ERROR) << "Recv() returned error: " << sock->GetError();
             }
             return;
         }

@@ -201,7 +201,7 @@ bool ParseJingleViewRequest(const buzz::XmlElement* action_elem,
       }
       view_request->static_video_views.push_back(static_video_view);
     } else {
-      LOG(LS_INFO) << "Ingnoring unknown view type: " << type;
+      BLOG(LS_INFO) << "Ingnoring unknown view type: " << type;
     }
   }
   return true;

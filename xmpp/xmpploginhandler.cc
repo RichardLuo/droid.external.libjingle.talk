@@ -109,7 +109,7 @@ XmppLoginHandler::Advance() {
         const XmlElement * element = NULL;
 
 #if _DEBUG
-        LOG(LS_VERBOSE) << "XmppLoginHandler::Advance - "
+        BLOG(LS_VERBOSE) << "XmppLoginHandler::Advance - "
                         << talk_base::ErrorName(state_, LOGINTASK_STATES);
 #endif  // _DEBUG
 
@@ -132,7 +132,7 @@ XmppLoginHandler::Advance() {
                 if (NULL == (element = NextStanza()))
                     return true;
 
-                LOGFL("got stream:stream:%s", element->Str().c_str());
+                // LOGFL("got stream:stream:%s", element->Str().c_str());
                 
                 if (!isStart_ || !HandleStartStream(element))
                     return Failure(XmppEngine::ERROR_VERSION);
@@ -160,25 +160,25 @@ XmppLoginHandler::Advance() {
 
                 if (element->Name() == QN_SASL_AUTH) {
                     if (pctx_->ProcessSaslAuthStanza(element) < 0) {
-                        LOGE("Invalid sasl-auth xml:%s", element->Str().c_str());
+                        // LOGE("Invalid sasl-auth xml:%s", element->Str().c_str());
                         return Failure(XmppEngine::ERROR_XML);
                     }
                     authFinished_ = true;
                     state_ = LOGINSTATE_INIT;
-                    LOGFL("auth-stanza processed ok!");
+                    // LOGFL("auth-stanza processed ok!");
                     continue;
                 }
 
                 // <proceed xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>
                 if (element->Name() == QN_TLS_STARTTLS) {
                     if (element->Attr(QN_XMLNS) != NS_TLS) {
-                        LOGE("Invalid start-tls-xml:%s", element->Str().c_str());
+                        // LOGE("Invalid start-tls-xml:%s", element->Str().c_str());
                         return Failure(XmppEngine::ERROR_XML);
                     }
                     XmlElement stanza(QN_TLS_PROCEED, true);
                     pctx_->InternalSendStanza(&stanza);
                     state_ = LOGINSTATE_TLS_INIT;
-                    LOGFL("tls-processed ok!");
+                    // LOGFL("tls-processed ok!");
                     talk_base::Thread::Current()->Post(pctx_);
                     return true;
                 }
@@ -391,7 +391,7 @@ XmppLoginHandler::Advance() {
 //     xmlns:stream="http://etherx.jabber.org/streams" xmlns="jabber:client"/> 
 bool XmppLoginHandler::HandleStartStream(const XmlElement *element) {
 
-    LOGFL("got start-stream:%s \n", element->Str().c_str());
+    // LOGFL("got start-stream:%s \n", element->Str().c_str());
 
     if (element->Name() != QN_STREAM_STREAM)
         return false;

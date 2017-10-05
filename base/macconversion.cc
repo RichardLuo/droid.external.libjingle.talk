@@ -151,7 +151,7 @@ bool p_convertCFNumberToInt(CFNumberRef cfn, int* i) {
           if (converted) *i = static_cast<int>(cfindex);
           break;
         default:
-          LOG(LS_ERROR) << "got unknown type.";
+          BLOG(LS_ERROR) << "got unknown type.";
           break;
       }
     }

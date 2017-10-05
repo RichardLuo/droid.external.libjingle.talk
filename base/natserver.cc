@@ -141,7 +141,7 @@ void NATServer::OnExternalPacket(
 
   // Allow the NAT to reject this packet.
   if (Filter(iter->second, remote_addr)) {
-    LOG(LS_INFO) << "Packet from " << remote_addr.ToString()
+    BLOG(LS_INFO) << "Packet from " << remote_addr.ToString()
                  << " was filtered out by the NAT.";
     return;
   }
@@ -162,7 +162,7 @@ void NATServer::Translate(const SocketAddressPair& route) {
   AsyncUDPSocket* socket = AsyncUDPSocket::Create(external_, external_ip_);
 
   if (!socket) {
-    LOG(LS_ERROR) << "Couldn't find a free port!";
+    BLOG(LS_ERROR) << "Couldn't find a free port!";
     return;
   }
 

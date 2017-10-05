@@ -161,7 +161,7 @@ std::string XmppSession::GetAuthToken() {
 int XmppSession::ProcessStart() {
     // Should not happen, but was observed in crash reports
     if (!d_->socket_) {
-        LOG(LS_ERROR) << "socket_ already reset";
+        BLOG(LS_ERROR) << "socket_ already reset";
         return STATE_DONE;
     }
 
@@ -188,7 +188,7 @@ void XmppSession::OnAuthDone() {
 int XmppSession::ProcessTokenLogin() {
     // Should not happen, but was observed in crash reports
     if (!d_->socket_) {
-        LOG(LS_ERROR) << "socket_ already reset";
+        BLOG(LS_ERROR) << "socket_ already reset";
         return STATE_DONE;
     }
 
@@ -232,7 +232,7 @@ int XmppSession::ProcessTokenLogin() {
 int XmppSession::ProcessStartXmppLogin() {
     // Should not happen, but was observed in crash reports
     if (!d_->socket_) {
-        LOG(LS_ERROR) << "socket_ already reset";
+        BLOG(LS_ERROR) << "socket_ already reset";
         return STATE_DONE;
     }
 
@@ -386,7 +386,7 @@ void XmppSession::Private::OnSocketRead() {
     for (;;) {
         // Should not happen, but was observed in crash reports
         if (!socket_) {
-            LOG(LS_ERROR) << "socket_ already reset";
+            BLOG(LS_ERROR) << "socket_ already reset";
             return;
         }
 

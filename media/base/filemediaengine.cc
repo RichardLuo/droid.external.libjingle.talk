@@ -68,7 +68,7 @@ VoiceMediaChannel* FileMediaEngine::CreateChannel() {
     input_file_stream = talk_base::Filesystem::OpenFile(
         talk_base::Pathname(voice_input_filename_), "rb");
     if (!input_file_stream) {
-      LOG(LS_ERROR) << "Not able to open the input audio stream file.";
+      BLOG(LS_ERROR) << "Not able to open the input audio stream file.";
       return NULL;
     }
   }
@@ -78,7 +78,7 @@ VoiceMediaChannel* FileMediaEngine::CreateChannel() {
         talk_base::Pathname(voice_output_filename_), "wb");
     if (!output_file_stream) {
       delete input_file_stream;
-      LOG(LS_ERROR) << "Not able to open the output audio stream file.";
+      BLOG(LS_ERROR) << "Not able to open the output audio stream file.";
       return NULL;
     }
   }
@@ -98,7 +98,7 @@ VideoMediaChannel* FileMediaEngine::CreateVideoChannel(
     input_file_stream = talk_base::Filesystem::OpenFile(
         talk_base::Pathname(video_input_filename_), "rb");
     if (!input_file_stream) {
-      LOG(LS_ERROR) << "Not able to open the input video stream file.";
+      BLOG(LS_ERROR) << "Not able to open the input video stream file.";
       return NULL;
     }
   }
@@ -108,7 +108,7 @@ VideoMediaChannel* FileMediaEngine::CreateVideoChannel(
         talk_base::Pathname(video_output_filename_), "wb");
     if (!output_file_stream) {
       delete input_file_stream;
-      LOG(LS_ERROR) << "Not able to open the output video stream file.";
+      BLOG(LS_ERROR) << "Not able to open the output video stream file.";
       return NULL;
     }
   }
@@ -276,7 +276,7 @@ bool FileVoiceChannel::SetSend(SendFlags flag) {
 
 bool FileVoiceChannel::AddSendStream(const StreamParams& sp) {
   if (send_ssrc_ != 0 || sp.ssrcs.size() != 1) {
-    LOG(LS_ERROR) << "FileVoiceChannel only supports one send stream.";
+    BLOG(LS_ERROR) << "FileVoiceChannel only supports one send stream.";
     return false;
   }
   send_ssrc_ = sp.ssrcs[0];
@@ -319,7 +319,7 @@ bool FileVideoChannel::SetSend(bool send) {
 
 bool FileVideoChannel::AddSendStream(const StreamParams& sp) {
   if (send_ssrc_ != 0 || sp.ssrcs.size() != 1) {
-    LOG(LS_ERROR) << "FileVideoChannel only support one send stream.";
+    BLOG(LS_ERROR) << "FileVideoChannel only support one send stream.";
     return false;
   }
   send_ssrc_ = sp.ssrcs[0];

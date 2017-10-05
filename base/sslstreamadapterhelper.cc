@@ -97,7 +97,7 @@ bool SSLStreamAdapterHelper::SetPeerCertificateDigest(
   size_t expected_len;
 
   if (!GetDigestLength(digest_alg, &expected_len)) {
-    LOG(LS_WARNING) << "Unknown digest algorithm: " << digest_alg;
+    BLOG(LS_WARNING) << "Unknown digest algorithm: " << digest_alg;
     return false;
   }
   if (expected_len != digest_len)
@@ -110,7 +110,7 @@ bool SSLStreamAdapterHelper::SetPeerCertificateDigest(
 }
 
 void SSLStreamAdapterHelper::Error(const char* context, int err, bool signal) {
-  LOG(LS_WARNING) << "SSLStreamAdapterHelper::Error("
+  BLOG(LS_WARNING) << "SSLStreamAdapterHelper::Error("
                   << context << ", " << err << "," << signal << ")";
   state_ = SSL_ERROR;
   ssl_error_code_ = err;

@@ -48,7 +48,7 @@
 
 #define MAYBE_SKIP_TEST(feature)                    \
   if (!(talk_base::SSLStreamAdapter::feature())) {  \
-    LOG(LS_INFO) << "Feature disabled... skipping"; \
+    BLOG(LS_INFO) << "Feature disabled... skipping"; \
     return;                                         \
   }
 

@@ -93,7 +93,7 @@ static void FillPlaybackBufferAttr(int latency,
   attr->tlength = latency;
   attr->minreq = latency / kPlaybackRequestFactor;
   attr->prebuf = attr->tlength - attr->minreq;
-  LOG(LS_VERBOSE) << "Configuring latency = " << attr->tlength << ", minreq = "
+  BLOG(LS_VERBOSE) << "Configuring latency = " << attr->tlength << ", minreq = "
                   << attr->minreq << ", minfill = " << attr->prebuf;
 }
 
@@ -155,7 +155,7 @@ class PulseAudioStream {
       // Unset this here so that we don't get a TERMINATED callback.
       symbol_table()->pa_stream_set_state_callback()(stream_, NULL, NULL);
       if (symbol_table()->pa_stream_disconnect()(stream_) != 0) {
-        LOG(LS_ERROR) << "Can't disconnect stream";
+        BLOG(LS_ERROR) << "Can't disconnect stream";
         // Continue and return true anyways.
       }
       symbol_table()->pa_stream_unref()(stream_);
@@ -177,7 +177,7 @@ class PulseAudioStream {
         &negative);
     Unlock();
     if (re != 0) {
-      LOG(LS_ERROR) << "Can't query latency";
+      BLOG(LS_ERROR) << "Can't query latency";
       // We'd rather continue playout/capture with an incorrect delay than stop
       // it altogether, so return a valid value.
       return 0;
@@ -295,7 +295,7 @@ class PulseAudioInputStream :
       // This pointer was never unset by the callback, so we must have received
       // an empty list of infos. This probably never happens, but we code for it
       // anyway.
-      LOG(LS_ERROR) << "Did not receive GetVolumeCallback";
+      BLOG(LS_ERROR) << "Did not receive GetVolumeCallback";
       goto done;
     }
 
@@ -355,7 +355,7 @@ class PulseAudioInputStream :
       // This pointer was never unset by the callback, so we must have received
       // an empty list of infos. This probably never happens, but we code for it
       // anyway.
-      LOG(LS_ERROR) << "Did not receive GetSourceChannelCountCallback";
+      BLOG(LS_ERROR) << "Did not receive GetSourceChannelCountCallback";
       goto done;
     }
 
@@ -370,7 +370,7 @@ class PulseAudioInputStream :
         &SetVolumeCallback,
         NULL);
     if (!op) {
-      LOG(LS_ERROR) << "pa_context_set_source_volume_by_index()";
+      BLOG(LS_ERROR) << "pa_context_set_source_volume_by_index()";
       goto done;
     }
     // Don't need to wait for this to complete.
@@ -440,7 +440,7 @@ class PulseAudioInputStream :
     if (symbol_table()->pa_stream_peek()(stream_.stream(),
                                          &temp_sample_data_,
                                          &temp_sample_data_size_) != 0) {
-      LOG(LS_ERROR) << "Can't read data!";
+      BLOG(LS_ERROR) << "Can't read data!";
       return;
     }
     // Since we consume the data asynchronously on a different thread, we have
@@ -470,7 +470,7 @@ class PulseAudioInputStream :
     for (;;) {
       // Ack the last thing we read.
       if (symbol_table()->pa_stream_drop()(stream_.stream()) != 0) {
-        LOG(LS_ERROR) << "Can't ack read data";
+        BLOG(LS_ERROR) << "Can't ack read data";
       }
 
       if (symbol_table()->pa_stream_readable_size()(stream_.stream()) <= 0) {
@@ -484,7 +484,7 @@ class PulseAudioInputStream :
       if (symbol_table()->pa_stream_peek()(stream_.stream(),
                                            &sample_data,
                                            &sample_data_size) != 0) {
-        LOG(LS_ERROR) << "Can't read data!";
+        BLOG(LS_ERROR) << "Can't read data!";
         break;
       }
 
@@ -508,7 +508,7 @@ class PulseAudioInputStream :
 
   static void OverflowCallback(pa_stream *stream,
                                void *userdata) {
-    LOG(LS_WARNING) << "Buffer overflow on capture stream " << stream;
+    BLOG(LS_WARNING) << "Buffer overflow on capture stream " << stream;
   }
 
   static void GetVolumeCallbackThunk(pa_context *unused,
@@ -538,7 +538,7 @@ class PulseAudioInputStream :
       // We have received an additional callback after the first one, which
       // doesn't make sense for a single source. This probably never happens,
       // but we code for it anyway.
-      LOG(LS_WARNING) << "Ignoring extra GetVolumeCallback";
+      BLOG(LS_WARNING) << "Ignoring extra GetVolumeCallback";
     }
   }
 
@@ -569,7 +569,7 @@ class PulseAudioInputStream :
       // We have received an additional callback after the first one, which
       // doesn't make sense for a single source. This probably never happens,
       // but we code for it anyway.
-      LOG(LS_WARNING) << "Ignoring extra GetSourceChannelCountCallback";
+      BLOG(LS_WARNING) << "Ignoring extra GetSourceChannelCountCallback";
     }
   }
 
@@ -577,7 +577,7 @@ class PulseAudioInputStream :
                                 int success,
                                 void *unused2) {
     if (!success) {
-      LOG(LS_ERROR) << "Failed to change capture volume";
+      BLOG(LS_ERROR) << "Failed to change capture volume";
     }
   }
 
@@ -637,7 +637,7 @@ class PulseAudioOutputStream :
                                           NULL,
                                           0,
                                           PA_SEEK_RELATIVE) != 0) {
-      LOG(LS_ERROR) << "Unable to write";
+      BLOG(LS_ERROR) << "Unable to write";
       ret = false;
     }
     Unlock();
@@ -668,7 +668,7 @@ class PulseAudioOutputStream :
       // This pointer was never unset by the callback, so we must have received
       // an empty list of infos. This probably never happens, but we code for it
       // anyway.
-      LOG(LS_ERROR) << "Did not receive GetVolumeCallback";
+      BLOG(LS_ERROR) << "Did not receive GetVolumeCallback";
       goto done;
     }
 
@@ -697,7 +697,7 @@ class PulseAudioOutputStream :
     const pa_sample_spec *spec = symbol_table()->pa_stream_get_sample_spec()(
         stream_.stream());
     if (!spec) {
-      LOG(LS_ERROR) << "pa_stream_get_sample_spec()";
+      BLOG(LS_ERROR) << "pa_stream_get_sample_spec()";
       goto done;
     }
 
@@ -714,7 +714,7 @@ class PulseAudioOutputStream :
         &SetVolumeCallback,
         NULL);
     if (!op) {
-      LOG(LS_ERROR) << "pa_context_set_sink_input_volume()";
+      BLOG(LS_ERROR) << "pa_context_set_sink_input_volume()";
       goto done;
     }
     // Don't need to wait for this to complete.
@@ -757,7 +757,7 @@ class PulseAudioOutputStream :
     Lock();
     if (symbol_table()->pa_stream_begin_write()(stream_.stream(), buffer, size)
             != 0) {
-      LOG(LS_ERROR) << "Can't get write buffer";
+      BLOG(LS_ERROR) << "Can't get write buffer";
       ret = false;
     }
     Unlock();
@@ -771,7 +771,7 @@ class PulseAudioOutputStream :
     Lock();
     if (written == 0) {
       if (symbol_table()->pa_stream_cancel_write()(stream_.stream()) != 0) {
-        LOG(LS_ERROR) << "Can't cancel write";
+        BLOG(LS_ERROR) << "Can't cancel write";
         ret = false;
       }
     } else {
@@ -781,7 +781,7 @@ class PulseAudioOutputStream :
                                             NULL,
                                             0,
                                             PA_SEEK_RELATIVE) != 0) {
-        LOG(LS_ERROR) << "Unable to write";
+        BLOG(LS_ERROR) << "Unable to write";
         ret = false;
       }
     }
@@ -882,7 +882,7 @@ class PulseAudioOutputStream :
   }
 
   void OnUnderflowCallback() {
-    LOG(LS_WARNING) << "Buffer underflow on playback stream "
+    BLOG(LS_WARNING) << "Buffer underflow on playback stream "
                     << stream_.stream();
 
     if (configured_latency_ == SoundSystemInterface::kNoLatencyRequirements) {
@@ -896,7 +896,7 @@ class PulseAudioOutputStream :
     const pa_sample_spec *spec = symbol_table()->pa_stream_get_sample_spec()(
         stream_.stream());
     if (!spec) {
-      LOG(LS_ERROR) << "pa_stream_get_sample_spec()";
+      BLOG(LS_ERROR) << "pa_stream_get_sample_spec()";
       return;
     }
 
@@ -916,7 +916,7 @@ class PulseAudioOutputStream :
         NULL,
         NULL);
     if (!op) {
-      LOG(LS_ERROR) << "pa_stream_set_buffer_attr()";
+      BLOG(LS_ERROR) << "pa_stream_set_buffer_attr()";
       return;
     }
     // Don't need to wait for this to complete.
@@ -953,7 +953,7 @@ class PulseAudioOutputStream :
       // We have received an additional callback after the first one, which
       // doesn't make sense for a single sink input. This probably never
       // happens, but we code for it anyway.
-      LOG(LS_WARNING) << "Ignoring extra GetVolumeCallback";
+      BLOG(LS_WARNING) << "Ignoring extra GetVolumeCallback";
     }
   }
 
@@ -961,7 +961,7 @@ class PulseAudioOutputStream :
                                 int success,
                                 void *unused2) {
     if (!success) {
-      LOG(LS_ERROR) << "Failed to change playback volume";
+      BLOG(LS_ERROR) << "Failed to change playback volume";
     }
   }
 
@@ -990,19 +990,19 @@ bool PulseAudioSoundSystem::Init() {
   if (!symbol_table_.Load()) {
     // Most likely the Pulse library and sound server are not installed on
     // this system.
-    LOG(LS_WARNING) << "Failed to load symbol table";
+    BLOG(LS_WARNING) << "Failed to load symbol table";
     return false;
   }
 
   // Now create and start the Pulse event thread.
   mainloop_ = symbol_table_.pa_threaded_mainloop_new()();
   if (!mainloop_) {
-    LOG(LS_ERROR) << "Can't create mainloop";
+    BLOG(LS_ERROR) << "Can't create mainloop";
     goto fail0;
   }
 
   if (symbol_table_.pa_threaded_mainloop_start()(mainloop_) != 0) {
-    LOG(LS_ERROR) << "Can't start mainloop";
+    BLOG(LS_ERROR) << "Can't start mainloop";
     goto fail1;
   }
 
@@ -1142,7 +1142,7 @@ bool PulseAudioSoundSystem::ConnectToPulse(pa_context *context) {
           NULL,          // Default server
           PA_CONTEXT_NOAUTOSPAWN,
           NULL) != 0) {  // No special fork handling needed
-    LOG(LS_ERROR) << "Can't start connection to PulseAudio sound server";
+    BLOG(LS_ERROR) << "Can't start connection to PulseAudio sound server";
     ret = false;
     goto done;
   }
@@ -1157,12 +1157,12 @@ bool PulseAudioSoundSystem::ConnectToPulse(pa_context *context) {
 
   if (state != PA_CONTEXT_READY) {
     if (state == PA_CONTEXT_FAILED) {
-      LOG(LS_ERROR) << "Failed to connect to PulseAudio sound server";
+      BLOG(LS_ERROR) << "Failed to connect to PulseAudio sound server";
     } else if (state == PA_CONTEXT_TERMINATED) {
-      LOG(LS_ERROR) << "PulseAudio connection terminated early";
+      BLOG(LS_ERROR) << "PulseAudio connection terminated early";
     } else {
       // Shouldn't happen, because we only signal on one of those three states.
-      LOG(LS_ERROR) << "Unknown problem connecting to PulseAudio";
+      BLOG(LS_ERROR) << "Unknown problem connecting to PulseAudio";
     }
     ret = false;
   }
@@ -1186,7 +1186,7 @@ pa_context *PulseAudioSoundSystem::CreateNewConnection() {
       symbol_table_.pa_threaded_mainloop_get_api()(mainloop_),
       app_name.c_str());
   if (!context) {
-    LOG(LS_ERROR) << "Can't create context";
+    BLOG(LS_ERROR) << "Can't create context";
     goto fail0;
   }
 
@@ -1359,11 +1359,11 @@ void PulseAudioSoundSystem::StreamStateChangedCallbackThunk(
 void PulseAudioSoundSystem::OnStreamStateChangedCallback(pa_stream *stream) {
   pa_stream_state_t state = symbol_table_.pa_stream_get_state()(stream);
   if (state == PA_STREAM_READY) {
-    LOG(LS_INFO) << "Pulse stream " << stream << " ready";
+    BLOG(LS_INFO) << "Pulse stream " << stream << " ready";
   } else if (state == PA_STREAM_FAILED ||
              state == PA_STREAM_TERMINATED ||
              state == PA_STREAM_UNCONNECTED) {
-    LOG(LS_ERROR) << "Pulse stream " << stream << " failed to connect: "
+    BLOG(LS_ERROR) << "Pulse stream " << stream << " failed to connect: "
                   << LastError();
   }
 }
@@ -1419,7 +1419,7 @@ StreamInterface *PulseAudioSoundSystem::OpenDevice(
   pa_stream *stream = symbol_table_.pa_stream_new()(context_, stream_name,
       &spec, NULL);
   if (!stream) {
-    LOG(LS_ERROR) << "Can't create pa_stream";
+    BLOG(LS_ERROR) << "Can't create pa_stream";
     goto done;
   }
 
@@ -1436,7 +1436,7 @@ StreamInterface *PulseAudioSoundSystem::OpenDevice(
       params.latency,
       spec);
   if (!stream_interface) {
-    LOG(LS_ERROR) << "Can't connect stream to " << dev;
+    BLOG(LS_ERROR) << "Can't connect stream to " << dev;
     symbol_table_.pa_stream_unref()(stream);
   }
 
@@ -1501,7 +1501,7 @@ SoundInputStreamInterface *PulseAudioSoundSystem::ConnectInputStream(
     attr.fragsize = latency;
     attr.maxlength = latency + bytes_per_sec * kCaptureBufferExtraMsecs /
         talk_base::kNumMicrosecsPerSec;
-    LOG(LS_VERBOSE) << "Configuring latency = " << attr.fragsize
+    BLOG(LS_VERBOSE) << "Configuring latency = " << attr.fragsize
                     << ", maxlength = " << attr.maxlength;
     pattr = &attr;
   }
@@ -1517,7 +1517,7 @@ SoundInputStreamInterface *PulseAudioSoundSystem::ConnectInputStream(
 // Must be called with the lock held.
 bool PulseAudioSoundSystem::FinishOperation(pa_operation *op) {
   if (!op) {
-    LOG(LS_ERROR) << "Failed to start operation";
+    BLOG(LS_ERROR) << "Failed to start operation";
     return false;
   }
 

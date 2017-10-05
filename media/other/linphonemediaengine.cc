@@ -193,7 +193,7 @@ bool LinphoneVoiceChannel::SetSendCodecs(const std::vector<AudioCodec>& codecs) 
 
     if (first) {
       StopRing();
-      LOG(LS_INFO) << "Using " << i->name << "/" << i->clockrate;
+      BLOG(LS_INFO) << "Using " << i->name << "/" << i->clockrate;
       pt_ = i->id;
       audio_stream_ = audio_stream_start(&av_profile, 2000, "127.0.0.1", 3000, i->id, 250, 0);
       first = false;
@@ -204,7 +204,7 @@ bool LinphoneVoiceChannel::SetSendCodecs(const std::vector<AudioCodec>& codecs) 
     StopRing();
     // We're being asked to set an empty list of codecs. This will only happen when
     // working with a buggy client; let's try PCMU.
-    LOG(LS_WARNING) << "Received empty list of codces; using PCMU/8000";
+    BLOG(LS_WARNING) << "Received empty list of codces; using PCMU/8000";
     audio_stream_ = audio_stream_start(&av_profile, 2000, "127.0.0.1", 3000, 0, 250, 0);
   }
 
@@ -240,7 +240,7 @@ void LinphoneVoiceChannel::StartRing(bool bIncomingCall)
     {
       if (engine_->GetRingWav().size() > 0)
       {
-        LOG(LS_VERBOSE) << "incoming ring. sound file: " << engine_->GetRingWav().c_str() << "\n";
+        BLOG(LS_VERBOSE) << "incoming ring. sound file: " << engine_->GetRingWav().c_str() << "\n";
         ring_stream_ = ring_start (engine_->GetRingWav().c_str(), 1, sndcard);
       }
     }
@@ -248,7 +248,7 @@ void LinphoneVoiceChannel::StartRing(bool bIncomingCall)
     {
       if (engine_->GetCallWav().size() > 0)
       {
-        LOG(LS_VERBOSE) << "outgoing ring. sound file: " << engine_->GetCallWav().c_str() << "\n";
+        BLOG(LS_VERBOSE) << "outgoing ring. sound file: " << engine_->GetCallWav().c_str() << "\n";
         ring_stream_ = ring_start (engine_->GetCallWav().c_str(), 1, sndcard);
       }
     }

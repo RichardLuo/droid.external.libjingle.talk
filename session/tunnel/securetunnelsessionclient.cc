@@ -106,7 +106,7 @@ bool SecureTunnelSessionClient::GenerateIdentity() {
 #endif
       ));
   if (identity_.get() == NULL) {
-    LOG(LS_ERROR) << "Failed to generate SSL identity";
+    BLOG(LS_ERROR) << "Failed to generate SSL identity";
     return false;
   }
   return true;
@@ -159,7 +159,7 @@ void SecureTunnelSessionClient::OnIncomingTunnel(const buzz::Jid &jid,
   talk_base::scoped_ptr<talk_base::SSLCertificate> peer_cert(
       ParseCertificate(content->client_pem_certificate));
   if (peer_cert.get() == NULL) {
-    LOG(LS_ERROR)
+    BLOG(LS_ERROR)
         << "Rejecting incoming secure tunnel with invalid cetificate";
     DeclineTunnel(session);
     return;
@@ -364,7 +364,7 @@ void SecureTunnelSession::OnAccept() {
       ParseCertificate(cert_pem);
   if (peer_cert == NULL) {
     ASSERT(role_ == INITIATOR);  // when RESPONDER we validated it earlier
-    LOG(LS_ERROR)
+    BLOG(LS_ERROR)
         << "Rejecting secure tunnel accept with invalid cetificate";
     session_->Reject(STR_TERMINATE_INCOMPATIBLE_PARAMETERS);
     return;
@@ -376,7 +376,7 @@ void SecureTunnelSession::OnAccept() {
   ssl_stream->SetPeerCertificate(peer_cert);  // pass ownership of certificate.
   // We no longer need our handle to the ssl stream.
   ssl_stream_reference_.reset();
-  LOG(LS_INFO) << "Connecting tunnel";
+  BLOG(LS_INFO) << "Connecting tunnel";
   // This will try to connect the PseudoTcpChannel. If and when that
   // succeeds, then ssl negotiation will take place, and when that
   // succeeds, the tunnel stream will finally open.

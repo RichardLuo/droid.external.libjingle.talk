@@ -312,7 +312,7 @@ class WebRtcMediaChannel : public T, public webrtc::Transport {
       return -1;
     }
     if (sequence_number() == -1) {
-      LOG(INFO) << "WebRtcVoiceMediaChannel sends first packet seqnum="
+      BLOG(INFO) << "WebRtcVoiceMediaChannel sends first packet seqnum="
                 << seq_num;
     }
     sequence_number_ = seq_num;

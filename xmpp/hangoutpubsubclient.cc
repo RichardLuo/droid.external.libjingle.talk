@@ -508,7 +508,7 @@ void HangoutPubSubClient::OnAudioMuteStateChange(
     const std::string& muter_nick = change.publisher_nick;
     if (!is_muted) {
       // The server should prevent remote un-mute.
-      LOG(LS_WARNING) << muter_nick << " remote unmuted " << mutee_nick;
+      BLOG(LS_WARNING) << muter_nick << " remote unmuted " << mutee_nick;
       return;
     }
     bool should_mute_locally = (mutee_nick == nick_);

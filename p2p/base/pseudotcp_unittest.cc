@@ -133,7 +133,7 @@ class PseudoTcpTestBase : public testing::Test,
   virtual void OnTcpOpen(PseudoTcp* tcp) {
     // Consider ourselves connected when the local side gets OnTcpOpen.
     // OnTcpWriteable isn't fired at open, so we trigger it now.
-    LOG(LS_VERBOSE) << "Opened";
+    BLOG(LS_VERBOSE) << "Opened";
     if (tcp == &local_) {
       have_connected_ = true;
       OnTcpWriteable(tcp);
@@ -147,7 +147,7 @@ class PseudoTcpTestBase : public testing::Test,
     // Consider ourselves closed when the remote side gets OnTcpClosed.
     // TODO: OnTcpClosed is only ever notified in case of error in
     // the current implementation.  Solicited close is not (yet) supported.
-    LOG(LS_VERBOSE) << "Closed";
+    BLOG(LS_VERBOSE) << "Closed";
     EXPECT_EQ(0U, error);
     if (tcp == &remote_) {
       have_disconnected_ = true;
@@ -158,10 +158,10 @@ class PseudoTcpTestBase : public testing::Test,
     // Randomly drop the desired percentage of packets.
     // Also drop packets that are larger than the configured MTU.
     if (talk_base::CreateRandomId() % 100 < static_cast<uint32>(loss_)) {
-      LOG(LS_VERBOSE) << "Randomly dropping packet, size=" << len;
+      BLOG(LS_VERBOSE) << "Randomly dropping packet, size=" << len;
     } else if (len > static_cast<size_t>(
         talk_base::_min(local_mtu_, remote_mtu_))) {
-      LOG(LS_VERBOSE) << "Dropping packet that exceeds path MTU, size=" << len;
+      BLOG(LS_VERBOSE) << "Dropping packet that exceeds path MTU, size=" << len;
     } else {
       int id = (tcp == &local_) ? MSG_RPACKET : MSG_LPACKET;
       std::string packet(buffer, len);
@@ -253,7 +253,7 @@ class PseudoTcpTest : public PseudoTcpTestBase {
     EXPECT_EQ(static_cast<size_t>(size), received);
     EXPECT_EQ(0, memcmp(send_stream_.GetBuffer(),
                         recv_stream_.GetBuffer(), size));
-    LOG(LS_INFO) << "Transferred " << received << " bytes in " << elapsed
+    BLOG(LS_INFO) << "Transferred " << received << " bytes in " << elapsed
                  << " ms (" << size * 8 / elapsed << " Kbps)";
   }
 
@@ -279,7 +279,7 @@ class PseudoTcpTest : public PseudoTcpTestBase {
     // Write bytes from the send stream when we can.
     // Shut down when we've sent everything.
     if (tcp == &local_) {
-      LOG(LS_VERBOSE) << "Flow Control Lifted";
+      BLOG(LS_VERBOSE) << "Flow Control Lifted";
       bool done;
       WriteData(&done);
       if (done) {
@@ -297,7 +297,7 @@ class PseudoTcpTest : public PseudoTcpTestBase {
       if (rcvd != -1) {
         recv_stream_.Write(block, rcvd, NULL, NULL);
         recv_stream_.GetPosition(&position);
-        LOG(LS_VERBOSE) << "Received: " << position;
+        BLOG(LS_VERBOSE) << "Received: " << position;
       }
     } while (rcvd > 0);
   }
@@ -313,10 +313,10 @@ class PseudoTcpTest : public PseudoTcpTestBase {
         UpdateLocalClock();
         if (sent != -1) {
           send_stream_.SetPosition(position + sent);
-          LOG(LS_VERBOSE) << "Sent: " << position + sent;
+          BLOG(LS_VERBOSE) << "Sent: " << position + sent;
         } else {
           send_stream_.SetPosition(position);
-          LOG(LS_VERBOSE) << "Flow Controlled";
+          BLOG(LS_VERBOSE) << "Flow Controlled";
         }
       } else {
         sent = tosend = 0;
@@ -364,7 +364,7 @@ class PseudoTcpTestPingPong : public PseudoTcpTestBase {
     // number of iterations have completed.
     EXPECT_TRUE_WAIT(have_disconnected_, kTransferTimeoutMs);
     elapsed = talk_base::TimeSince(start);
-    LOG(LS_INFO) << "Performed " << iterations << " pings in "
+    BLOG(LS_INFO) << "Performed " << iterations << " pings in "
                  << elapsed << " ms";
   }
 
@@ -403,7 +403,7 @@ class PseudoTcpTestPingPong : public PseudoTcpTestBase {
       return;
     // Write bytes from the send stream when we can.
     // Shut down when we've sent everything.
-    LOG(LS_VERBOSE) << "Flow Control Lifted";
+    BLOG(LS_VERBOSE) << "Flow Control Lifted";
     WriteData();
   }
 
@@ -416,7 +416,7 @@ class PseudoTcpTestPingPong : public PseudoTcpTestBase {
       if (rcvd != -1) {
         recv_stream_.Write(block, rcvd, NULL, NULL);
         recv_stream_.GetPosition(&position);
-        LOG(LS_VERBOSE) << "Received: " << position;
+        BLOG(LS_VERBOSE) << "Received: " << position;
       }
     } while (rcvd > 0);
   }
@@ -433,10 +433,10 @@ class PseudoTcpTestPingPong : public PseudoTcpTestBase {
         UpdateLocalClock();
         if (sent != -1) {
           send_stream_.SetPosition(position + sent);
-          LOG(LS_VERBOSE) << "Sent: " << position + sent;
+          BLOG(LS_VERBOSE) << "Sent: " << position + sent;
         } else {
           send_stream_.SetPosition(position);
-          LOG(LS_VERBOSE) << "Flow Controlled";
+          BLOG(LS_VERBOSE) << "Flow Controlled";
         }
       } else {
         sent = tosend = 0;
@@ -532,7 +532,7 @@ class PseudoTcpTestReceiveWindow : public PseudoTcpTestBase {
       if (rcvd != -1) {
         recv_stream_.Write(block, rcvd, NULL, NULL);
         recv_stream_.GetPosition(&position);
-        LOG(LS_VERBOSE) << "Received: " << position;
+        BLOG(LS_VERBOSE) << "Received: " << position;
       }
     } while (rcvd > 0);
 
@@ -560,10 +560,10 @@ class PseudoTcpTestReceiveWindow : public PseudoTcpTestBase {
         UpdateLocalClock();
         if (sent != -1) {
           send_stream_.SetPosition(position + sent);
-          LOG(LS_VERBOSE) << "Sent: " << position + sent;
+          BLOG(LS_VERBOSE) << "Sent: " << position + sent;
         } else {
           send_stream_.SetPosition(position);
-          LOG(LS_VERBOSE) << "Flow Controlled";
+          BLOG(LS_VERBOSE) << "Flow Controlled";
         }
       } else {
         sent = tosend = 0;
@@ -582,7 +582,7 @@ class PseudoTcpTestReceiveWindow : public PseudoTcpTestBase {
       talk_base::Thread::Current()->PostDelayed(10, this, MSG_WRITE);
     } else {
       if (!remote_.isReceiveBufferFull()) {
-        LOG(LS_ERROR) << "This shouldn't happen - the send buffer is full, "
+        BLOG(LS_ERROR) << "This shouldn't happen - the send buffer is full, "
                       << "the receive buffer is not, and there are no "
                       << "remaining messages to process.";
       }

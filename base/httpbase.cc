@@ -103,7 +103,7 @@ HttpParser::Process(const char* buffer, size_t len, size_t* processed,
         len -= 1;
       }
       ProcessResult result = ProcessLine(line, len, error);
-      LOG(LS_VERBOSE) << "Processed line, result=" << result;
+      BLOG(LS_VERBOSE) << "Processed line, result=" << result;
 
       if (PR_CONTINUE != result) {
         return result;
@@ -125,7 +125,7 @@ HttpParser::Process(const char* buffer, size_t len, size_t* processed,
       size_t read = 0;
       ProcessResult result = ProcessData(buffer + *processed, available, read,
                                          error);
-      LOG(LS_VERBOSE) << "Processed data, result: " << result << " read: "
+      BLOG(LS_VERBOSE) << "Processed data, result: " << result << " read: "
                       << read << " err: " << error;
 
       if (PR_CONTINUE != result) {
@@ -728,7 +728,7 @@ HttpBase::queue_headers() {
       len_ += len;
       ++header_;
     } else if (len_ == 0) {
-      LOG(WARNING) << "discarding header that is too long: " << header_->first;
+      BLOG(WARNING) << "discarding header that is too long: " << header_->first;
       ++header_;
     } else {
       // Not enough room for the next header, write to network first.

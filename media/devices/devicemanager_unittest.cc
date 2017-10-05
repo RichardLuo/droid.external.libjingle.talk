@@ -364,7 +364,7 @@ TEST(DeviceManagerTest, GetVideoCaptureDevices_KUnknown) {
 
 TEST(DeviceManagerTest, GetWindows) {
   if (!talk_base::WindowPickerFactory::IsSupported()) {
-    LOG(LS_INFO) << "skipping test: window capturing is not supported with "
+    BLOG(LS_INFO) << "skipping test: window capturing is not supported with "
                  << "current configuration.";
     return;
   }
@@ -372,7 +372,7 @@ TEST(DeviceManagerTest, GetWindows) {
   std::vector<talk_base::WindowDescription> descriptions;
   EXPECT_TRUE(dm->Init());
   if (!dm->GetWindows(&descriptions) || descriptions.empty()) {
-    LOG(LS_INFO) << "skipping test: window capturing. Does not have any "
+    BLOG(LS_INFO) << "skipping test: window capturing. Does not have any "
                  << "windows to capture.";
     return;
   }
@@ -387,7 +387,7 @@ TEST(DeviceManagerTest, GetWindows) {
 
 TEST(DeviceManagerTest, GetDesktops) {
   if (!talk_base::WindowPickerFactory::IsSupported()) {
-    LOG(LS_INFO) << "skipping test: desktop capturing is not supported with "
+    BLOG(LS_INFO) << "skipping test: desktop capturing is not supported with "
                  << "current configuration.";
     return;
   }
@@ -395,7 +395,7 @@ TEST(DeviceManagerTest, GetDesktops) {
   std::vector<talk_base::DesktopDescription> descriptions;
   EXPECT_TRUE(dm->Init());
   if (!dm->GetDesktops(&descriptions) || descriptions.empty()) {
-    LOG(LS_INFO) << "skipping test: desktop capturing. Does not have any "
+    BLOG(LS_INFO) << "skipping test: desktop capturing. Does not have any "
                  << "desktops to capture.";
     return;
   }

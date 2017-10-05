@@ -1404,8 +1404,8 @@ class SessionTest : public testing::Test {
       EXPECT_TRUE(old_content_desc_a != NULL);
       EXPECT_TRUE(old_content_desc_b != NULL);
 
-      LOG(LS_INFO) << "A " << old_content_a->name;
-      LOG(LS_INFO) << "B " << old_content_b->name;
+      BLOG(LS_INFO) << "A " << old_content_a->name;
+      BLOG(LS_INFO) << "B " << old_content_b->name;
 
       std::string description_info_xml =
           JingleDescriptionInfoXml(content_name_a, content_type);

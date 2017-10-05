@@ -49,7 +49,7 @@ void FileLock::Unlock() {
 
 void FileLock::MaybeUnlock() {
   if (file_) {
-    LOG(LS_INFO) << "Unlocking:" << path_;
+    BLOG(LS_INFO) << "Unlocking:" << path_;
     file_->Close();
     Filesystem::DeleteFile(path_);
     file_.reset();

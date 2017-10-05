@@ -102,7 +102,7 @@ XmppLoginTask::Advance() {
     const XmlElement * element = NULL;
 
 #if _DEBUG
-    LOG(LS_VERBOSE) << "XmppLoginTask::Advance - "
+    BLOG(LS_VERBOSE) << "XmppLoginTask::Advance - "
       << talk_base::ErrorName(state_, LOGINTASK_STATES);
 #endif  // _DEBUG
 

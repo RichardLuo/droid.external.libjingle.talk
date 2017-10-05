@@ -64,7 +64,7 @@ AsyncPacketSocket* BasicPacketSocketFactory::CreateUdpSocket(
     return NULL;
   }
   if (BindSocket(socket, address, min_port, max_port) < 0) {
-    LOG(LS_ERROR) << "UDP bind failed with error "
+    BLOG(LS_ERROR) << "UDP bind failed with error "
                     << socket->GetError();
     delete socket;
     return NULL;
@@ -82,7 +82,7 @@ AsyncPacketSocket* BasicPacketSocketFactory::CreateServerTcpSocket(
   }
 
   if (BindSocket(socket, local_address, min_port, max_port) < 0) {
-    LOG(LS_ERROR) << "TCP bind failed with error "
+    BLOG(LS_ERROR) << "TCP bind failed with error "
                   << socket->GetError();
     delete socket;
     return NULL;
@@ -110,7 +110,7 @@ AsyncPacketSocket* BasicPacketSocketFactory::CreateClientTcpSocket(
   }
 
   if (BindSocket(socket, local_address, 0, 0) < 0) {
-    LOG(LS_ERROR) << "TCP bind failed with error "
+    BLOG(LS_ERROR) << "TCP bind failed with error "
                   << socket->GetError();
     delete socket;
     return NULL;
@@ -132,7 +132,7 @@ AsyncPacketSocket* BasicPacketSocketFactory::CreateClientTcpSocket(
   }
 
   if (socket->Connect(remote_address) < 0) {
-    LOG(LS_ERROR) << "TCP connect failed with error "
+    BLOG(LS_ERROR) << "TCP connect failed with error "
                   << socket->GetError();
     delete socket;
     return NULL;

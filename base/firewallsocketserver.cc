@@ -44,7 +44,7 @@ class FirewallSocket : public AsyncSocketAdapter {
   virtual int Connect(const SocketAddress& addr) {
     if (type_ == SOCK_STREAM) {
       if (!server_->Check(FP_TCP, GetLocalAddress(), addr)) {
-        LOG(LS_VERBOSE) << "FirewallSocket outbound TCP connection from "
+        BLOG(LS_VERBOSE) << "FirewallSocket outbound TCP connection from "
                         << GetLocalAddress().ToString() << " to "
                         << addr.ToString() << " denied";
         // TODO: Handle this asynchronously.
@@ -60,7 +60,7 @@ class FirewallSocket : public AsyncSocketAdapter {
   virtual int SendTo(const void* pv, size_t cb, const SocketAddress& addr) {
     if (type_ == SOCK_DGRAM) {
       if (!server_->Check(FP_UDP, GetLocalAddress(), addr)) {
-        LOG(LS_VERBOSE) << "FirewallSocket outbound UDP packet from "
+        BLOG(LS_VERBOSE) << "FirewallSocket outbound UDP packet from "
                         << GetLocalAddress().ToString() << " to "
                         << addr.ToString() << " dropped";
         return static_cast<int>(cb);
@@ -80,7 +80,7 @@ class FirewallSocket : public AsyncSocketAdapter {
           return res;
         if (server_->Check(FP_UDP, *paddr, GetLocalAddress()))
           return res;
-        LOG(LS_VERBOSE) << "FirewallSocket inbound UDP packet from "
+        BLOG(LS_VERBOSE) << "FirewallSocket inbound UDP packet from "
                         << paddr->ToString() << " to "
                         << GetLocalAddress().ToString() << " dropped";
       }
@@ -90,7 +90,7 @@ class FirewallSocket : public AsyncSocketAdapter {
 
   virtual int Listen(int backlog) {
     if (!server_->tcp_listen_enabled()) {
-      LOG(LS_VERBOSE) << "FirewallSocket listen attempt denied";
+      BLOG(LS_VERBOSE) << "FirewallSocket listen attempt denied";
       return -1;
     }
 
@@ -106,7 +106,7 @@ class FirewallSocket : public AsyncSocketAdapter {
       }
       sock->Close();
       delete sock;
-      LOG(LS_VERBOSE) << "FirewallSocket inbound TCP connection from "
+      BLOG(LS_VERBOSE) << "FirewallSocket inbound TCP connection from "
                       << addr.ToString() << " to "
                       << GetLocalAddress().ToString() << " denied";
     }
@@ -210,7 +210,7 @@ AsyncSocket* FirewallSocketServer::WrapSocket(AsyncSocket* sock, int type) {
   if (!sock ||
       (type == SOCK_STREAM && !tcp_sockets_enabled_) ||
       (type == SOCK_DGRAM && !udp_sockets_enabled_)) {
-    LOG(LS_VERBOSE) << "FirewallSocketServer socket creation denied";
+    BLOG(LS_VERBOSE) << "FirewallSocketServer socket creation denied";
     return NULL;
   }
   return new FirewallSocket(this, sock, type);

@@ -61,7 +61,7 @@ PRDescIdentity NSSStreamAdapter::nspr_layer_identity = PR_INVALID_IO_LAYER;
 
 #define UNIMPLEMENTED \
   PR_SetError(PR_NOT_IMPLEMENTED_ERROR, 0); \
-  LOG(LS_ERROR) \
+  BLOG(LS_ERROR) \
   << "Call to unimplemented function "<< __FUNCTION__; ASSERT(false)
 
 #ifdef SRTP_AES128_CM_HMAC_SHA1_80
@@ -123,13 +123,13 @@ static PRInt32 StreamWrite(PRFileDesc *socket, const void *buf,
   }
 
   if (result == SR_BLOCK) {
-    LOG(LS_INFO) <<
+    BLOG(LS_INFO) <<
         "NSSStreamAdapter: write to underlying transport would block";
     PR_SetError(PR_WOULD_BLOCK_ERROR, 0);
     return -1;
   }
 
-  LOG(LS_ERROR) << "Write error";
+  BLOG(LS_ERROR) << "Write error";
   PR_SetError(PR_UNKNOWN_ERROR, error);
   return -1;
 }
@@ -396,14 +396,14 @@ bool NSSStreamAdapter::Init() {
   // Turn on security.
   rv = SSL_OptionSet(ssl_fd, SSL_SECURITY, PR_TRUE);
   if (rv != SECSuccess) {
-    LOG(LS_ERROR) << "Error enabling security on SSL Socket";
+    BLOG(LS_ERROR) << "Error enabling security on SSL Socket";
     return false;
   }
 
   // Disable SSLv2.
   rv = SSL_OptionSet(ssl_fd, SSL_ENABLE_SSL2, PR_FALSE);
   if (rv != SECSuccess) {
-    LOG(LS_ERROR) << "Error disabling SSL2";
+    BLOG(LS_ERROR) << "Error disabling SSL2";
     return false;
   }
 
@@ -412,14 +412,14 @@ bool NSSStreamAdapter::Init() {
   // identity set.
   rv = SSL_OptionSet(ssl_fd, SSL_NO_CACHE, PR_TRUE);
   if (rv != SECSuccess) {
-    LOG(LS_ERROR) << "Error disabling cache";
+    BLOG(LS_ERROR) << "Error disabling cache";
     return false;
   }
 
   // Disable session tickets.
   rv = SSL_OptionSet(ssl_fd, SSL_ENABLE_SESSION_TICKETS, PR_FALSE);
   if (rv != SECSuccess) {
-    LOG(LS_ERROR) << "Error enabling tickets";
+    BLOG(LS_ERROR) << "Error enabling tickets";
     return false;
   }
 
@@ -427,14 +427,14 @@ bool NSSStreamAdapter::Init() {
   rv = SSL_OptionSet(ssl_fd, SSL_ENABLE_RENEGOTIATION,
                      SSL_RENEGOTIATE_NEVER);
   if (rv != SECSuccess) {
-    LOG(LS_ERROR) << "Error disabling renegotiation";
+    BLOG(LS_ERROR) << "Error disabling renegotiation";
     return false;
   }
 
   // Disable false start.
   rv = SSL_OptionSet(ssl_fd, SSL_ENABLE_FALSE_START, PR_FALSE);
   if (rv != SECSuccess) {
-    LOG(LS_ERROR) << "Error disabling false start";
+    BLOG(LS_ERROR) << "Error disabling false start";
     return false;
   }
           
@@ -463,12 +463,12 @@ int NSSStreamAdapter::BeginSSL() {
   ASSERT(!ssl_server_name_.empty() ||
          peer_certificate_.get() != NULL ||
          !peer_certificate_digest_algorithm_.empty());
-  LOG(LS_INFO) << "BeginSSL: "
+  BLOG(LS_INFO) << "BeginSSL: "
                << (!ssl_server_name_.empty() ? ssl_server_name_ :
                                                "with peer");
 
   if (role_ == SSL_CLIENT) {
-    LOG(LS_INFO) << "BeginSSL: as client";
+    BLOG(LS_INFO) << "BeginSSL: as client";
 
     rv = SSL_GetClientAuthDataHook(ssl_fd_, GetClientAuthDataHook,
                                    this);
@@ -477,13 +477,13 @@ int NSSStreamAdapter::BeginSSL() {
       return -1;
     }
   } else {
-    LOG(LS_INFO) << "BeginSSL: as server";
+    BLOG(LS_INFO) << "BeginSSL: as server";
     NSSIdentity *identity;
 
     if (identity_.get()) {
       identity = static_cast<NSSIdentity *>(identity_.get());
     } else {
-      LOG(LS_ERROR) << "Can't be an SSL server without an identity";
+      BLOG(LS_ERROR) << "Can't be an SSL server without an identity";
       Error("BeginSSL", -1, false);
       return -1;
     }
@@ -551,7 +551,7 @@ int NSSStreamAdapter::BeginSSL() {
 }
 
 int NSSStreamAdapter::ContinueSSL() {
-  LOG(LS_INFO) << "ContinueSSL";
+  BLOG(LS_INFO) << "ContinueSSL";
   ASSERT(state_ == SSL_CONNECTING);
 
   // Clear the DTLS timer
@@ -560,7 +560,7 @@ int NSSStreamAdapter::ContinueSSL() {
   SECStatus rv = SSL_ForceHandshake(ssl_fd_);
 
   if (rv == SECSuccess) {
-    LOG(LS_INFO) << "Handshake complete";
+    BLOG(LS_INFO) << "Handshake complete";
 
     ASSERT(cert_ok_);
     if (!cert_ok_) {
@@ -580,17 +580,17 @@ int NSSStreamAdapter::ContinueSSL() {
         Error("ContinueSSL", -1, true);
         return -1;
       } else {
-        LOG(LS_INFO) << "Malformed DTLS message. Ignoring.";
+        BLOG(LS_INFO) << "Malformed DTLS message. Ignoring.";
         // Fall through
       }
     case PR_WOULD_BLOCK_ERROR:
-      LOG(LS_INFO) << "Would have blocked";
+      BLOG(LS_INFO) << "Would have blocked";
       if (ssl_mode_ == SSL_MODE_DTLS) {
         PRIntervalTime timeout;
 
         SECStatus rv = DTLS_GetHandshakeTimeout(ssl_fd_, &timeout);
         if (rv == SECSuccess) {
-          LOG(LS_INFO) << "Timeout is " << timeout << " ms";
+          BLOG(LS_INFO) << "Timeout is " << timeout << " ms";
           Thread::Current()->PostDelayed(PR_IntervalToMilliseconds(timeout),
                                          this, MSG_DTLS_TIMEOUT, 0);
         }
@@ -598,7 +598,7 @@ int NSSStreamAdapter::ContinueSSL() {
 
       return 0;
     default:
-      LOG(LS_INFO) << "Error " << err;
+      BLOG(LS_INFO) << "Error " << err;
       break;
   }
 
@@ -718,7 +718,7 @@ void NSSStreamAdapter::OnEvent(StreamInterface* stream, int events,
   int signal_error = 0;
   ASSERT(stream == this->stream());
   if ((events & SE_OPEN)) {
-    LOG(LS_INFO) << "NSSStreamAdapter::OnEvent SE_OPEN";
+    BLOG(LS_INFO) << "NSSStreamAdapter::OnEvent SE_OPEN";
     if (state_ != SSL_WAIT) {
       ASSERT(state_ == SSL_NONE);
       events_to_signal |= SE_OPEN;
@@ -731,7 +731,7 @@ void NSSStreamAdapter::OnEvent(StreamInterface* stream, int events,
     }
   }
   if ((events & (SE_READ|SE_WRITE))) {
-    LOG(LS_INFO) << "NSSStreamAdapter::OnEvent"
+    BLOG(LS_INFO) << "NSSStreamAdapter::OnEvent"
                  << ((events & SE_READ) ? " SE_READ" : "")
                  << ((events & SE_WRITE) ? " SE_WRITE" : "");
     if (state_ == SSL_NONE) {
@@ -743,17 +743,17 @@ void NSSStreamAdapter::OnEvent(StreamInterface* stream, int events,
       }
     } else if (state_ == SSL_CONNECTED) {
       if (events & SE_WRITE) {
-        LOG(LS_INFO) << " -- onStreamWriteable";
+        BLOG(LS_INFO) << " -- onStreamWriteable";
         events_to_signal |= SE_WRITE;
       }
       if (events & SE_READ) {
-        LOG(LS_INFO) << " -- onStreamReadable";
+        BLOG(LS_INFO) << " -- onStreamReadable";
         events_to_signal |= SE_READ;
       }
     }
   }
   if ((events & SE_CLOSE)) {
-    LOG(LS_INFO) << "NSSStreamAdapter::OnEvent(SE_CLOSE, " << err << ")";
+    BLOG(LS_INFO) << "NSSStreamAdapter::OnEvent(SE_CLOSE, " << err << ")";
     Cleanup();
     events_to_signal |= SE_CLOSE;
     // SE_CLOSE is the only event that uses the final parameter to OnEvent().
@@ -767,7 +767,7 @@ void NSSStreamAdapter::OnEvent(StreamInterface* stream, int events,
 void NSSStreamAdapter::OnMessage(Message* msg) {
   // Process our own messages and then pass others to the superclass
   if (MSG_DTLS_TIMEOUT == msg->message_id) {
-    LOG(LS_INFO) << "DTLS timeout expired";
+    BLOG(LS_INFO) << "DTLS timeout expired";
     ContinueSSL();
   } else {
     StreamInterface::OnMessage(msg);
@@ -779,7 +779,7 @@ SECStatus NSSStreamAdapter::AuthCertificateHook(void *arg,
                                                 PRFileDesc *fd,
                                                 PRBool checksig,
                                                 PRBool isServer) {
-  LOG(LS_INFO) << "NSSStreamAdapter::AuthCertificateHook";
+  BLOG(LS_INFO) << "NSSStreamAdapter::AuthCertificateHook";
   NSSCertificate peer_cert(SSL_PeerCertificate(fd));
   bool ok = false;
 
@@ -788,16 +788,16 @@ SECStatus NSSStreamAdapter::AuthCertificateHook(void *arg,
   NSSStreamAdapter *stream = reinterpret_cast<NSSStreamAdapter *>(arg);
 
   if (stream->peer_certificate_.get()) {
-    LOG(LS_INFO) << "Checking against specified certificate";
+    BLOG(LS_INFO) << "Checking against specified certificate";
 
     // The peer certificate was specified
     if (reinterpret_cast<NSSCertificate *>(stream->peer_certificate_.get())->
         Equals(&peer_cert)) {
-      LOG(LS_INFO) << "Accepted peer certificate";
+      BLOG(LS_INFO) << "Accepted peer certificate";
       ok = true;
     }
   } else if (!stream->peer_certificate_digest_algorithm_.empty()) {
-    LOG(LS_INFO) << "Checking against specified digest";
+    BLOG(LS_INFO) << "Checking against specified digest";
     // The peer certificate digest was specified
     unsigned char digest[64];  // Maximum size
     std::size_t digest_length;
@@ -805,11 +805,11 @@ SECStatus NSSStreamAdapter::AuthCertificateHook(void *arg,
     if (!peer_cert.ComputeDigest(
             stream->peer_certificate_digest_algorithm_,
             digest, sizeof(digest), &digest_length)) {
-      LOG(LS_ERROR) << "Digest computation failed";
+      BLOG(LS_ERROR) << "Digest computation failed";
     } else {
       Buffer computed_digest(digest, digest_length);
       if (computed_digest == stream->peer_certificate_digest_value_) {
-        LOG(LS_INFO) << "Accepted peer certificate";
+        BLOG(LS_INFO) << "Accepted peer certificate";
         ok = true;
       }
     }
@@ -825,7 +825,7 @@ SECStatus NSSStreamAdapter::AuthCertificateHook(void *arg,
   }
 
   if (!ok && stream->ignore_bad_cert()) {
-    LOG(LS_WARNING) << "Ignoring cert error while verifying cert chain";
+    BLOG(LS_WARNING) << "Ignoring cert error while verifying cert chain";
     stream->cert_ok_ = true;
     return SECSuccess;
   }
@@ -839,11 +839,11 @@ SECStatus NSSStreamAdapter::GetClientAuthDataHook(void *arg, PRFileDesc *fd,
                                                   CERTDistNames *caNames,
                                                   CERTCertificate **pRetCert,
                                                   SECKEYPrivateKey **pRetKey) {
-  LOG(LS_INFO) << "Client cert requested";
+  BLOG(LS_INFO) << "Client cert requested";
   NSSStreamAdapter *stream = reinterpret_cast<NSSStreamAdapter *>(arg);
 
   if (!stream->identity_.get()) {
-    LOG(LS_ERROR) << "No identity available";
+    BLOG(LS_ERROR) << "No identity available";
     return SECFailure;
   }
 
@@ -891,7 +891,7 @@ bool NSSStreamAdapter::SetDtlsSrtpCiphers(
     }
 
     if (!found) {
-      LOG(LS_ERROR) << "Could not find cipher: " << *cipher;
+      BLOG(LS_ERROR) << "Could not find cipher: " << *cipher;
       return false;
     }
   }
@@ -963,7 +963,7 @@ bool NSSContext::InitializeSSL(VerificationCallback callback) {
 
     rv = NSS_NoDB_Init(NULL);
     if (rv != SECSuccess) {
-      LOG(LS_ERROR) << "Couldn't initialize NSS error=" <<
+      BLOG(LS_ERROR) << "Couldn't initialize NSS error=" <<
           PORT_GetError();
       return false;
     }

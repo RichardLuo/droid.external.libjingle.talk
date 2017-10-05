@@ -67,7 +67,7 @@ void AsyncHttpRequest::OnWorkStart() {
 
 void AsyncHttpRequest::OnWorkStop() {
   // worker is already quitting, no need to explicitly quit
-  LOG(LS_INFO) << "HttpRequest cancelled";
+  BLOG(LS_INFO) << "HttpRequest cancelled";
 }
 
 void AsyncHttpRequest::OnComplete(HttpClient* client, HttpErrorType error) {
@@ -75,14 +75,14 @@ void AsyncHttpRequest::OnComplete(HttpClient* client, HttpErrorType error) {
 
   set_error(error);
   if (!error) {
-    LOG(LS_INFO) << "HttpRequest completed successfully";
+    BLOG(LS_INFO) << "HttpRequest completed successfully";
 
     std::string value;
     if (client_.response().hasHeader(HH_LOCATION, &value)) {
       response_redirect_ = value.c_str();
     }
   } else {
-    LOG(LS_INFO) << "HttpRequest completed with error: " << error;
+    BLOG(LS_INFO) << "HttpRequest completed with error: " << error;
   }
 
   worker()->Quit();
@@ -91,7 +91,7 @@ void AsyncHttpRequest::OnComplete(HttpClient* client, HttpErrorType error) {
 void AsyncHttpRequest::OnMessage(Message* message) {
   switch (message->message_id) {
    case MSG_TIMEOUT:
-    LOG(LS_INFO) << "HttpRequest timed out";
+    BLOG(LS_INFO) << "HttpRequest timed out";
     client_.reset();
     worker()->Quit();
     break;
@@ -124,7 +124,7 @@ void AsyncHttpRequest::LaunchRequest() {
   client_.set_fail_redirect(fail_redirect_);
   client_.set_server(SocketAddress(host_, port_));
 
-  LOG(LS_INFO) << "HttpRequest start: " << host_ + client_.request().path;
+  BLOG(LS_INFO) << "HttpRequest start: " << host_ + client_.request().path;
 
   Thread::Current()->PostDelayed(timeout_, this, MSG_TIMEOUT);
   client_.start();

@@ -172,7 +172,7 @@ TEST_F(StunRequestTest, TestBackoff) {
     while (request_count_ == i)
       talk_base::Thread::Current()->ProcessMessages(1);
     int32 elapsed = talk_base::TimeSince(start);
-    LOG(LS_INFO) << "STUN request #" << (i + 1)
+    BLOG(LS_INFO) << "STUN request #" << (i + 1)
                  << " sent at " << elapsed << " ms";
     EXPECT_GE(TotalDelay(i + 1), elapsed);
   }

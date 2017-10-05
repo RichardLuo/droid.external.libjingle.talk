@@ -139,7 +139,7 @@ SChannelAdapter::StartSSL(const char* hostname, bool restartable) {
 
 int
 SChannelAdapter::BeginSSL() {
-  LOG(LS_VERBOSE) << "BeginSSL: " << ssl_host_name_;
+  BLOG(LS_VERBOSE) << "BeginSSL: " << ssl_host_name_;
   ASSERT(state_ == SSL_CONNECTING);
 
   SECURITY_STATUS ret;
@@ -152,7 +152,7 @@ SChannelAdapter::BeginSSL() {
   ret = AcquireCredentialsHandle(NULL, UNISP_NAME, SECPKG_CRED_OUTBOUND, NULL,
                                  &sc_cred, NULL, NULL, &impl_->cred, NULL);
   if (ret != SEC_E_OK) {
-    LOG(LS_ERROR) << "AcquireCredentialsHandle error: "
+    BLOG(LS_ERROR) << "AcquireCredentialsHandle error: "
                   << ErrorName(ret, SECURITY_ERRORS);
     return ret;
   }
@@ -164,7 +164,7 @@ SChannelAdapter::BeginSSL() {
                                      SECPKG_ATTR_CIPHER_STRENGTHS,
                                      &cipher_strengths);
     if (SUCCEEDED(ret)) {
-      LOG(LS_VERBOSE) << "SChannel cipher strength: "
+      BLOG(LS_VERBOSE) << "SChannel cipher strength: "
                   << cipher_strengths.dwMinimumCipherStrength << " - "
                   << cipher_strengths.dwMaximumCipherStrength;
     }
@@ -174,13 +174,13 @@ SChannelAdapter::BeginSSL() {
                                      SECPKG_ATTR_SUPPORTED_ALGS,
                                      &supported_algs);
     if (SUCCEEDED(ret)) {
-      LOG(LS_VERBOSE) << "SChannel supported algorithms:";
+      BLOG(LS_VERBOSE) << "SChannel supported algorithms:";
       for (DWORD i=0; i<supported_algs.cSupportedAlgs; ++i) {
         ALG_ID alg_id = supported_algs.palgSupportedAlgs[i];
         PCCRYPT_OID_INFO oinfo = CryptFindOIDInfo(CRYPT_OID_INFO_ALGID_KEY,
                                                   &alg_id, 0);
         LPCWSTR alg_name = (NULL != oinfo) ? oinfo->pwszName : L"Unknown";
-        LOG(LS_VERBOSE) << "  " << ToUtf8(alg_name) << " (" << alg_id << ")";
+        BLOG(LS_VERBOSE) << "  " << ToUtf8(alg_name) << " (" << alg_id << ")";
       }
       CSecBufferBase::FreeSSPI(supported_algs.palgSupportedAlgs);
     }
@@ -203,7 +203,7 @@ SChannelAdapter::BeginSSL() {
 
 int
 SChannelAdapter::ContinueSSL() {
-  LOG(LS_VERBOSE) << "ContinueSSL";
+  BLOG(LS_VERBOSE) << "ContinueSSL";
   ASSERT(state_ == SSL_CONNECTING);
 
   SECURITY_STATUS ret;
@@ -232,7 +232,7 @@ SChannelAdapter::ProcessContext(long int status, _SecBufferDesc* sbd_in,
                                 _SecBufferDesc* sbd_out) {
   if (status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED &&
       status != SEC_E_INCOMPLETE_MESSAGE) {
-    LOG(LS_ERROR)
+    BLOG(LS_ERROR)
       << "InitializeSecurityContext error: "
       << ErrorName(status, SECURITY_ERRORS);
   }
@@ -293,11 +293,11 @@ SChannelAdapter::ProcessContext(long int status, _SecBufferDesc* sbd_in,
   }
 
   if (SEC_E_OK == status) {
-    LOG(LS_VERBOSE) << "QueryContextAttributes";
+    BLOG(LS_VERBOSE) << "QueryContextAttributes";
     status = QueryContextAttributes(&impl_->ctx, SECPKG_ATTR_STREAM_SIZES,
                                     &impl_->sizes);
     if (FAILED(status)) {
-      LOG(LS_ERROR) << "QueryContextAttributes error: "
+      BLOG(LS_ERROR) << "QueryContextAttributes error: "
                     << ErrorName(status, SECURITY_ERRORS);
       return status;
     }
@@ -369,7 +369,7 @@ SChannelAdapter::DecryptData() {
       }
       // TODO: Handle SEC_I_CONTEXT_EXPIRED to do clean shutdown
       if (status != SEC_E_OK) {
-        LOG(LS_INFO) << "DecryptMessage returned continuation code: "
+        BLOG(LS_INFO) << "DecryptMessage returned continuation code: "
                       << ErrorName(status, SECURITY_ERRORS);
       }
       continue;
@@ -408,14 +408,14 @@ SChannelAdapter::PostEvent() {
     message_pending_ = true;
     thread->Post(this);
   } else {
-    LOG(LS_ERROR) << "No thread context available for SChannelAdapter";
+    BLOG(LS_ERROR) << "No thread context available for SChannelAdapter";
     ASSERT(false);
   }
 }
 
 void
 SChannelAdapter::Error(const char* context, int err, bool signal) {
-  LOG(LS_WARNING) << "SChannelAdapter::Error("
+  BLOG(LS_WARNING) << "SChannelAdapter::Error("
                   << context << ", "
                   << ErrorName(err, SECURITY_ERRORS) << ")";
   state_ = SSL_ERROR;
@@ -590,7 +590,7 @@ SChannelAdapter::Recv(void* pv, size_t cb) {
 int
 SChannelAdapter::Close() {
   if (!impl_->readable.empty()) {
-    LOG(WARNING) << "SChannelAdapter::Close with readable data";
+    BLOG(WARNING) << "SChannelAdapter::Close with readable data";
     // Note: this isn't strictly an error, but we're using it temporarily to
     // track bugs.
     //ASSERT(false);
@@ -627,7 +627,7 @@ SChannelAdapter::GetState() const {
 
 void
 SChannelAdapter::OnConnectEvent(AsyncSocket* socket) {
-  LOG(LS_VERBOSE) << "SChannelAdapter::OnConnectEvent";
+  BLOG(LS_VERBOSE) << "SChannelAdapter::OnConnectEvent";
   if (state_ != SSL_WAIT) {
     ASSERT(state_ == SSL_NONE);
     AsyncSocketAdapter::OnConnectEvent(socket);

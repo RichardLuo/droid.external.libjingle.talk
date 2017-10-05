@@ -47,7 +47,7 @@
 #endif  // USE_SSLSTREAM
 
 #include <utils/Log.h>
-#include <cutils/easyutils.h>
+// #include <cutils/easyutils.h>
 
 namespace buzz {
 
@@ -72,11 +72,11 @@ void XmppSocket::OnSocketAccepted(talk_base::AsyncSocket *socket) {
 
 int XmppSocket::SetPrivateKeyFile(const std::string &path) {
     if (role_ != SSL_SERVER) {
-        LOGE("ERR: only server need private key!");
+        // LOGE("ERR: only server need private key!");
         return -1;
     }
     if (cricket_socket_ == NULL) {
-        LOGE("ERR: cricket_socket_ is NULL!");
+        // LOGE("ERR: cricket_socket_ is NULL!");
         return -1;
     }
 #if defined(FEATURE_ENABLE_SSL)
@@ -95,11 +95,11 @@ int XmppSocket::SetPrivateKeyFile(const std::string &path) {
 
 int XmppSocket::SetCertificateFile(const std::string &path) {
     if (role_ != SSL_SERVER) {
-        LOGE("ERR: only server need CA!");
+        // LOGE("ERR: only server need CA!");
         return -1;
     }
     if (cricket_socket_ == NULL) {
-        LOGE("ERR: cricket_socket_ is NULL!");
+        // LOGE("ERR: cricket_socket_ is NULL!");
         return -1;
     }
 #if defined(FEATURE_ENABLE_SSL)
@@ -167,14 +167,14 @@ void XmppSocket::OnReadEvent(talk_base::AsyncSocket * socket) {
 void XmppSocket::OnWriteEvent(talk_base::AsyncSocket * socket) {
   // Write bytes if there are any
   while (buffer_.Length() != 0) {
-    hexdump_info(buffer_.Data(), buffer_.Length(), ">> send to socket:");
+      // hexdump_info(buffer_.Data(), buffer_.Length(), ">> send to socket:");
     int written = cricket_socket_->Send(buffer_.Data(), buffer_.Length());
     if (written > 0) {
       buffer_.Consume(written);
       continue;
     }
     if (!cricket_socket_->IsBlocking())
-      LOG(LS_ERROR) << "Send error: " << cricket_socket_->GetError();
+      BLOG(LS_ERROR) << "Send error: " << cricket_socket_->GetError();
     return;
   }
 }
@@ -225,7 +225,7 @@ void XmppSocket::OnEvent(talk_base::StreamInterface* stream,
       result = stream_->Write(buffer_.Data(), buffer_.Length(),
                               &written, &error);
       if (result == talk_base::SR_ERROR) {
-        LOG(LS_ERROR) << "Send error: " << error;
+        BLOG(LS_ERROR) << "Send error: " << error;
         return;
       }
       if (result == talk_base::SR_BLOCK)

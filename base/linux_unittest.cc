@@ -41,24 +41,24 @@ TEST(ProcCpuInfo, GetProcInfo) {
 
   int out_cpus = 0;
   EXPECT_TRUE(proc_info.GetNumCpus(&out_cpus));
-  LOG(LS_INFO) << "GetNumCpus: " << out_cpus;
+  BLOG(LS_INFO) << "GetNumCpus: " << out_cpus;
   EXPECT_GT(out_cpus, 0);
 
   int out_cpus_phys = 0;
   EXPECT_TRUE(proc_info.GetNumPhysicalCpus(&out_cpus_phys));
-  LOG(LS_INFO) << "GetNumPhysicalCpus: " << out_cpus_phys;
+  BLOG(LS_INFO) << "GetNumPhysicalCpus: " << out_cpus_phys;
   EXPECT_GT(out_cpus_phys, 0);
   EXPECT_LE(out_cpus_phys, out_cpus);
 
   int out_family = 0;
   EXPECT_TRUE(proc_info.GetCpuFamily(&out_family));
-  LOG(LS_INFO) << "cpu family: " << out_family;
+  BLOG(LS_INFO) << "cpu family: " << out_family;
   EXPECT_GE(out_family, 4);
 
 #if defined(__arm__)
   std::string out_processor;
   EXPECT_TRUE(proc_info.GetSectionStringValue(0, "Processor", &out_processor));
-  LOG(LS_INFO) << "Processor: " << out_processor;
+  BLOG(LS_INFO) << "Processor: " << out_processor;
   EXPECT_NE(std::string::npos, out_processor.find("ARM"));
 
   // Most other info, such as model, stepping, vendor, etc.
@@ -66,20 +66,20 @@ TEST(ProcCpuInfo, GetProcInfo) {
 #else
   int out_model = 0;
   EXPECT_TRUE(proc_info.GetSectionIntValue(0, "model", &out_model));
-  LOG(LS_INFO) << "model: " << out_model;
+  BLOG(LS_INFO) << "model: " << out_model;
 
   int out_stepping = 0;
   EXPECT_TRUE(proc_info.GetSectionIntValue(0, "stepping", &out_stepping));
-  LOG(LS_INFO) << "stepping: " << out_stepping;
+  BLOG(LS_INFO) << "stepping: " << out_stepping;
 
   int out_processor = 0;
   EXPECT_TRUE(proc_info.GetSectionIntValue(0, "processor", &out_processor));
-  LOG(LS_INFO) << "processor: " << out_processor;
+  BLOG(LS_INFO) << "processor: " << out_processor;
   EXPECT_EQ(0, out_processor);
 
   std::string out_str;
   EXPECT_TRUE(proc_info.GetSectionStringValue(0, "vendor_id", &out_str));
-  LOG(LS_INFO) << "vendor_id: " << out_str;
+  BLOG(LS_INFO) << "vendor_id: " << out_str;
   EXPECT_FALSE(out_str.empty());
 #endif
 }

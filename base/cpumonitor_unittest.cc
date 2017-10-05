@@ -198,14 +198,14 @@ void TestCpuSampler(bool test_proc, bool test_sys, bool force_fallback) {
       sys_idle = sampler.GetSystemLoad();
   }
   if (test_proc) {
-    LOG(LS_INFO) << "ProcessLoad Idle:      "
+    BLOG(LS_INFO) << "ProcessLoad Idle:      "
                  << std::setiosflags(std::ios_base::fixed)
                  << std::setprecision(2) << std::setw(6) << proc_idle;
     EXPECT_GE(proc_idle, 0.f);
     EXPECT_LE(proc_idle, static_cast<float>(cpus));
   }
   if (test_sys) {
-    LOG(LS_INFO) << "SystemLoad Idle:       "
+    BLOG(LS_INFO) << "SystemLoad Idle:       "
                  << std::setiosflags(std::ios_base::fixed)
                  << std::setprecision(2) << std::setw(6) << sys_idle;
     EXPECT_GE(sys_idle, 0.f);
@@ -227,14 +227,14 @@ void TestCpuSampler(bool test_proc, bool test_sys, bool force_fallback) {
     sys_halfbusy = sampler.GetSystemLoad();
   }
   if (test_proc) {
-    LOG(LS_INFO) << "ProcessLoad Halfbusy:  "
+    BLOG(LS_INFO) << "ProcessLoad Halfbusy:  "
                  << std::setiosflags(std::ios_base::fixed)
                  << std::setprecision(2) << std::setw(6) << proc_halfbusy;
     EXPECT_GE(proc_halfbusy, 0.f);
     EXPECT_LE(proc_halfbusy, static_cast<float>(cpus));
   }
   if (test_sys) {
-    LOG(LS_INFO) << "SystemLoad Halfbusy:   "
+    BLOG(LS_INFO) << "SystemLoad Halfbusy:   "
                  << std::setiosflags(std::ios_base::fixed)
                  << std::setprecision(2) << std::setw(6) << sys_halfbusy;
     EXPECT_GE(sys_halfbusy, 0.f);
@@ -256,14 +256,14 @@ void TestCpuSampler(bool test_proc, bool test_sys, bool force_fallback) {
     sys_busy = sampler.GetSystemLoad();
   }
   if (test_proc) {
-    LOG(LS_INFO) << "ProcessLoad Busy:      "
+    BLOG(LS_INFO) << "ProcessLoad Busy:      "
                  << std::setiosflags(std::ios_base::fixed)
                  << std::setprecision(2) << std::setw(6) << proc_busy;
     EXPECT_GE(proc_busy, 0.f);
     EXPECT_LE(proc_busy, static_cast<float>(cpus));
   }
   if (test_sys) {
-    LOG(LS_INFO) << "SystemLoad Busy:       "
+    BLOG(LS_INFO) << "SystemLoad Busy:       "
                  << std::setiosflags(std::ios_base::fixed)
                  << std::setprecision(2) << std::setw(6) << sys_busy;
     EXPECT_GE(sys_busy, 0.f);
@@ -286,14 +286,14 @@ void TestCpuSampler(bool test_proc, bool test_sys, bool force_fallback) {
       sys_twobusy = sampler.GetSystemLoad();
     }
     if (test_proc) {
-      LOG(LS_INFO) << "ProcessLoad 2 CPU Busy:"
+      BLOG(LS_INFO) << "ProcessLoad 2 CPU Busy:"
                    << std::setiosflags(std::ios_base::fixed)
                    << std::setprecision(2) << std::setw(6) << proc_twobusy;
       EXPECT_GE(proc_twobusy, 0.f);
       EXPECT_LE(proc_twobusy, static_cast<float>(cpus));
     }
     if (test_sys) {
-      LOG(LS_INFO) << "SystemLoad 2 CPU Busy: "
+      BLOG(LS_INFO) << "SystemLoad 2 CPU Busy: "
                    << std::setiosflags(std::ios_base::fixed)
                    << std::setprecision(2) << std::setw(6) << sys_twobusy;
       EXPECT_GE(sys_twobusy, 0.f);
@@ -315,14 +315,14 @@ void TestCpuSampler(bool test_proc, bool test_sys, bool force_fallback) {
     sys_idle = sampler.GetSystemLoad();
   }
   if (test_proc) {
-    LOG(LS_INFO) << "ProcessLoad Idle:      "
+    BLOG(LS_INFO) << "ProcessLoad Idle:      "
                  << std::setiosflags(std::ios_base::fixed)
                  << std::setprecision(2) << std::setw(6) << proc_idle;
     EXPECT_GE(proc_idle, 0.f);
     EXPECT_LE(proc_idle, proc_busy);
   }
   if (test_sys) {
-    LOG(LS_INFO) << "SystemLoad Idle:       "
+    BLOG(LS_INFO) << "SystemLoad Idle:       "
                  << std::setiosflags(std::ios_base::fixed)
                  << std::setprecision(2) << std::setw(6) << sys_idle;
     EXPECT_GE(sys_idle, 0.f);
@@ -335,8 +335,8 @@ TEST(CpuMonitorTest, TestCpus) {
   EXPECT_TRUE(sampler.Init());
   int current_cpus = sampler.GetCurrentCpus();
   int cpus = sampler.GetMaxCpus();
-  LOG(LS_INFO) << "Current Cpus:     " << std::setw(9) << current_cpus;
-  LOG(LS_INFO) << "Maximum Cpus:     " << std::setw(9) << cpus;
+  BLOG(LS_INFO) << "Current Cpus:     " << std::setw(9) << current_cpus;
+  BLOG(LS_INFO) << "Maximum Cpus:     " << std::setw(9) << cpus;
   EXPECT_GT(cpus, 0);
   EXPECT_LE(cpus, kMaxCpus);
   EXPECT_GT(current_cpus, 0);

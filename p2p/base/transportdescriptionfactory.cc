@@ -106,7 +106,7 @@ TransportDescription* TransportDescriptionFactory::CreateAnswer(
     desc->transport_type = NS_GINGLE_P2P;
   } else {
     // Mismatch.
-    LOG(LS_WARNING) << "Failed to create TransportDescription answer "
+    BLOG(LS_WARNING) << "Failed to create TransportDescription answer "
                        "because of incompatible transport types";
     return NULL;
   }
@@ -132,7 +132,7 @@ TransportDescription* TransportDescriptionFactory::CreateAnswer(
     }
   } else if (secure_ == SEC_REQUIRED) {
     // We require DTLS, but the other side didn't offer it. Fail.
-    LOG(LS_WARNING) << "Failed to create TransportDescription answer "
+    BLOG(LS_WARNING) << "Failed to create TransportDescription answer "
                        "because of incompatible security settings";
     return NULL;
   }
@@ -143,14 +143,14 @@ TransportDescription* TransportDescriptionFactory::CreateAnswer(
 bool TransportDescriptionFactory::CreateIdentityDigest(
     TransportDescription* desc) const {
   if (!identity_) {
-    LOG(LS_ERROR) << "Cannot create identity digest with no identity";
+    BLOG(LS_ERROR) << "Cannot create identity digest with no identity";
     return false;
   }
 
   desc->identity_fingerprint.reset(
       talk_base::SSLFingerprint::Create(digest_alg_, identity_));
   if (!desc->identity_fingerprint.get()) {
-    LOG(LS_ERROR) << "Failed to create identity digest, alg=" << digest_alg_;
+    BLOG(LS_ERROR) << "Failed to create identity digest, alg=" << digest_alg_;
     return false;
   }
 

@@ -70,7 +70,7 @@ TEST(LinuxFdWalk, TestFdWalk) {
   for (std::set<int>::const_iterator i = fds.begin(); i != fds.end(); ++i) {
     str << " " << *i;
   }
-  LOG(LS_INFO) << str.str();
+  BLOG(LS_INFO) << str.str();
   // Open some files.
   int fd1 = open("/dev/null", O_RDONLY);
   EXPECT_LE(0, fd1);

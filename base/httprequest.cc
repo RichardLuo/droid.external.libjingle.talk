@@ -102,21 +102,21 @@ void HttpRequest::Send() {
   SocketAddress server(host_, port_);
   client_.set_server(server);
 
-  LOG(LS_INFO) << "HttpRequest start: " << host_ + client_.request().path;
+  BLOG(LS_INFO) << "HttpRequest start: " << host_ + client_.request().path;
 
   HttpMonitor monitor(ss);
   monitor.Connect(&client_);
   client_.start();
   ss->Wait(timeout_, true);
   if (!monitor.done()) {
-    LOG(LS_INFO) << "HttpRequest request timed out";
+    BLOG(LS_INFO) << "HttpRequest request timed out";
     client_.reset();
     return;
   }
 
   set_error(monitor.error());
   if (error_) {
-    LOG(LS_INFO) << "HttpRequest request error: " << error_;
+    BLOG(LS_INFO) << "HttpRequest request error: " << error_;
     return;
   }
 

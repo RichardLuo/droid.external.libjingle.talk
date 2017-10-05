@@ -294,7 +294,7 @@ class UsedPayloadTypes {
 
     if (IsPayloadTypeUsed(origina_pl_type)) {
       new_pl_type = FindUnusedPayloadType();
-      LOG(LS_WARNING) << "Duplicate pl-type found. Reassigning "
+      BLOG(LS_WARNING) << "Duplicate pl-type found. Reassigning "
           << codec->name << " from " << origina_pl_type << " to "
           << new_pl_type;
       codec->id = new_pl_type;
@@ -315,7 +315,7 @@ class UsedPayloadTypes {
         int updated_referenced_pl_type =
             FindNewPayloadType(referenced_pl_type);
         if (updated_referenced_pl_type != referenced_pl_type) {
-          LOG(LS_WARNING) << "Payload type referenced by RTX has been "
+          BLOG(LS_WARNING) << "Payload type referenced by RTX has been "
               "reassigned from pt " << referenced_pl_type << " to "
               << updated_referenced_pl_type
               << " Updating RTX reference accordingly.";
@@ -926,11 +926,11 @@ SessionDescription* MediaSessionDescriptionFactory::CreateOffer(
     }
     offer->AddGroup(offer_bundle);
     if (!UpdateTransportInfoForBundle(offer_bundle, offer.get())) {
-      LOG(LS_ERROR) << "CreateOffer failed to UpdateTransportInfoForBundle.";
+      BLOG(LS_ERROR) << "CreateOffer failed to UpdateTransportInfoForBundle.";
       return NULL;
     }
     if (!UpdateCryptoParamsForBundle(offer_bundle, offer.get())) {
-      LOG(LS_ERROR) << "CreateOffer failed to UpdateCryptoParamsForBundle.";
+      BLOG(LS_ERROR) << "CreateOffer failed to UpdateCryptoParamsForBundle.";
       return NULL;
     }
   }
@@ -991,13 +991,13 @@ SessionDescription* MediaSessionDescriptionFactory::CreateAnswer(
     } else {
       // RFC 3264
       // The answer MUST contain the same number of m-lines as the offer.
-      LOG(LS_INFO) << "Audio is not supported in the answer.";
+      BLOG(LS_INFO) << "Audio is not supported in the answer.";
     }
 
     answer->AddContent(audio_content->name, audio_content->type, rejected,
                        audio_answer.release());
   } else {
-    LOG(LS_INFO) << "Audio is not available in the offer.";
+    BLOG(LS_INFO) << "Audio is not available in the offer.";
   }
 
   // Handle m=video.
@@ -1040,12 +1040,12 @@ SessionDescription* MediaSessionDescriptionFactory::CreateAnswer(
     } else {
       // RFC 3264
       // The answer MUST contain the same number of m-lines as the offer.
-      LOG(LS_INFO) << "Video is not supported in the answer.";
+      BLOG(LS_INFO) << "Video is not supported in the answer.";
     }
     answer->AddContent(video_content->name, video_content->type, rejected,
                        video_answer.release());
   } else {
-    LOG(LS_INFO) << "Video is not available in the offer.";
+    BLOG(LS_INFO) << "Video is not available in the offer.";
   }
 
   // Handle m=data.
@@ -1087,12 +1087,12 @@ SessionDescription* MediaSessionDescriptionFactory::CreateAnswer(
     } else {
       // RFC 3264
       // The answer MUST contain the same number of m-lines as the offer.
-      LOG(LS_INFO) << "Data is not supported in the answer.";
+      BLOG(LS_INFO) << "Data is not supported in the answer.";
     }
     answer->AddContent(data_content->name, data_content->type, rejected,
                        data_answer.release());
   } else {
-    LOG(LS_INFO) << "Data is not available in the offer.";
+    BLOG(LS_INFO) << "Data is not available in the offer.";
   }
 
   // If the offer supports BUNDLE, and we want to use it too, create a BUNDLE
@@ -1112,12 +1112,12 @@ SessionDescription* MediaSessionDescriptionFactory::CreateAnswer(
       // Share the same ICE credentials and crypto params across all contents,
       // as BUNDLE requires.
       if (!UpdateTransportInfoForBundle(answer_bundle, answer.get())) {
-        LOG(LS_ERROR) << "CreateAnswer failed to UpdateTransportInfoForBundle.";
+        BLOG(LS_ERROR) << "CreateAnswer failed to UpdateTransportInfoForBundle.";
         return NULL;
       }
 
       if (!UpdateCryptoParamsForBundle(answer_bundle, answer.get())) {
-        LOG(LS_ERROR) << "CreateAnswer failed to UpdateCryptoParamsForBundle.";
+        BLOG(LS_ERROR) << "CreateAnswer failed to UpdateCryptoParamsForBundle.";
         return NULL;
       }
     }
@@ -1198,7 +1198,7 @@ bool MediaSessionDescriptionFactory::AddTransportOffer(
   bool ret = (new_tdesc.get() != NULL &&
       offer_desc->AddTransportInfo(TransportInfo(content_name, *new_tdesc)));
   if (!ret) {
-    LOG(LS_ERROR)
+    BLOG(LS_ERROR)
         << "Failed to AddTransportOffer, content name=" << content_name;
   }
   return ret;
@@ -1226,7 +1226,7 @@ bool MediaSessionDescriptionFactory::AddTransportAnswer(
     SessionDescription* answer_desc) const {
   if (!answer_desc->AddTransportInfo(TransportInfo(content_name,
                                                    transport_desc))) {
-    LOG(LS_ERROR)
+    BLOG(LS_ERROR)
         << "Failed to AddTransportAnswer, content name=" << content_name;
     return false;
   }

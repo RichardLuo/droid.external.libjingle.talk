@@ -55,7 +55,7 @@
 
 #define MAYBE_SKIP_TEST(feature)                    \
   if (!(feature())) {                               \
-    LOG(LS_INFO) << "Feature disabled... skipping"; \
+    BLOG(LS_INFO) << "Feature disabled... skipping"; \
     return;                                         \
   }
 

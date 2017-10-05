@@ -189,7 +189,7 @@ void ExtractStatsFromList(const std::vector<T>& data,
     std::string label;
     uint32 ssrc = ExtractSsrc(*it);
     if (!collector->session()->GetTrackIdBySsrc(ssrc, &label)) {
-      LOG(LS_ERROR) << "The SSRC " << ssrc
+      BLOG(LS_ERROR) << "The SSRC " << ssrc
                     << " is not associated with a track";
       continue;
     }
@@ -224,7 +224,7 @@ bool StatsCollector::GetStats(MediaStreamTrackInterface* track,
   if (track) {
     ReportsMap::const_iterator it = track_reports_.find(track->id());
     if (it == track_reports_.end()) {
-      LOG(LS_WARNING) << "No StatsReport is available for "<< track->id();
+      BLOG(LS_WARNING) << "No StatsReport is available for "<< track->id();
       return false;
     }
     reports->push_back(it->second);
@@ -283,7 +283,7 @@ void StatsCollector::ExtractVoiceInfo() {
   }
   cricket::VoiceMediaInfo voice_info;
   if (!session_->voice_channel()->GetStats(&voice_info)) {
-    LOG(LS_ERROR) << "Failed to get voice channel stats.";
+    BLOG(LS_ERROR) << "Failed to get voice channel stats.";
     return;
   }
   ExtractStatsFromList(voice_info.receivers, this);
@@ -296,7 +296,7 @@ void StatsCollector::ExtractVideoInfo() {
   }
   cricket::VideoMediaInfo video_info;
   if (!session_->video_channel()->GetStats(&video_info)) {
-    LOG(LS_ERROR) << "Failed to get video channel stats.";
+    BLOG(LS_ERROR) << "Failed to get video channel stats.";
     return;
   }
   ExtractStatsFromList(video_info.receivers, this);

@@ -57,7 +57,7 @@ OSStatus CarbonVideoRenderer::DrawEventHandler(EventHandlerCallRef handler,
   CarbonVideoRenderer* renderer = static_cast<CarbonVideoRenderer*>(data);
   if (renderer != NULL) {
     if (!renderer->DrawFrame()) {
-      LOG(LS_ERROR) << "Failed to draw frame.";
+      BLOG(LS_ERROR) << "Failed to draw frame.";
     }
   }
   return status;
@@ -155,7 +155,7 @@ bool CarbonVideoRenderer::Initialize() {
   err = CreateNewWindow(kDocumentWindowClass, attributes,
                         &bounds, &window_ref_);
   if (!window_ref_ || err != noErr) {
-    LOG(LS_ERROR) << "CreateNewWindow failed, error code: " << err;
+    BLOG(LS_ERROR) << "CreateNewWindow failed, error code: " << err;
     return false;
   }
   static const EventTypeSpec event_spec = {
@@ -171,7 +171,7 @@ bool CarbonVideoRenderer::Initialize() {
       this,
       NULL);
   if (err != noErr) {
-    LOG(LS_ERROR) << "Failed to install event handler, error code: " << err;
+    BLOG(LS_ERROR) << "Failed to install event handler, error code: " << err;
     return false;
   }
   SelectWindow(window_ref_);

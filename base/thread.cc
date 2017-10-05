@@ -252,15 +252,15 @@ bool Thread::Start(Runnable* runnable) {
     if (priority_ == PRIORITY_IDLE) {
       // There is no POSIX-standard way to set a below-normal priority for an
       // individual thread (only whole process), so let's not support it.
-      LOG(LS_WARNING) << "PRIORITY_IDLE not supported";
+      BLOG(LS_WARNING) << "PRIORITY_IDLE not supported";
     } else {
       // Set real-time round-robin policy.
       if (pthread_attr_setschedpolicy(&attr, SCHED_RR) != 0) {
-        LOG(LS_ERROR) << "pthread_attr_setschedpolicy";
+        BLOG(LS_ERROR) << "pthread_attr_setschedpolicy";
       }
       struct sched_param param;
       if (pthread_attr_getschedparam(&attr, &param) != 0) {
-        LOG(LS_ERROR) << "pthread_attr_getschedparam";
+        BLOG(LS_ERROR) << "pthread_attr_getschedparam";
       } else {
         // The numbers here are arbitrary.
         if (priority_ == PRIORITY_HIGH) {
@@ -270,14 +270,14 @@ bool Thread::Start(Runnable* runnable) {
           param.sched_priority = 4;           // 4 = ABOVE_NORMAL
         }
         if (pthread_attr_setschedparam(&attr, &param) != 0) {
-          LOG(LS_ERROR) << "pthread_attr_setschedparam";
+          BLOG(LS_ERROR) << "pthread_attr_setschedparam";
         }
       }
     }
   }
   int error_code = pthread_create(&thread_, &attr, PreRun, init);
   if (0 != error_code) {
-    LOG(LS_ERROR) << "Unable to create pthread, error " << error_code;
+    BLOG(LS_ERROR) << "Unable to create pthread, error " << error_code;
     return false;
   }
   started_ = true;
@@ -574,7 +574,7 @@ void ComThread::Run() {
     Thread::Run();
     CoUninitialize();
   } else {
-    LOG(LS_ERROR) << "CoInitialize failed, hr=" << hr;
+    BLOG(LS_ERROR) << "CoInitialize failed, hr=" << hr;
   }
 }
 #endif

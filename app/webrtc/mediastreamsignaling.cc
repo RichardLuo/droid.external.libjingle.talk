@@ -214,7 +214,7 @@ bool RemoteTracks<T, TP>::AddRemoteTrack(
     webrtc::MediaStreamInterface* stream,
     uint32 ssrc) {
   if (remote_tracks_.find(track_id) != remote_tracks_.end()) {
-    LOG(LS_WARNING) << "Remote track with id " << track_id
+    BLOG(LS_WARNING) << "Remote track with id " << track_id
         << " already exists.";
     return false;
   }
@@ -237,7 +237,7 @@ bool RemoteTracks<T, TP>::GetSsrc(
   typename std::map<std::string, TrackInfo>::const_iterator it =
       remote_tracks_.find(track_id);
   if (it == remote_tracks_.end()) {
-      LOG(LS_WARNING) << "Remote track with id " << track_id
+      BLOG(LS_WARNING) << "Remote track with id " << track_id
           << " does not exists.";
       return false;
   }
@@ -297,7 +297,7 @@ void MediaStreamSignaling::SetLocalStreams(
 bool MediaStreamSignaling::AddDataChannel(DataChannel* data_channel) {
   ASSERT(data_channel != NULL);
   if (data_channels_.find(data_channel->label()) != data_channels_.end()) {
-    LOG(LS_ERROR) << "DataChannel with label " << data_channel->label()
+    BLOG(LS_ERROR) << "DataChannel with label " << data_channel->label()
                   << " already exists.";
     return false;
   }
@@ -628,7 +628,7 @@ void MediaStreamSignaling::UpdateClosingDataChannels(
 void MediaStreamSignaling::CreateRemoteDataChannel(const std::string& label,
                                                    uint32 remote_ssrc) {
   if (!data_channel_factory_) {
-    LOG(LS_WARNING) << "Remote peer requested a DataChannel but DataChannels "
+    BLOG(LS_WARNING) << "Remote peer requested a DataChannel but DataChannels "
                     << "are not supported.";
     return;
   }

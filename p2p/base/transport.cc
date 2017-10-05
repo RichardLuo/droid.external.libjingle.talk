@@ -257,7 +257,7 @@ void Transport::ConnectChannels_w() {
     // Session.
     // Session must generate local TD before remote candidates pushed when
     // initiate request initiated by the remote.
-    LOG(LS_INFO) << "Transport::ConnectChannels_w: No local description has "
+    BLOG(LS_INFO) << "Transport::ConnectChannels_w: No local description has "
                  << "been set. Will generate one.";
     TransportDescription desc(NS_GINGLE_P2P, std::vector<std::string>(),
                               talk_base::CreateRandomString(ICE_UFRAG_LENGTH),
@@ -381,7 +381,7 @@ void Transport::OnRemoteCandidate(const Candidate& candidate) {
   if (destroyed_) return;
 
   if (!HasChannel(candidate.component())) {
-    LOG(LS_WARNING) << "Ignoring candidate for unknown component "
+    BLOG(LS_WARNING) << "Ignoring candidate for unknown component "
                     << candidate.component();
     return;
   }
@@ -457,7 +457,7 @@ void Transport::OnChannelRequestSignaling(TransportChannelImpl* channel) {
 
 void Transport::OnChannelRequestSignaling_s(int component) {
   ASSERT(signaling_thread()->IsCurrent());
-  LOG(LS_INFO) << "Transport: " << content_name_ << ", allocating candidates";
+  BLOG(LS_INFO) << "Transport: " << content_name_ << ", allocating candidates";
   // Resetting ICE state for the channel.
   {
     talk_base::CritScope cs(&crit_);
@@ -518,7 +518,7 @@ void Transport::OnChannelCandidatesAllocationDone(
   talk_base::CritScope cs(&crit_);
   ChannelMap::iterator iter = channels_.find(channel->component());
   ASSERT(iter != channels_.end());
-  LOG(LS_INFO) << "Transport: " << content_name_ << ", component " 
+  BLOG(LS_INFO) << "Transport: " << content_name_ << ", component " 
                << channel->component() << " allocation complete";
   iter->second.set_candidates_allocated(true);
 
@@ -534,7 +534,7 @@ void Transport::OnChannelCandidatesAllocationDone(
 
 void Transport::OnChannelCandidatesAllocationDone_s() {
   ASSERT(signaling_thread()->IsCurrent());
-  LOG(LS_INFO) << "Transport: " << content_name_ << " allocation complete";
+  BLOG(LS_INFO) << "Transport: " << content_name_ << " allocation complete";
   SignalCandidatesAllocationDone(this);
 }
 

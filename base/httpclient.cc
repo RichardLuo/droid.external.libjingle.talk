@@ -325,7 +325,7 @@ void HttpClient::OnResolveResult(SignalThread* thread) {
   resolver_->Destroy(false);
   resolver_ = NULL;
   if (error != 0) {
-    LOG(LS_ERROR) << "Error " << error << " resolving name: "
+    BLOG(LS_ERROR) << "Error " << error << " resolving name: "
                   << server_;
     onHttpComplete(HM_CONNECT, HE_CONNECT_FAILED);
   } else {
@@ -392,7 +392,7 @@ void HttpClient::start() {
     if (request().getAbsoluteUri(&url)) {
       request().path = url;
     } else {
-      LOG(LS_WARNING) << "Couldn't obtain absolute uri";
+      BLOG(LS_WARNING) << "Couldn't obtain absolute uri";
     }
   } else if (URI_RELATIVE == uri_form) {
     // Convert to relative uri form
@@ -401,7 +401,7 @@ void HttpClient::start() {
       request().setHeader(HH_HOST, host);
       request().path = path;
     } else {
-      LOG(LS_WARNING) << "Couldn't obtain relative uri";
+      BLOG(LS_WARNING) << "Couldn't obtain relative uri";
     }
   }
 
@@ -421,7 +421,7 @@ void HttpClient::connect() {
   StreamInterface* stream = pool_->RequestConnectedStream(server_, &stream_err);
   if (stream == NULL) {
     ASSERT(0 != stream_err);
-    LOG(LS_ERROR) << "RequestConnectedStream error: " << stream_err;
+    BLOG(LS_ERROR) << "RequestConnectedStream error: " << stream_err;
     onHttpComplete(HM_CONNECT, HE_CONNECT_FAILED);
   } else {
     base_.attach(stream);
@@ -529,7 +529,7 @@ void HttpClient::CompleteCacheFile() {
   delete tap;
 
   if (SR_SUCCESS != result) {
-    LOG(LS_ERROR) << "Cache file error: " << error;
+    BLOG(LS_ERROR) << "Cache file error: " << error;
     cache_->DeleteResource(GetCacheID(request()));
   }
 }
@@ -753,7 +753,7 @@ void HttpClient::onHttpComplete(HttpMode mode, HttpError err) {
     return;
   } else {
     if (!HttpShouldKeepAlive(response())) {
-      LOG(LS_VERBOSE) << "HttpClient: closing socket";
+      BLOG(LS_VERBOSE) << "HttpClient: closing socket";
       base_.stream()->Close();
     }
     std::string location;
@@ -806,7 +806,7 @@ void HttpClient::onHttpComplete(HttpMode mode, HttpError err) {
             return;
           }
         } else if (res == HAR_IGNORE) {
-          LOG(INFO) << "Ignoring Proxy-Authenticate: " << auth_method;
+          BLOG(INFO) << "Ignoring Proxy-Authenticate: " << auth_method;
           continue;
         } else {
           break;

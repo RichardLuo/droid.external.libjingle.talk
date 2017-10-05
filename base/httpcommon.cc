@@ -654,7 +654,7 @@ HttpResponseData::parseLeader(const char* line, size_t len) {
     // This server's response has no version. :( NOTE: This happens for every
     // response to requests made from Chrome plugins, regardless of the server's
     // behaviour.
-    LOG(LS_VERBOSE) << "HTTP version missing from response";
+    BLOG(LS_VERBOSE) << "HTTP version missing from response";
     version = HVER_UNKNOWN;
   } else if ((sscanf(line, "HTTP/%u.%u %u%n",
                      &vmajor, &vminor, &temp_scode, &temp_pos) == 3)
@@ -917,7 +917,7 @@ HttpAuthResult HttpAuthenticate(
     if (neg) {
       const size_t max_steps = 10;
       if (++neg->steps >= max_steps) {
-        LOG(WARNING) << "AsyncHttpsProxySocket::Authenticate(Negotiate) too many retries";
+        BLOG(WARNING) << "AsyncHttpsProxySocket::Authenticate(Negotiate) too many retries";
         return HAR_ERROR;
       }
       steps = neg->steps;
@@ -937,9 +937,9 @@ HttpAuthResult HttpAuthenticate(
         in_buf_desc.pBuffers  = &in_sec;
 
         ret = InitializeSecurityContextA(&neg->cred, &neg->ctx, spn, flags, 0, SECURITY_NATIVE_DREP, &in_buf_desc, 0, &neg->ctx, &out_buf_desc, &ret_flags, &lifetime);
-        //LOG(INFO) << "$$$ InitializeSecurityContext @ " << TimeSince(now);
+        //BLOG(INFO) << "$$$ InitializeSecurityContext @ " << TimeSince(now);
         if (FAILED(ret)) {
-          LOG(LS_ERROR) << "InitializeSecurityContext returned: "
+          BLOG(LS_ERROR) << "InitializeSecurityContext returned: "
                       << ErrorName(ret, SECURITY_ERRORS);
           return HAR_ERROR;
         }
@@ -994,16 +994,16 @@ HttpAuthResult HttpAuthenticate(
         auth_id.Password = passbuf;
         auth_id.Flags = SEC_WINNT_AUTH_IDENTITY_ANSI;
         pauth_id = &auth_id;
-        LOG(LS_VERBOSE) << "Negotiate protocol: Using specified credentials";
+        BLOG(LS_VERBOSE) << "Negotiate protocol: Using specified credentials";
       } else {
-        LOG(LS_VERBOSE) << "Negotiate protocol: Using default credentials";
+        BLOG(LS_VERBOSE) << "Negotiate protocol: Using default credentials";
       }
 
       CredHandle cred;
       ret = AcquireCredentialsHandleA(0, want_negotiate ? NEGOSSP_NAME_A : NTLMSP_NAME_A, SECPKG_CRED_OUTBOUND, 0, pauth_id, 0, 0, &cred, &lifetime);
-      //LOG(INFO) << "$$$ AcquireCredentialsHandle @ " << TimeSince(now);
+      //BLOG(INFO) << "$$$ AcquireCredentialsHandle @ " << TimeSince(now);
       if (ret != SEC_E_OK) {
-        LOG(LS_ERROR) << "AcquireCredentialsHandle error: "
+        BLOG(LS_ERROR) << "AcquireCredentialsHandle error: "
                     << ErrorName(ret, SECURITY_ERRORS);
         return HAR_IGNORE;
       }
@@ -1012,9 +1012,9 @@ HttpAuthResult HttpAuthenticate(
 
       CtxtHandle ctx;
       ret = InitializeSecurityContextA(&cred, 0, spn, flags, 0, SECURITY_NATIVE_DREP, 0, 0, &ctx, &out_buf_desc, &ret_flags, &lifetime);
-      //LOG(INFO) << "$$$ InitializeSecurityContext @ " << TimeSince(now);
+      //BLOG(INFO) << "$$$ InitializeSecurityContext @ " << TimeSince(now);
       if (FAILED(ret)) {
-        LOG(LS_ERROR) << "InitializeSecurityContext returned: "
+        BLOG(LS_ERROR) << "InitializeSecurityContext returned: "
                     << ErrorName(ret, SECURITY_ERRORS);
         FreeCredentialsHandle(&cred);
         return HAR_IGNORE;
@@ -1028,15 +1028,15 @@ HttpAuthResult HttpAuthenticate(
 
     if ((ret == SEC_I_COMPLETE_NEEDED) || (ret == SEC_I_COMPLETE_AND_CONTINUE)) {
       ret = CompleteAuthToken(&neg->ctx, &out_buf_desc);
-      //LOG(INFO) << "$$$ CompleteAuthToken @ " << TimeSince(now);
-      LOG(LS_VERBOSE) << "CompleteAuthToken returned: "
+      //BLOG(INFO) << "$$$ CompleteAuthToken @ " << TimeSince(now);
+      BLOG(LS_VERBOSE) << "CompleteAuthToken returned: "
                       << ErrorName(ret, SECURITY_ERRORS);
       if (FAILED(ret)) {
         return HAR_ERROR;
       }
     }
 
-    //LOG(INFO) << "$$$ NEGOTIATE took " << TimeSince(now) << "ms";
+    //BLOG(INFO) << "$$$ NEGOTIATE took " << TimeSince(now) << "ms";
 
     std::string decoded(out_buf, out_buf + out_sec.cbBuffer);
     response = auth_method;

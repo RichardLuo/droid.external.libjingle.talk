@@ -39,7 +39,7 @@ namespace talk_base {
 
 #define MAYBE_SKIP_IPV6                             \
   if (!HasIPv6Enabled()) {                          \
-    LOG(LS_INFO) << "No IPv6... skipping";          \
+    BLOG(LS_INFO) << "No IPv6... skipping";          \
     return;                                         \
   }
 
@@ -59,7 +59,7 @@ void SocketTest::TestConnectWithDnsLookupIPv4() {
 
 void SocketTest::TestConnectWithDnsLookupIPv6() {
   // TODO: Enable this when DNS resolution supports IPv6.
-  LOG(LS_INFO) << "Skipping IPv6 DNS test";
+  BLOG(LS_INFO) << "Skipping IPv6 DNS test";
   // ConnectWithDnsLookupInternal(kIPv6Loopback, "localhost6");
 }
 

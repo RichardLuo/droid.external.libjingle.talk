@@ -63,7 +63,7 @@ DataChannel::DataChannel(WebRtcSession* session, const std::string& label)
 
 bool DataChannel::Init(const DataChannelInit* config) {
   if (config && config->reliable) {
-    LOG(LS_ERROR) << "reliable data channels are not implemented";
+    BLOG(LS_ERROR) << "reliable data channels are not implemented";
     return false;
   }
   return true;
@@ -107,7 +107,7 @@ bool DataChannel::Send(const DataBuffer& buffer) {
   // TODO(perkj): Implement signaling of binary data once RtpDataEngine has
   // support for marking text vs. binary.
   if (buffer.binary) {
-    LOG(LS_ERROR) << "SendBuffer: Sending of binary data is not implemented";
+    BLOG(LS_ERROR) << "SendBuffer: Sending of binary data is not implemented";
     return false;
   }
   cricket::SendDataParams send_params;
@@ -179,7 +179,7 @@ void DataChannel::SetState(DataState state) {
 void DataChannel::ConnectToDataSession() {
   ASSERT(session_->data_channel() != NULL);
   if (!session_->data_channel()) {
-    LOG(LS_ERROR) << "The DataEngine does not exist.";
+    BLOG(LS_ERROR) << "The DataEngine does not exist.";
     return;
   }
 

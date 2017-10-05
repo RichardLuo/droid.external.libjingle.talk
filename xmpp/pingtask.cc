@@ -40,7 +40,7 @@ bool PingTask::HandleStanza(const buzz::XmlElement* stanza) {
 // states.
 int PingTask::ProcessStart() {
   if (ping_period_millis_ < ping_timeout_millis_) {
-    LOG(LS_ERROR) << "ping_period_millis should be >= ping_timeout_millis";
+    BLOG(LS_ERROR) << "ping_period_millis should be >= ping_timeout_millis";
     return STATE_ERROR;
   }
   const buzz::XmlElement* stanza = NextStanza();

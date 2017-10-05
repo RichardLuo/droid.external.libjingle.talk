@@ -142,11 +142,11 @@ class HybridVideoEngine : public HybridVideoEngineInterface {
 
   bool Init() {
     if (!video1_.Init()) {
-      LOG(LS_ERROR) << "Failed to init VideoEngine1";
+      BLOG(LS_ERROR) << "Failed to init VideoEngine1";
       return false;
     }
     if (!video2_.Init()) {
-      LOG(LS_ERROR) << "Failed to init VideoEngine2";
+      BLOG(LS_ERROR) << "Failed to init VideoEngine2";
       video1_.Terminate();
       return false;
     }
@@ -164,13 +164,13 @@ class HybridVideoEngine : public HybridVideoEngineInterface {
     talk_base::scoped_ptr<VideoMediaChannel> channel1(
         video1_.CreateChannel(channel));
     if (!channel1) {
-      LOG(LS_ERROR) << "Failed to create VideoMediaChannel1";
+      BLOG(LS_ERROR) << "Failed to create VideoMediaChannel1";
       return NULL;
     }
     talk_base::scoped_ptr<VideoMediaChannel> channel2(
         video2_.CreateChannel(channel));
     if (!channel2) {
-      LOG(LS_ERROR) << "Failed to create VideoMediaChannel2";
+      BLOG(LS_ERROR) << "Failed to create VideoMediaChannel2";
       return NULL;
     }
     return new HybridVideoMediaChannel(this,
@@ -185,14 +185,14 @@ class HybridVideoEngine : public HybridVideoEngineInterface {
     if (video1_.codecs().size() > 0) {
       conf.max_codec.name = video1_.codecs()[0].name;
       if (!video1_.SetDefaultEncoderConfig(conf)) {
-        LOG(LS_ERROR) << "Failed to SetDefaultEncoderConfig for video1";
+        BLOG(LS_ERROR) << "Failed to SetDefaultEncoderConfig for video1";
         return false;
       }
     }
     if (video2_.codecs().size() > 0) {
       conf.max_codec.name = video2_.codecs()[0].name;
       if (!video2_.SetDefaultEncoderConfig(conf)) {
-        LOG(LS_ERROR) << "Failed to SetDefaultEncoderConfig for video2";
+        BLOG(LS_ERROR) << "Failed to SetDefaultEncoderConfig for video2";
         return false;
       }
     }

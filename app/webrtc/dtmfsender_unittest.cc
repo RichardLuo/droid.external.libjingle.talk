@@ -51,7 +51,7 @@ class FakeDtmfObserver : public DtmfSenderObserverInterface {
 
   // Implements DtmfSenderObserverInterface.
   virtual void OnToneChange(const std::string& tone) OVERRIDE {
-    LOG(LS_VERBOSE) << "FakeDtmfObserver::OnToneChange '" << tone << "'.";
+    BLOG(LS_VERBOSE) << "FakeDtmfObserver::OnToneChange '" << tone << "'.";
     tones_.push_back(tone);
     if (tone.empty()) {
       completed_ = true;
@@ -100,7 +100,7 @@ class FakeDtmfProvider : public DtmfProviderInterface {
     }
     last_insert_dtmf_call_ = talk_base::Time();
 
-    LOG(LS_VERBOSE) << "FakeDtmfProvider::InsertDtmf code=" << code
+    BLOG(LS_VERBOSE) << "FakeDtmfProvider::InsertDtmf code=" << code
                     << " duration=" << duration
                     << " gap=" << gap << ".";
     dtmf_info_queue_.push_back(DtmfInfo(code, duration, gap));

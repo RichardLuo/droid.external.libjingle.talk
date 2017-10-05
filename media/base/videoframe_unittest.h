@@ -398,7 +398,7 @@ class VideoFrameTest : public testing::Test {
     for (uint32 y = 0; y < height; ++y) {
       for (uint32 x = 0; x < width; ++x) {
         if (abs(static_cast<int>(r1[x] - r2[x])) > max_error) {
-          LOG(LS_INFO) << "IsPlaneEqual(" << name << "): pixel["
+          BLOG(LS_INFO) << "IsPlaneEqual(" << name << "): pixel["
                        << x << "," << y << "] differs: "
                        << static_cast<int>(r1[x]) << " vs "
                        << static_cast<int>(r2[x]);
@@ -1166,7 +1166,7 @@ void Construct##FOURCC##Rotate##ROTATE() {                                     \
         new uint8[((data_size + kPadToHeapSized + 4095) & ~4095)]);
     uint8* data_ptr = page_buffer.get();
     if (!data_ptr) {
-      LOG(LS_WARNING) << "Failed to allocate memory for ValidateFrame test.";
+      BLOG(LS_WARNING) << "Failed to allocate memory for ValidateFrame test.";
       EXPECT_FALSE(expected_result);  // NULL is okay if failure was expected.
       return;
     }
@@ -1233,10 +1233,10 @@ void Construct##FOURCC##Rotate##ROTATE() {                                     \
 #if defined(_MSC_VER) && defined(_DEBUG)
   int ExceptionFilter(unsigned int code, struct _EXCEPTION_POINTERS *ep) {
     if (code == EXCEPTION_ACCESS_VIOLATION) {
-      LOG(LS_INFO) << "Caught EXCEPTION_ACCESS_VIOLATION as expected.";
+      BLOG(LS_INFO) << "Caught EXCEPTION_ACCESS_VIOLATION as expected.";
       return EXCEPTION_EXECUTE_HANDLER;
     } else {
-      LOG(LS_INFO) << "Did not catch EXCEPTION_ACCESS_VIOLATION.  Unexpected.";
+      BLOG(LS_INFO) << "Did not catch EXCEPTION_ACCESS_VIOLATION.  Unexpected.";
       return EXCEPTION_CONTINUE_SEARCH;
     }
   }

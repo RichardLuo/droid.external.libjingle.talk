@@ -40,7 +40,7 @@ void Fatal(const char* file, int line, const char* format, ...) {
   vsnprintf(msg, sizeof(msg), format, arguments);
   va_end(arguments);
 
-  LOG(LS_ERROR) << "\n\n#\n# Fatal error in " << file
+  BLOG(LS_ERROR) << "\n\n#\n# Fatal error in " << file
                 << ", line " << line << "\n#" << msg
                 << "\n#\n";
   abort();

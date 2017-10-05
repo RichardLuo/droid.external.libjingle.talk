@@ -117,13 +117,13 @@ class Win32ToolhelpTest : public testing::Test {
       && fail_called_ == fail && close_handle_called_ == close;
 
     if (!match) {
-      LOG(LS_ERROR) << "Expected: ("
+      BLOG(LS_ERROR) << "Expected: ("
                     << first << ", "
                     << next << ", "
                     << fail << ", "
                     << close << ")";
 
-      LOG(LS_ERROR) << "Actual: ("
+      BLOG(LS_ERROR) << "Actual: ("
                     << first_called_ << ", "
                     << next_called_ << ", "
                     << fail_called_ << ", "

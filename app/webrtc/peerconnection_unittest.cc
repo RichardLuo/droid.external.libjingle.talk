@@ -53,7 +53,7 @@
 
 #define MAYBE_SKIP_TEST(feature)                    \
   if (!(feature())) {                               \
-    LOG(LS_INFO) << "Feature disabled... skipping"; \
+    BLOG(LS_INFO) << "Feature disabled... skipping"; \
     return;                                         \
   }
 
@@ -502,14 +502,14 @@ class JsepTestClient
   virtual void ReceiveIceMessage(const std::string& sdp_mid,
                                  int sdp_mline_index,
                                  const std::string& msg) {
-    LOG(INFO) << id() << "ReceiveIceMessage";
+    BLOG(INFO) << id() << "ReceiveIceMessage";
     talk_base::scoped_ptr<webrtc::IceCandidateInterface> candidate(
         webrtc::CreateIceCandidate(sdp_mid, sdp_mline_index, msg, NULL));
     EXPECT_TRUE(peer_connection()->AddIceCandidate(candidate.get()));
   }
   // Implements PeerConnectionObserver functions needed by Jsep.
   virtual void OnIceCandidate(const webrtc::IceCandidateInterface* candidate) {
-    LOG(INFO) << id() << "OnIceCandidate";
+    BLOG(INFO) << id() << "OnIceCandidate";
     std::string ice_sdp;
     EXPECT_TRUE(candidate->ToString(&ice_sdp));
     if (signaling_message_receiver() == NULL) {
@@ -558,11 +558,11 @@ class JsepTestClient
   }
 
   virtual void OnIceComplete() {
-    LOG(INFO) << id() << "OnIceComplete";
+    BLOG(INFO) << id() << "OnIceComplete";
   }
 
   virtual void OnDataChannel(DataChannelInterface* data_channel) {
-    LOG(INFO) << id() << "OnDataChannel";
+    BLOG(INFO) << id() << "OnDataChannel";
     data_channel_ = data_channel;
     data_observer_.reset(new MockDataChannelObserver(data_channel));
   }
@@ -600,7 +600,7 @@ class JsepTestClient
   }
 
   void HandleIncomingOffer(const std::string& msg) {
-    LOG(INFO) << id() << "HandleIncomingOffer ";
+    BLOG(INFO) << id() << "HandleIncomingOffer ";
     if (peer_connection()->local_streams()->count() == 0) {
       // If we are not sending any streams ourselves it is time to add some.
       AddMediaStream(true, true);
@@ -620,7 +620,7 @@ class JsepTestClient
   }
 
   void HandleIncomingAnswer(const std::string& msg) {
-    LOG(INFO) << id() << "HandleIncomingAnswer";
+    BLOG(INFO) << id() << "HandleIncomingAnswer";
     talk_base::scoped_ptr<SessionDescriptionInterface> desc(
          webrtc::CreateSessionDescription("answer", msg, NULL));
     EXPECT_TRUE(DoSetRemoteDescription(desc.release()));
@@ -655,7 +655,7 @@ class JsepTestClient
     talk_base::scoped_refptr<MockSetSessionDescriptionObserver>
             observer(new talk_base::RefCountedObject<
                 MockSetSessionDescriptionObserver>());
-    LOG(INFO) << id() << "SetLocalDescription ";
+    BLOG(INFO) << id() << "SetLocalDescription ";
     peer_connection()->SetLocalDescription(observer, desc);
     // Ignore the observer result. If we wait for the result with
     // EXPECT_TRUE_WAIT, local ice candidates might be sent to the remote peer
@@ -676,7 +676,7 @@ class JsepTestClient
     talk_base::scoped_refptr<MockSetSessionDescriptionObserver>
         observer(new talk_base::RefCountedObject<
             MockSetSessionDescriptionObserver>());
-    LOG(INFO) << id() << "SetRemoteDescription ";
+    BLOG(INFO) << id() << "SetRemoteDescription ";
     peer_connection()->SetRemoteDescription(observer, desc);
     EXPECT_TRUE_WAIT(observer->called(), kMaxWaitMs);
     return observer->result();

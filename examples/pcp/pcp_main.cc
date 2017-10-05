@@ -139,7 +139,7 @@ public:
           time_string[time_len-1] = 0;    // trim off terminating \n
         }
       }
-      LOG(INFO) << (output ? "SEND >>>>>>>>>>>>>>>>>>>>>>>>>" : "RECV <<<<<<<<<<<<<<<<<<<<<<<<<")
+      BLOG(INFO) << (output ? "SEND >>>>>>>>>>>>>>>>>>>>>>>>>" : "RECV <<<<<<<<<<<<<<<<<<<<<<<<<")
         << " : " << time_string;
 
       bool indent;
@@ -156,7 +156,7 @@ public:
           }
 
           // Output a tag
-          LOG(INFO) << std::setw(nest) << " " << std::string(buf + start, i + 1 - start);
+          BLOG(INFO) << std::setw(nest) << " " << std::string(buf + start, i + 1 - start);
 
           if (indent)
             nest += 2;
@@ -172,11 +172,11 @@ public:
 
         if (buf[i] == '<' && start < i) {
           if (censor_password_) {
-            LOG(INFO) << std::setw(nest) << " " << "## TEXT REMOVED ##";
+            BLOG(INFO) << std::setw(nest) << " " << "## TEXT REMOVED ##";
             censor_password_ = false;
           }
           else {
-            LOG(INFO) << std::setw(nest) << " " << std::string(buf + start, i - start);
+            BLOG(INFO) << std::setw(nest) << " " << std::string(buf + start, i - start);
           }
           start = i;
         }
@@ -440,7 +440,7 @@ public:
     talk_base::StreamResult result;
     size_t count;
     if (sending_ && (events & talk_base::SE_WRITE)) {
-      LOG(LS_VERBOSE) << "Tunnel SE_WRITE";
+      BLOG(LS_VERBOSE) << "Tunnel SE_WRITE";
       while (true) {
         size_t write_pos = 0;
         while (write_pos < buffer_len_) {
@@ -453,7 +453,7 @@ public:
           if (result == talk_base::SR_BLOCK) {
             buffer_len_ -= write_pos;
             memmove(buffer_, buffer_ + write_pos, buffer_len_);
-            LOG(LS_VERBOSE) << "Tunnel write block";
+            BLOG(LS_VERBOSE) << "Tunnel write block";
             return;
           }
           if (result == talk_base::SR_EOS) {
@@ -491,7 +491,7 @@ public:
       }
     }
     if (!sending_ && (events & talk_base::SE_READ)) {
-      LOG(LS_VERBOSE) << "Tunnel SE_READ";
+      BLOG(LS_VERBOSE) << "Tunnel SE_READ";
       while (true) {
         buffer_len_ = 0;
         while (buffer_len_ < sizeof(buffer_)) {
@@ -505,7 +505,7 @@ public:
           if (result == talk_base::SR_BLOCK) {
             if (buffer_len_ > 0)
               break;
-            LOG(LS_VERBOSE) << "Tunnel read block";
+            BLOG(LS_VERBOSE) << "Tunnel read block";
             return;
           }
           if (result == talk_base::SR_EOS) {
@@ -539,7 +539,7 @@ public:
   }
 
   void Cleanup(talk_base::StreamInterface* stream, bool delay = false) {
-    LOG(LS_VERBOSE) << "Closing";
+    BLOG(LS_VERBOSE) << "Closing";
     stream->Close();
     file_.reset();
     if (!server_) {

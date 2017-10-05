@@ -370,9 +370,9 @@ class P2PTransportChannelTestBase : public testing::Test,
                             1000);
     connect_time = talk_base::TimeSince(connect_start);
     if (connect_time < expected.connect_wait) {
-      LOG(LS_INFO) << "Connect time: " << connect_time << " ms";
+      BLOG(LS_INFO) << "Connect time: " << connect_time << " ms";
     } else {
-      LOG(LS_INFO) << "Connect time: " << "TIMEOUT ("
+      BLOG(LS_INFO) << "Connect time: " << "TIMEOUT ("
                    << expected.connect_wait << " ms)";
     }
 
@@ -417,9 +417,9 @@ class P2PTransportChannelTestBase : public testing::Test,
 
       converge_time = talk_base::TimeSince(converge_start);
       if (converge_time < converge_wait) {
-        LOG(LS_INFO) << "Converge time: " << converge_time << " ms";
+        BLOG(LS_INFO) << "Converge time: " << converge_time << " ms";
       } else {
-        LOG(LS_INFO) << "Converge time: " << "TIMEOUT ("
+        BLOG(LS_INFO) << "Converge time: " << "TIMEOUT ("
                      << converge_wait << " ms)";
       }
     }
@@ -463,7 +463,7 @@ class P2PTransportChannelTestBase : public testing::Test,
         static_cast<CandidateData*>(msg->pdata));
     cricket::P2PTransportChannel* rch = GetRemoteChannel(data->channel);
     const cricket::Candidate& c = data->candidate;
-    LOG(LS_INFO) << "Candidate(" << data->channel->component() << "->"
+    BLOG(LS_INFO) << "Candidate(" << data->channel->component() << "->"
                  << rch->component() << "): " << c.type() << ", " << c.protocol()
                  << ", " << c.address().ToString() << ", " << c.username()
                  << ", " << c.generation();
@@ -751,7 +751,7 @@ const P2PTransportChannelTest::Result*
     if (kMatrix[x][y] != NULL) \
       Test(*kMatrix[x][y]); \
     else \
-      LOG(LS_WARNING) << "Not yet implemented"; \
+      BLOG(LS_WARNING) << "Not yet implemented"; \
   } \
   TEST_F(P2PTransportChannelTest, z##Test##x##To##y##AsGiceP0SharedUfrag) { \
     ConfigureEndpoints(x, y, PORTALLOCATOR_ENABLE_SHARED_UFRAG, \
@@ -759,7 +759,7 @@ const P2PTransportChannelTest::Result*
     if (kMatrix[x][y] != NULL) \
       Test(*kMatrix[x][y]); \
     else \
-      LOG(LS_WARNING) << "Not yet implemented"; \
+      BLOG(LS_WARNING) << "Not yet implemented"; \
   }
 
 #define P2P_TEST_DECLARATION_SHARED_UFRAG(x, y, z) \
@@ -770,7 +770,7 @@ const P2PTransportChannelTest::Result*
     if (kMatrixSharedUfrag[x][y] != NULL) \
       Test(*kMatrixSharedUfrag[x][y]); \
     else \
-      LOG(LS_WARNING) << "Not yet implemented"; \
+      BLOG(LS_WARNING) << "Not yet implemented"; \
   } \
   TEST_F(P2PTransportChannelTest, z##Test##x##To##y##AsGiceBothSharedUfrag) { \
     ConfigureEndpoints(x, y, PORTALLOCATOR_ENABLE_SHARED_UFRAG, \
@@ -779,7 +779,7 @@ const P2PTransportChannelTest::Result*
     if (kMatrixSharedUfrag[x][y] != NULL) \
       Test(*kMatrixSharedUfrag[x][y]); \
     else \
-      LOG(LS_WARNING) << "Not yet implemented"; \
+      BLOG(LS_WARNING) << "Not yet implemented"; \
   } \
   TEST_F(P2PTransportChannelTest, \
          z##Test##x##To##y##AsGiceBothSharedUfragSocket) { \
@@ -791,7 +791,7 @@ const P2PTransportChannelTest::Result*
     if (kMatrixSharedSocket[x][y] != NULL) \
       Test(*kMatrixSharedSocket[x][y]); \
     else \
-    LOG(LS_WARNING) << "Not yet implemented"; \
+    BLOG(LS_WARNING) << "Not yet implemented"; \
   } \
   TEST_F(P2PTransportChannelTest, z##Test##x##To##y##AsIce) { \
     ConfigureEndpoints(x, y, PORTALLOCATOR_ENABLE_SHARED_UFRAG | \
@@ -802,7 +802,7 @@ const P2PTransportChannelTest::Result*
     if (kMatrixSharedSocket[x][y] != NULL) \
       Test(*kMatrixSharedSocket[x][y]); \
     else \
-    LOG(LS_WARNING) << "Not yet implemented"; \
+    BLOG(LS_WARNING) << "Not yet implemented"; \
   }
 
 #define P2P_TEST(x, y) \
@@ -1040,7 +1040,7 @@ TEST_F(P2PTransportChannelMultihomedTest, TestFailover) {
       RemoteCandidate(ep1_ch1())->address().EqualIPs(kPublicAddrs[1]));
 
   // Blackhole any traffic to or from the public addrs.
-  LOG(LS_INFO) << "Failing over...";
+  BLOG(LS_INFO) << "Failing over...";
   fw()->AddRule(false, talk_base::FP_ANY, talk_base::FD_ANY,
                 kPublicAddrs[1]);
 
@@ -1078,7 +1078,7 @@ TEST_F(P2PTransportChannelMultihomedTest, TestDrain) {
 
   // Remove the public interface, add the alternate interface, and allocate
   // a new generation of candidates for the new interface (via Connect()).
-  LOG(LS_INFO) << "Draining...";
+  BLOG(LS_INFO) << "Draining...";
   AddAddress(1, kAlternateAddrs[1]);
   RemoveAddress(1, kPublicAddrs[1]);
   ep2_ch1()->Connect();

@@ -143,7 +143,7 @@ bool HybridVideoMediaChannel::SetSendCodecs(
     const std::vector<VideoCodec>& codecs) {
   // Use the input to this function to decide what impl we're going to use.
   if (!active_channel_ && !SelectActiveChannel(codecs)) {
-    LOG(LS_WARNING) << "Failed to select active channel";
+    BLOG(LS_WARNING) << "Failed to select active channel";
     return false;
   }
   // Only give the active channel the codecs it knows about.
@@ -281,7 +281,7 @@ void HybridVideoMediaChannel::OnPacketReceived(talk_base::Buffer* packet) {
   if (active_channel_) {
     active_channel_->OnPacketReceived(packet);
   } else {
-    LOG(LS_INFO) << "HybridVideoChannel: Eating early RTP packet";
+    BLOG(LS_INFO) << "HybridVideoChannel: Eating early RTP packet";
   }
 }
 
@@ -290,7 +290,7 @@ void HybridVideoMediaChannel::OnRtcpReceived(talk_base::Buffer* packet) {
   if (active_channel_) {
     active_channel_->OnRtcpReceived(packet);
   } else {
-    LOG(LS_INFO) << "HybridVideoChannel: Eating early RTCP packet";
+    BLOG(LS_INFO) << "HybridVideoChannel: Eating early RTCP packet";
   }
 }
 

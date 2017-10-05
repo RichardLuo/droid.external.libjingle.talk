@@ -91,7 +91,7 @@ class FixedSizeLockFreeQueue {
   // the same time as PeekFront/PopFront.
   bool PushBack(T value) {
     if (capacity_ == 0) {
-      LOG(LS_WARNING) << "Queue capacity is 0.";
+      BLOG(LS_WARNING) << "Queue capacity is 0.";
       return false;
     }
     if (IsFull()) {
@@ -111,7 +111,7 @@ class FixedSizeLockFreeQueue {
   // at the same time as PushBack.
   bool PeekFront(T* value_out) {
     if (capacity_ == 0) {
-      LOG(LS_WARNING) << "Queue capacity is 0.";
+      BLOG(LS_WARNING) << "Queue capacity is 0.";
       return false;
     }
     if (IsEmpty()) {

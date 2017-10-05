@@ -37,7 +37,6 @@
 #include "talk/xmpp/jid.h"
 #include "talk/xmpp/xmppengine.h"
 #include "talk/xmpp/xmpplogininterface.h"
-#include <utils/Log.h>
 
 namespace buzz {
 
@@ -51,8 +50,10 @@ public:
   XmppRegistrationTask(XmppEngine *pctx, talk_base::CryptString pass);
   ~XmppRegistrationTask();
 
-  bool IsDone()
-    { LOGFL("isDone is %d", state_ == REGISTRATIONSTATE_DONE);  return state_ == REGISTRATIONSTATE_DONE; }
+  bool IsDone() const {
+      return state_ == REGISTRATIONSTATE_DONE;
+  }
+
   void IncomingStanza(const XmlElement * element, bool isStart);
   void OutgoingStanza(const XmlElement *element);
 

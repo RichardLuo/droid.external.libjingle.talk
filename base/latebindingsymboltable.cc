@@ -61,12 +61,12 @@ static bool LoadSymbol(DllHandle handle,
   *symbol = dlsym(handle, symbol_name);
   const char *err = dlerror();
   if (err) {
-    LOG(LS_ERROR) << "Error loading symbol " << symbol_name << ": " << err;
+    BLOG(LS_ERROR) << "Error loading symbol " << symbol_name << ": " << err;
     return false;
   } else if (!*symbol) {
     // ELF allows for symbols to be NULL, but that should never happen for our
     // usage.
-    LOG(LS_ERROR) << "Symbol " << symbol_name << " is NULL";
+    BLOG(LS_ERROR) << "Symbol " << symbol_name << " is NULL";
     return false;
   }
   return true;
@@ -104,7 +104,7 @@ bool LateBindingSymbolTable::LoadFromPath(const char *dll_path) {
   if (undefined_symbols_) {
     // We do not attempt to load again because repeated attempts are not
     // likely to succeed and DLL loading is costly.
-    LOG(LS_ERROR) << "We know there are undefined symbols";
+    BLOG(LS_ERROR) << "We know there are undefined symbols";
     return false;
   }
 
@@ -115,7 +115,7 @@ bool LateBindingSymbolTable::LoadFromPath(const char *dll_path) {
 #endif
 
   if (handle_ == kInvalidDllHandle) {
-    LOG(LS_WARNING) << "Can't load " << dll_path << ": "
+    BLOG(LS_WARNING) << "Can't load " << dll_path << ": "
                     << GetDllError();
     return false;
   }
@@ -140,7 +140,7 @@ void LateBindingSymbolTable::Unload() {
 
 #ifdef POSIX
   if (dlclose(handle_) != 0) {
-    LOG(LS_ERROR) << GetDllError();
+    BLOG(LS_ERROR) << GetDllError();
   }
 #else
 #error Not implemented

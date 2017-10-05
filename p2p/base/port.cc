@@ -294,7 +294,7 @@ void Port::OnReadPacket(
     // Check for role conflicts.
     if (IceProtocol() == ICEPROTO_RFC5245 &&
         !MaybeIceRoleConflict(addr, msg.get(), remote_username)) {
-      LOG(LS_INFO) << "Received conflicting role from the peer.";
+      BLOG(LS_INFO) << "Received conflicting role from the peer.";
       return;
     }
 
@@ -902,7 +902,7 @@ void Connection::OnReadPacket(const char* data, size_t size) {
 
       // If timed out sending writability checks, start up again
       if (!pruned_ && (write_state_ == STATE_WRITE_TIMEOUT)) {
-        LOG(LS_WARNING) << "Received a data packet on a timed-out Connection. "
+        BLOG(LS_WARNING) << "Received a data packet on a timed-out Connection. "
                         << "Resetting state to STATE_WRITE_INIT.";
         set_write_state(STATE_WRITE_INIT);
       }
@@ -927,7 +927,7 @@ void Connection::OnReadPacket(const char* data, size_t size) {
           if (port_->IceProtocol() == ICEPROTO_RFC5245 &&
               !port_->MaybeIceRoleConflict(addr, msg.get(), remote_ufrag)) {
             // Received conflicting role from the peer.
-            LOG(LS_INFO) << "Received conflicting role from the peer.";
+            BLOG(LS_INFO) << "Received conflicting role from the peer.";
             return;
           }
 

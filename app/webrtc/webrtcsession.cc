@@ -145,13 +145,13 @@ static bool VerifyCrypto(const SessionDescription* desc) {
     const TransportInfo* tinfo = desc->GetTransportInfoByName(cinfo->name);
     if (!media || !tinfo) {
       // Something is not right.
-      LOG(LS_ERROR) << kInvalidSdp;
+      BLOG(LS_ERROR) << kInvalidSdp;
       return false;
     }
     if (media->cryptos().empty() &&
         !tinfo->description.identity_fingerprint) {
       // Crypto must be supplied.
-      LOG(LS_WARNING) << "Session description must have SDES or DTLS-SRTP.";
+      BLOG(LS_WARNING) << "Session description must have SDES or DTLS-SRTP.";
       return false;
     }
   }
@@ -182,7 +182,7 @@ static bool GetAudioSsrcByName(const SessionDescription* session_description,
   const cricket::ContentInfo* audio_info =
       cricket::GetFirstAudioContent(session_description);
   if (!audio_info) {
-    LOG(LS_ERROR) << "Audio not used in this call";
+    BLOG(LS_ERROR) << "Audio not used in this call";
     return false;
   }
 
@@ -203,7 +203,7 @@ static bool GetVideoSsrcByName(const SessionDescription* session_description,
   const cricket::ContentInfo* video_info =
       cricket::GetFirstVideoContent(session_description);
   if (!video_info) {
-    LOG(LS_ERROR) << "Video not used in this call";
+    BLOG(LS_ERROR) << "Video not used in this call";
     return false;
   }
 
@@ -293,7 +293,7 @@ static bool BadSdp(const std::string& desc, std::string* err_desc) {
   if (err_desc) {
     *err_desc = desc;
   }
-  LOG(LS_ERROR) << desc;
+  BLOG(LS_ERROR) << desc;
   return false;
 }
 
@@ -389,7 +389,7 @@ class IceRestartAnswerLatch {
       }
       if (new_transport_desc->ice_pwd != old_transport_desc->ice_pwd &&
           new_transport_desc->ice_ufrag != old_transport_desc->ice_ufrag) {
-        LOG(LS_INFO) << "Remote peer request ice restart.";
+        BLOG(LS_INFO) << "Remote peer request ice restart.";
         ice_restart_ = true;
         break;
       }
@@ -452,12 +452,12 @@ bool WebRtcSession::Initialize(const MediaConstraintsInterface* constraints) {
   std::string value;
   if (FindConstraint(constraints, MediaConstraintsInterface::kEnableDtlsSrtp,
       &value, NULL) && value == MediaConstraintsInterface::kValueTrue) {
-    LOG(LS_INFO) << "DTLS-SRTP enabled; generating identity";
+    BLOG(LS_INFO) << "DTLS-SRTP enabled; generating identity";
     std::string identity_name = kWebRTCIdentityPrefix +
         talk_base::ToString(talk_base::CreateRandomId());
     transport_desc_factory_.set_identity(talk_base::SSLIdentity::Generate(
         identity_name));
-    LOG(LS_INFO) << "Finished generating identity";
+    BLOG(LS_INFO) << "Finished generating identity";
     set_identity(transport_desc_factory_.identity());
     transport_desc_factory_.set_digest_algorithm(talk_base::DIGEST_SHA_256);
 
@@ -510,12 +510,12 @@ SessionDescriptionInterface* WebRtcSession::CreateOffer(
   cricket::MediaSessionOptions options;
 
   if (!mediastream_signaling_->GetOptionsForOffer(constraints, &options)) {
-    LOG(LS_ERROR) << "CreateOffer called with invalid constraints.";
+    BLOG(LS_ERROR) << "CreateOffer called with invalid constraints.";
     return NULL;
   }
 
   if (!ValidStreams(options.streams)) {
-    LOG(LS_ERROR) << "CreateOffer called with invalid media streams.";
+    BLOG(LS_ERROR) << "CreateOffer called with invalid media streams.";
     return NULL;
   }
   SessionDescription* desc(
@@ -548,16 +548,16 @@ SessionDescriptionInterface* WebRtcSession::CreateAnswer(
     const SessionDescriptionInterface* offer) {
   cricket::MediaSessionOptions options;
   if (!mediastream_signaling_->GetOptionsForAnswer(constraints, &options)) {
-    LOG(LS_ERROR) << "CreateAnswer called with invalid constraints.";
+    BLOG(LS_ERROR) << "CreateAnswer called with invalid constraints.";
     return NULL;
   }
 
   if (!offer) {
-    LOG(LS_ERROR) << "Offer can't be NULL in CreateAnswer.";
+    BLOG(LS_ERROR) << "Offer can't be NULL in CreateAnswer.";
     return NULL;
   }
   if (!ValidStreams(options.streams)) {
-    LOG(LS_ERROR) << "CreateAnswer called with invalid media streams.";
+    BLOG(LS_ERROR) << "CreateAnswer called with invalid media streams.";
     return NULL;
   }
 
@@ -755,19 +755,19 @@ WebRtcSession::Action WebRtcSession::GetAction(const std::string& type) {
 
 bool WebRtcSession::ProcessIceMessage(const IceCandidateInterface* candidate) {
   if (state() == STATE_INIT) {
-     LOG(LS_ERROR) << "ProcessIceMessage: ICE candidates can't be added "
+     BLOG(LS_ERROR) << "ProcessIceMessage: ICE candidates can't be added "
                    << "without any offer (local or remote) "
                    << "session description.";
      return false;
   }
 
   if (!candidate) {
-    LOG(LS_ERROR) << "ProcessIceMessage: Candidate is NULL";
+    BLOG(LS_ERROR) << "ProcessIceMessage: Candidate is NULL";
     return false;
   }
 
   if (!local_description() || !remote_description()) {
-    LOG(LS_INFO) << "ProcessIceMessage: Remote description not set, "
+    BLOG(LS_INFO) << "ProcessIceMessage: Remote description not set, "
                  << "save the candidate for later use.";
     saved_candidates_.push_back(
         new JsepIceCandidate(candidate->sdp_mid(), candidate->sdp_mline_index(),
@@ -777,7 +777,7 @@ bool WebRtcSession::ProcessIceMessage(const IceCandidateInterface* candidate) {
 
   // Add this candidate to the remote session description.
   if (!remote_desc_->AddCandidate(candidate)) {
-    LOG(LS_ERROR) << "ProcessIceMessage: Candidate cannot be used";
+    BLOG(LS_ERROR) << "ProcessIceMessage: Candidate cannot be used";
     return false;
   }
 
@@ -787,7 +787,7 @@ bool WebRtcSession::ProcessIceMessage(const IceCandidateInterface* candidate) {
 bool WebRtcSession::GetTrackIdBySsrc(uint32 ssrc, std::string* name) {
   if (GetLocalTrackName(ssrc, name)) {
     if (GetRemoteTrackName(ssrc, name)) {
-      LOG(LS_WARNING) << "SSRC " << ssrc
+      BLOG(LS_WARNING) << "SSRC " << ssrc
                       << " exists in both local and remote descriptions";
       return true;  // We return the remote track name.
     }
@@ -820,12 +820,12 @@ std::string WebRtcSession::BadStateErrMsg(
 void WebRtcSession::SetAudioPlayout(const std::string& name, bool enable) {
   ASSERT(signaling_thread()->IsCurrent());
   if (!voice_channel_) {
-    LOG(LS_ERROR) << "SetAudioPlayout: No audio channel exists.";
+    BLOG(LS_ERROR) << "SetAudioPlayout: No audio channel exists.";
     return;
   }
   uint32 ssrc = 0;
   if (!VERIFY(mediastream_signaling_->GetRemoteAudioTrackSsrc(name, &ssrc))) {
-    LOG(LS_ERROR) << "Trying to enable/disable an unexisting audio SSRC.";
+    BLOG(LS_ERROR) << "Trying to enable/disable an unexisting audio SSRC.";
     return;
   }
   voice_channel_->SetOutputScaling(ssrc, enable ? 1 : 0, enable ? 1 : 0);
@@ -835,13 +835,13 @@ void WebRtcSession::SetAudioSend(const std::string& name, bool enable,
                                  const cricket::AudioOptions& options) {
   ASSERT(signaling_thread()->IsCurrent());
   if (!voice_channel_) {
-    LOG(LS_ERROR) << "SetAudioSend: No audio channel exists.";
+    BLOG(LS_ERROR) << "SetAudioSend: No audio channel exists.";
     return;
   }
   uint32 ssrc = 0;
   if (!VERIFY(GetAudioSsrcByName(BaseSession::local_description(),
                                  name, &ssrc))) {
-    LOG(LS_ERROR) << "SetAudioSend: SSRC does not exist.";
+    BLOG(LS_ERROR) << "SetAudioSend: SSRC does not exist.";
     return;
   }
   voice_channel_->MuteStream(ssrc, !enable);
@@ -856,18 +856,18 @@ bool WebRtcSession::SetCaptureDevice(const std::string& name,
   if (!video_channel_.get()) {
     // |video_channel_| doesnt't exist. Probably because the remote end doesnt't
     // support video.
-    LOG(LS_WARNING) << "Video not used in this call.";
+    BLOG(LS_WARNING) << "Video not used in this call.";
     return false;
   }
   uint32 ssrc = 0;
   if (!VERIFY(GetVideoSsrcByName(BaseSession::local_description(),
                                  name, &ssrc))) {
-    LOG(LS_ERROR) << "Trying to set camera device on a unknown  SSRC.";
+    BLOG(LS_ERROR) << "Trying to set camera device on a unknown  SSRC.";
     return false;
   }
 
   if (!video_channel_->SetCapturer(ssrc, camera)) {
-    LOG(LS_ERROR) << "Failed to set capture device.";
+    BLOG(LS_ERROR) << "Failed to set capture device.";
     return false;
   }
   return true;
@@ -878,7 +878,7 @@ void WebRtcSession::SetVideoPlayout(const std::string& name,
                                     cricket::VideoRenderer* renderer) {
   ASSERT(signaling_thread()->IsCurrent());
   if (!video_channel_) {
-    LOG(LS_ERROR) << "SetVideoPlayout: No video channel exists.";
+    BLOG(LS_ERROR) << "SetVideoPlayout: No video channel exists.";
     return;
   }
 
@@ -896,13 +896,13 @@ void WebRtcSession::SetVideoSend(const std::string& name, bool enable,
                                  const cricket::VideoOptions* options) {
   ASSERT(signaling_thread()->IsCurrent());
   if (!video_channel_) {
-    LOG(LS_ERROR) << "SetVideoSend: No video channel exists.";
+    BLOG(LS_ERROR) << "SetVideoSend: No video channel exists.";
     return;
   }
   uint32 ssrc = 0;
   if (!VERIFY(GetVideoSsrcByName(BaseSession::local_description(),
                                  name, &ssrc))) {
-    LOG(LS_ERROR) << "SetVideoSend: SSRC does not exist.";
+    BLOG(LS_ERROR) << "SetVideoSend: SSRC does not exist.";
     return;
   }
   video_channel_->MuteStream(ssrc, !enable);
@@ -913,7 +913,7 @@ void WebRtcSession::SetVideoSend(const std::string& name, bool enable,
 bool WebRtcSession::CanInsertDtmf(const std::string& track_id) {
   ASSERT(signaling_thread()->IsCurrent());
   if (!voice_channel_) {
-    LOG(LS_ERROR) << "CanInsertDtmf: No audio channel exists.";
+    BLOG(LS_ERROR) << "CanInsertDtmf: No audio channel exists.";
     return false;
   }
   uint32 send_ssrc = 0;
@@ -921,7 +921,7 @@ bool WebRtcSession::CanInsertDtmf(const std::string& track_id) {
   // exists.
   if (!GetAudioSsrcByName(BaseSession::local_description(), track_id,
                           &send_ssrc)) {
-    LOG(LS_ERROR) << "CanInsertDtmf: Track does not exist: " << track_id;
+    BLOG(LS_ERROR) << "CanInsertDtmf: Track does not exist: " << track_id;
     return false;
   }
   return voice_channel_->CanInsertDtmf();
@@ -931,18 +931,18 @@ bool WebRtcSession::InsertDtmf(const std::string& track_id,
                                int code, int duration) {
   ASSERT(signaling_thread()->IsCurrent());
   if (!voice_channel_) {
-    LOG(LS_ERROR) << "InsertDtmf: No audio channel exists.";
+    BLOG(LS_ERROR) << "InsertDtmf: No audio channel exists.";
     return false;
   }
   uint32 send_ssrc = 0;
   if (!VERIFY(GetAudioSsrcByName(BaseSession::local_description(),
                                  track_id, &send_ssrc))) {
-    LOG(LS_ERROR) << "InsertDtmf: Track does not exist: " << track_id;
+    BLOG(LS_ERROR) << "InsertDtmf: Track does not exist: " << track_id;
     return false;
   }
   if (!voice_channel_->InsertDtmf(send_ssrc, code, duration,
                                   cricket::DF_SEND)) {
-    LOG(LS_ERROR) << "Failed to insert DTMF to channel.";
+    BLOG(LS_ERROR) << "Failed to insert DTMF to channel.";
     return false;
   }
   return true;
@@ -952,7 +952,7 @@ talk_base::scoped_refptr<DataChannel> WebRtcSession::CreateDataChannel(
       const std::string& label,
       const DataChannelInit* config) {
   if (!allow_rtp_data_engine_) {
-    LOG(LS_ERROR) << "CreateDataChannel: Data is not supported in this call.";
+    BLOG(LS_ERROR) << "CreateDataChannel: Data is not supported in this call.";
     return NULL;
   }
   talk_base::scoped_refptr<DataChannel> channel(
@@ -967,7 +967,7 @@ talk_base::scoped_refptr<DataChannel> WebRtcSession::CreateDataChannel(
 void WebRtcSession::OnMessage(talk_base::Message* msg) {
   switch (msg->message_id) {
     case MSG_CANDIDATE_TIMEOUT:
-      LOG(LS_ERROR) << "Transport is not in writable state.";
+      BLOG(LS_ERROR) << "Transport is not in writable state.";
       SignalError();
       break;
     default:
@@ -1136,7 +1136,7 @@ void WebRtcSession::ProcessNewLocalCandidate(
     const cricket::Candidates& candidates) {
   int sdp_mline_index;
   if (!GetLocalCandidateMediaIndex(content_name, &sdp_mline_index)) {
-    LOG(LS_ERROR) << "ProcessNewLocalCandidate: content name "
+    BLOG(LS_ERROR) << "ProcessNewLocalCandidate: content name "
                   << content_name << " not found";
     return;
   }
@@ -1195,7 +1195,7 @@ bool WebRtcSession::UseCandidate(
   size_t remote_content_size =
       BaseSession::remote_description()->contents().size();
   if (mediacontent_index >= remote_content_size) {
-    LOG(LS_ERROR)
+    BLOG(LS_ERROR)
         << "UseRemoteCandidateInSession: Invalid candidate media index.";
     return false;
   }
@@ -1223,7 +1223,7 @@ bool WebRtcSession::UseCandidate(
     }
     // TODO(bemasc): If state is Completed, go back to Connected.
   } else {
-    LOG(LS_WARNING) << error;
+    BLOG(LS_WARNING) << error;
   }
   return true;
 }
@@ -1274,7 +1274,7 @@ bool WebRtcSession::CreateChannels(Action action,
   const cricket::ContentInfo* voice = cricket::GetFirstAudioContent(desc);
   if (voice && !voice->rejected && !voice_channel_) {
     if (!CreateVoiceChannel(desc)) {
-      LOG(LS_ERROR) << "Failed to create voice channel.";
+      BLOG(LS_ERROR) << "Failed to create voice channel.";
       return false;
     }
   }
@@ -1282,7 +1282,7 @@ bool WebRtcSession::CreateChannels(Action action,
   const cricket::ContentInfo* video = cricket::GetFirstVideoContent(desc);
   if (video && !video->rejected && !video_channel_) {
     if (!CreateVideoChannel(desc)) {
-      LOG(LS_ERROR) << "Failed to create video channel.";
+      BLOG(LS_ERROR) << "Failed to create video channel.";
       return false;
     }
   }
@@ -1291,7 +1291,7 @@ bool WebRtcSession::CreateChannels(Action action,
   if (allow_rtp_data_engine_ && data && !data->rejected &&
       !data_channel_.get()) {
     if (!CreateDataChannel(desc)) {
-      LOG(LS_ERROR) << "Failed to create data channel.";
+      BLOG(LS_ERROR) << "Failed to create data channel.";
       return false;
     }
   }

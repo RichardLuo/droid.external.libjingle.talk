@@ -76,7 +76,7 @@ void TypingMonitor::OnVoiceChannelError(uint32 ssrc,
     has_pending_unmute_ = true;
 
     worker_thread_->PostDelayed(mute_period_, this, 0);
-    LOG(LS_INFO) << "Muted for " << mute_period_ << "ms.";
+    BLOG(LS_INFO) << "Muted for " << mute_period_ << "ms.";
     // TODO(thaloun): Either here or in VoiceChannel signal up a mutechanged
     // type message so that the FE can keep in sync with the actual mute status.
   }

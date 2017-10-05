@@ -25,22 +25,22 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-//   LOG(...) an ostream target that can be used to send formatted
+//   BLOG(...) an ostream target that can be used to send formatted
 // output to a variety of logging targets, such as debugger console, stderr,
 // file, or any StreamInterface.
 //   The severity level passed as the first argument to the LOGging
 // functions is used as a filter, to limit the verbosity of the logging.
 //   Static members of LogMessage documented below are used to control the
 // verbosity and target of the output.
-//   There are several variations on the LOG macro which facilitate logging
+//   There are several variations on the BLOG macro which facilitate logging
 // of common error conditions, detailed below.
 
-// LOG(sev) logs the given stream at severity "sev", which must be a
+// BLOG(sev) logs the given stream at severity "sev", which must be a
 //     compile-time constant of the LoggingSeverity type, without the namespace
 //     prefix.
-// LOG_V(sev) Like LOG(), but sev is a run-time variable of the LoggingSeverity
+// LOG_V(sev) Like BLOG(), but sev is a run-time variable of the LoggingSeverity
 //     type (basically, it just doesn't prepend the namespace).
-// LOG_F(sev) Like LOG(), but includes the name of the current function.
+// LOG_F(sev) Like BLOG(), but includes the name of the current function.
 // LOG_GLE(M)(sev [, mod]) attempt to add a string description of the
 //     HRESULT returned by GetLastError.  The "M" variant allows searching of a
 //     DLL's string table for the error description.
@@ -88,7 +88,7 @@ class StreamInterface;
 //   }
 //
 //   int err = LibraryFunc();
-//   LOG(LS_ERROR) << "LibraryFunc returned: "
+//   BLOG(LS_ERROR) << "LibraryFunc returned: "
 //                 << ErrorName(err, LIBRARY_ERRORS);
 
 struct ConstantLabel { int value; const char * label; };
@@ -274,7 +274,7 @@ void LogMultiline(LoggingSeverity level, const char* label, bool input,
 #endif
 #endif  // !defined(LOGGING)
 
-#ifndef LOG
+#ifndef BLOG
 #if LOGGING
 
 // The following non-obvious technique for implementation of a
@@ -297,9 +297,11 @@ class LogMessageVoidify {
     ? (void) 0 \
     : talk_base::LogMessageVoidify() &
 
-#define LOG(sev) \
+#ifndef BLOG
+#define BLOG(sev) \
   LOG_SEVERITY_PRECONDITION(talk_base::sev) \
     talk_base::LogMessage(__FILE__, __LINE__, talk_base::sev).stream()
+#endif
 
 // The _V version is for when a variable is passed in.  It doesn't do the
 // namespace concatination.
@@ -309,9 +311,9 @@ class LogMessageVoidify {
 
 // The _F version prefixes the message with the current function name.
 #if (defined(__GNUC__) && defined(_DEBUG)) || defined(WANT_PRETTY_LOG_F)
-#define LOG_F(sev) LOG(sev) << __PRETTY_FUNCTION__ << ": "
+#define LOG_F(sev) BLOG(sev) << __PRETTY_FUNCTION__ << ": "
 #else
-#define LOG_F(sev) LOG(sev) << __FUNCTION__ << ": "
+#define LOG_F(sev) BLOG(sev) << __FUNCTION__ << ": "
 #endif
 
 #define LOG_CHECK_LEVEL(sev) \
@@ -333,11 +335,11 @@ inline bool LogCheckLevel(LoggingSeverity sev) {
 // Hopefully, the compiler will optimize away some of this code.
 // Note: syntax of "1 ? (void)0 : LogMessage" was causing errors in g++,
 //   converted to "while (false)"
-#define LOG(sev) \
+#define BLOG(sev) \
   while (false)talk_base:: LogMessage(NULL, 0, talk_base::sev).stream()
 #define LOG_V(sev) \
   while (false) talk_base::LogMessage(NULL, 0, sev).stream()
-#define LOG_F(sev) LOG(sev) << __FUNCTION__ << ": "
+#define LOG_F(sev) BLOG(sev) << __FUNCTION__ << ": "
 #define LOG_CHECK_LEVEL(sev) \
   false
 #define LOG_CHECK_LEVEL_V(sev) \
@@ -382,7 +384,7 @@ inline bool LogCheckLevel(LoggingSeverity sev) {
 
 // TODO(?): Add an "assert" wrapper that logs in the same manner.
 
-#endif  // LOG
+#endif  // BLOG
 
 }  // namespace talk_base
 

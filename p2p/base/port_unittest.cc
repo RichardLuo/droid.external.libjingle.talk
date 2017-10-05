@@ -548,7 +548,7 @@ void PortTest::TestConnectivity(const char* name1, Port* port1,
                                 const char* name2, Port* port2,
                                 bool accept, bool same_addr1,
                                 bool same_addr2, bool possible) {
-  LOG(LS_INFO) << "Test: " << name1 << " to " << name2 << ": ";
+  BLOG(LS_INFO) << "Test: " << name1 << " to " << name2 << ": ";
   port1->set_component(cricket::ICE_CANDIDATE_COMPONENT_DEFAULT);
   port2->set_component(cricket::ICE_CANDIDATE_COMPONENT_DEFAULT);
 

@@ -319,7 +319,7 @@ bool ParseProxy(const std::string& saddress, ProxyInfo* proxy) {
     }
 
     if (len > kMaxAddressLength - 1) {
-      LOG(LS_WARNING) << "Proxy address too long [" << start << "]";
+      BLOG(LS_WARNING) << "Proxy address too long [" << start << "]";
       continue;
     }
 
@@ -329,7 +329,7 @@ bool ParseProxy(const std::string& saddress, ProxyInfo* proxy) {
 
     char * colon = ::strchr(buffer, ':');
     if (!colon) {
-      LOG(LS_WARNING) << "Proxy address without port [" << buffer << "]";
+      BLOG(LS_WARNING) << "Proxy address without port [" << buffer << "]";
       continue;
     }
 
@@ -337,7 +337,7 @@ bool ParseProxy(const std::string& saddress, ProxyInfo* proxy) {
     char * endptr;
     port = static_cast<uint16>(strtol(colon + 1, &endptr, 0));
     if (*endptr != 0) {
-      LOG(LS_WARNING) << "Proxy address with invalid port [" << buffer << "]";
+      BLOG(LS_WARNING) << "Proxy address with invalid port [" << buffer << "]";
       continue;
     }
 
@@ -349,7 +349,7 @@ bool ParseProxy(const std::string& saddress, ProxyInfo* proxy) {
       } else if (_stricmp(buffer, "https") == 0) {
         ptype = PROXY_HTTPS;
       } else {
-        LOG(LS_WARNING) << "Proxy address with unknown protocol ["
+        BLOG(LS_WARNING) << "Proxy address with unknown protocol ["
                         << buffer << "]";
         ptype = PROXY_UNKNOWN;
       }
@@ -395,7 +395,7 @@ bool GetFirefoxProfilePath(Pathname* path) {
   wchar_t w_path[MAX_PATH];
   if (SHGetFolderPath(0, CSIDL_APPDATA, 0, SHGFP_TYPE_CURRENT, w_path) !=
       S_OK) {
-    LOG(LS_ERROR) << "SHGetFolderPath failed";
+    BLOG(LS_ERROR) << "SHGetFolderPath failed";
     return false;
   }
   path->SetFolder(ToUtf8(w_path, wcslen(w_path)));
@@ -405,13 +405,13 @@ bool GetFirefoxProfilePath(Pathname* path) {
   FSRef fr;
   if (0 != FSFindFolder(kUserDomain, kApplicationSupportFolderType,
                         kCreateFolder, &fr)) {
-    LOG(LS_ERROR) << "FSFindFolder failed";
+    BLOG(LS_ERROR) << "FSFindFolder failed";
     return false;
   }
   char buffer[NAME_MAX + 1];
   if (0 != FSRefMakePath(&fr, reinterpret_cast<uint8*>(buffer),
                          ARRAY_SIZE(buffer))) {
-    LOG(LS_ERROR) << "FSRefMakePath failed";
+    BLOG(LS_ERROR) << "FSRefMakePath failed";
     return false;
   }
   path->SetFolder(std::string(buffer));
@@ -512,7 +512,7 @@ bool ReadFirefoxPrefs(const Pathname& filename,
                       StringMap* settings) {
   FileStream* fs = Filesystem::OpenFile(filename, "r");
   if (!fs) {
-    LOG(LS_ERROR) << "Failed to open file: " << filename.pathname();
+    BLOG(LS_ERROR) << "Failed to open file: " << filename.pathname();
     return false;
   }
 
@@ -665,7 +665,7 @@ bool IsDefaultBrowserFirefox() {
 bool GetWinHttpProxySettings(const char* url, ProxyInfo* proxy) {
   HMODULE winhttp_handle = LoadLibrary(L"winhttp.dll");
   if (winhttp_handle == NULL) {
-    LOG(LS_ERROR) << "Failed to load winhttp.dll.";
+    BLOG(LS_ERROR) << "Failed to load winhttp.dll.";
     return false;
   }
   WINHTTP_CURRENT_USER_IE_PROXY_CONFIG iecfg;
@@ -717,7 +717,7 @@ bool WinHttpAutoDetectProxyForUrl(const char* agent, const char* url,
   bool success = true;
   HMODULE winhttp_handle = LoadLibrary(L"winhttp.dll");
   if (winhttp_handle == NULL) {
-    LOG(LS_ERROR) << "Failed to load winhttp.dll.";
+    BLOG(LS_ERROR) << "Failed to load winhttp.dll.";
     return false;
   }
   pfnWinHttpOpen pWHO =
@@ -786,12 +786,12 @@ bool WinHttpAutoDetectProxyForUrl(const char* agent, const char* url,
         }
       } else {
         // We could not find any proxy for this url.
-        LOG(LS_INFO) << "No proxy detected for " << url;
+        BLOG(LS_INFO) << "No proxy detected for " << url;
       }
       pWHCH(hWinHttp);
     }
   } else {
-    LOG(LS_ERROR) << "Failed loading WinHTTP functions.";
+    BLOG(LS_ERROR) << "Failed loading WinHTTP functions.";
     success = false;
   }
   FreeLibrary(winhttp_handle);
@@ -817,7 +817,7 @@ bool GetJsProxySettings(const char* url, ProxyInfo* proxy) {
       DWORD hostlen = _snprintf(host, sizeof(host), "http%s://%S",
                                 purl.secure() ? "s" : "", purl.server());
       if (pIGPI(surl.data(), surl.size(), host, hostlen, &ptr, &proxylen)) {
-        LOG(INFO) << "Proxy: " << proxy;
+        BLOG(INFO) << "Proxy: " << proxy;
       } else {
         LOG_GLE(INFO) << "InternetGetProxyInfo";
       }
@@ -858,7 +858,7 @@ bool GetWmProxySettings(const char* url, ProxyInfo* proxy) {
           }
           SysFreeString(proxy);
           if (FAILED(hr = ians->ShutdownProxyContext(context))) {
-            LOG(LS_INFO) << "IWMSInternalAdminNetSource::ShutdownProxyContext"
+            BLOG(LS_INFO) << "IWMSInternalAdminNetSource::ShutdownProxyContext"
                          << "failed: " << hr;
           }
           ians->Release();
@@ -866,7 +866,7 @@ bool GetWmProxySettings(const char* url, ProxyInfo* proxy) {
       }
       VariantClear(&dispatch);
       if (FAILED(hr = nsc->Shutdown())) {
-        LOG(LS_INFO) << "INSNetSourceCreator::Shutdown failed: " << hr;
+        BLOG(LS_INFO) << "INSNetSourceCreator::Shutdown failed: " << hr;
       }
     }
     nsc->Release();
@@ -893,7 +893,7 @@ bool GetIePerConnectionProxySettings(const char* url, ProxyInfo* proxy) {
 
   if (!InternetQueryOption(0, INTERNET_OPTION_PER_CONNECTION_OPTION, &list,
                            &dwSize)) {
-    LOG(LS_INFO) << "InternetQueryOption failed: " << GetLastError();
+    BLOG(LS_INFO) << "InternetQueryOption failed: " << GetLastError();
   } else if ((options[0].Value.dwValue & PROXY_TYPE_PROXY) != 0) {
     success = true;
     if (!ProxyListMatch(purl, nonnull(options[2].Value.pszValue), _T(';'))) {
@@ -902,7 +902,7 @@ bool GetIePerConnectionProxySettings(const char* url, ProxyInfo* proxy) {
   } else if ((options[0].Value.dwValue & PROXY_TYPE_DIRECT) != 0) {
     success = true;
   } else {
-    LOG(LS_INFO) << "unknown internet access type: "
+    BLOG(LS_INFO) << "unknown internet access type: "
                  << options[0].Value.dwValue;
   }
   if (options[1].Value.pszValue) {
@@ -929,7 +929,7 @@ bool GetIeLanProxySettings(const char* url, ProxyInfo* proxy) {
   DWORD dwSize = sizeof(buffer);
 
   if (!InternetQueryOption(0, INTERNET_OPTION_PROXY, info, &dwSize)) {
-    LOG(LS_INFO) << "InternetQueryOption failed: " << GetLastError();
+    BLOG(LS_INFO) << "InternetQueryOption failed: " << GetLastError();
   } else if (info->dwAccessType == INTERNET_OPEN_TYPE_DIRECT) {
     success = true;
   } else if (info->dwAccessType == INTERNET_OPEN_TYPE_PROXY) {
@@ -940,7 +940,7 @@ bool GetIeLanProxySettings(const char* url, ProxyInfo* proxy) {
                  proxy);
     }
   } else {
-    LOG(LS_INFO) << "unknown internet access type: " << info->dwAccessType;
+    BLOG(LS_INFO) << "unknown internet access type: " << info->dwAccessType;
   }
   return success;
 }
@@ -1075,7 +1075,7 @@ bool p_putPasswordInProxyInfo(ProxyInfo* proxy) {
       protocol = kSecProtocolTypeSOCKS;
       break;
     default :
-      LOG(LS_ERROR) << "asked for proxy password for unknown proxy type.";
+      BLOG(LS_ERROR) << "asked for proxy password for unknown proxy type.";
       result = false;
       break;
   }
@@ -1092,18 +1092,18 @@ bool p_putPasswordInProxyInfo(ProxyInfo* proxy) {
   attributes[2].data = const_cast<char*>(ip.c_str());
 
   if (result) {
-    LOG(LS_INFO) << "trying to get proxy username/password";
+    BLOG(LS_INFO) << "trying to get proxy username/password";
     SecKeychainSearchRef sref;
     oss = SecKeychainSearchCreateFromAttributes(NULL,
                                                 kSecInternetPasswordItemClass,
                                                 &attrList, &sref);
     if (0 == oss) {
-      LOG(LS_INFO) << "SecKeychainSearchCreateFromAttributes was good";
+      BLOG(LS_INFO) << "SecKeychainSearchCreateFromAttributes was good";
       // Get the first item, if there is one.
       SecKeychainItemRef iref;
       oss = SecKeychainSearchCopyNext(sref, &iref);
       if (0 == oss) {
-        LOG(LS_INFO) << "...looks like we have the username/password data";
+        BLOG(LS_INFO) << "...looks like we have the username/password data";
         // If there is, get the username and the password.
 
         SecKeychainAttributeInfo attribsToGet;
@@ -1123,7 +1123,7 @@ bool p_putPasswordInProxyInfo(ProxyInfo* proxy) {
                                                                 &length,
                                                                 &data);
         if (0 == copyres) {
-          LOG(LS_INFO) << "...and we can pull it out.";
+          BLOG(LS_INFO) << "...and we can pull it out.";
           // now, we know from experimentation (sadly not from docs)
           // that the username is in the local attribute list,
           // and the password in the data,
@@ -1141,27 +1141,27 @@ bool p_putPasswordInProxyInfo(ProxyInfo* proxy) {
             proxy->username.append(
                 static_cast<const char*>(localList->attr->data),
                 localList->attr->length);
-            LOG(LS_INFO) << "username is " << proxy->username;
+            BLOG(LS_INFO) << "username is " << proxy->username;
           } else {
-            LOG(LS_ERROR) << "got keychain entry with no username";
+            BLOG(LS_ERROR) << "got keychain entry with no username";
             result = false;
           }
         } else {
-          LOG(LS_ERROR) << "couldn't copy info from keychain.";
+          BLOG(LS_ERROR) << "couldn't copy info from keychain.";
           result = false;
         }
         SecKeychainItemFreeAttributesAndData(localList, data);
       } else if (errSecItemNotFound == oss) {
-        LOG(LS_INFO) << "...username/password info not found";
+        BLOG(LS_INFO) << "...username/password info not found";
       } else {
         // oooh, neither 0 nor itemNotFound.
-        LOG(LS_ERROR) << "Couldn't get keychain information, error code" << oss;
+        BLOG(LS_ERROR) << "Couldn't get keychain information, error code" << oss;
         result = false;
       }
     } else if (errSecItemNotFound == oss) {  // noop
     } else {
       // oooh, neither 0 nor itemNotFound.
-      LOG(LS_ERROR) << "Couldn't get keychain information, error code" << oss;
+      BLOG(LS_ERROR) << "Couldn't get keychain information, error code" << oss;
       result = false;
     }
   }
@@ -1189,7 +1189,7 @@ bool GetMacProxySettings(ProxyInfo* proxy) {
     // to the Carbon memory management standards.
     CFRelease(proxyDict);
   } else {
-    LOG(LS_ERROR) << "SCDynamicStoreCopyProxies failed";
+    BLOG(LS_ERROR) << "SCDynamicStoreCopyProxies failed";
   }
 
   return result;
@@ -1201,7 +1201,7 @@ bool AutoDetectProxySettings(const char* agent, const char* url,
 #ifdef WIN32
   return WinHttpAutoDetectProxyForUrl(agent, url, proxy);
 #else
-  LOG(LS_WARNING) << "Proxy auto-detection not implemented for this platform";
+  BLOG(LS_WARNING) << "Proxy auto-detection not implemented for this platform";
   return false;
 #endif
 }

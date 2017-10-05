@@ -44,7 +44,7 @@ bool MacWindowPicker::Init() {
   // talk/base/latebindingsymboltable.h.
   lib_handle_ = dlopen(kCoreGraphicsName, RTLD_NOW);
   if (lib_handle_ == NULL) {
-    LOG(LS_ERROR) << "Could not load CoreGraphics";
+    BLOG(LS_ERROR) << "Could not load CoreGraphics";
     return false;
   }
 
@@ -55,7 +55,7 @@ bool MacWindowPicker::Init() {
     // The CGWindowListCopyWindowInfo and the
     // CGWindowListCreateDescriptionFromArray functions was introduced
     // in Leopard(10.5) so this is a normal failure on Tiger.
-    LOG(LS_INFO) << "Failed to load Core Graphics symbols";
+    BLOG(LS_INFO) << "Failed to load Core Graphics symbols";
     dlclose(lib_handle_);
     lib_handle_ = NULL;
     return false;
@@ -79,7 +79,7 @@ bool MacWindowPicker::IsVisible(const WindowId& id) {
           get_window_list_desc_)(window_id_array);
   if (window_array == NULL || 0 == CFArrayGetCount(window_array)) {
     // Could not find the window. It might have been closed.
-    LOG(LS_INFO) << "Window not found";
+    BLOG(LS_INFO) << "Window not found";
     CFRelease(window_id_array);
     return false;
   }
@@ -114,7 +114,7 @@ bool MacWindowPicker::MoveToFront(const WindowId& id) {
           get_window_list_desc_)(window_id_array);
   if (window_array == NULL || 0 == CFArrayGetCount(window_array)) {
     // Could not find the window. It might have been closed.
-    LOG(LS_INFO) << "Window not found";
+    BLOG(LS_INFO) << "Window not found";
     CFRelease(window_id_array);
     return false;
   }
@@ -156,12 +156,12 @@ bool MacWindowPicker::MoveToFront(const WindowId& id) {
     pid_t pid = pid_val;
     int res = GetProcessForPID(pid, &psn);
     if (res != 0) {
-      LOG(LS_ERROR) << "Failed getting process for pid";
+      BLOG(LS_ERROR) << "Failed getting process for pid";
       result = false;
     }
     res = SetFrontProcess(&psn);
     if (res != 0) {
-      LOG(LS_ERROR) << "Failed setting process to front";
+      BLOG(LS_ERROR) << "Failed setting process to front";
       result = false;
     }
   }

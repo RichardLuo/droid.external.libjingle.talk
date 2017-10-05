@@ -213,7 +213,7 @@ void ReportStats() {
                                (i == 0) ? "" : ",", STAT_NAMES[i], g_stats[i]);
     g_stats[i] = 0;
   }
-  LOG(LS_INFO) << "Stats[" << buffer << "]";
+  BLOG(LS_INFO) << "Stats[" << buffer << "]";
 }
 
 #endif
@@ -291,7 +291,7 @@ int PseudoTcp::Connect() {
   }
 
   m_state = TCP_SYN_SENT;
-  LOG(LS_INFO) << "State: TCP_SYN_SENT";
+  BLOG(LS_INFO) << "State: TCP_SYN_SENT";
 
   queueConnectMessage();
   attemptSend();
@@ -318,7 +318,7 @@ void PseudoTcp::NotifyClock(uint32 now) {
       // Note: (m_slist.front().xmit == 0)) {
       // retransmit segments
 #if _DEBUGMSG >= _DBG_NORMAL
-      LOG(LS_INFO) << "timeout retransmit (rto: " << m_rx_rto
+      BLOG(LS_INFO) << "timeout retransmit (rto: " << m_rx_rto
                    << ") (rto_base: " << m_rto_base
                    << ") (now: " << now
                    << ") (dup_acks: " << static_cast<unsigned>(m_dup_acks)
@@ -331,7 +331,7 @@ void PseudoTcp::NotifyClock(uint32 now) {
 
       uint32 nInFlight = m_snd_nxt - m_snd_una;
       m_ssthresh = talk_base::_max(nInFlight / 2, 2 * m_mss);
-      //LOG(LS_INFO) << "m_ssthresh: " << m_ssthresh << "  nInFlight: " << nInFlight << "  m_mss: " << m_mss;
+      //BLOG(LS_INFO) << "m_ssthresh: " << m_ssthresh << "  nInFlight: " << nInFlight << "  m_mss: " << m_mss;
       m_cwnd = m_mss;
 
       // Back off retransmit timer.  Note: the limit is lower when connecting.
@@ -561,7 +561,7 @@ IPseudoTcpNotify::WriteResult PseudoTcp::packet(uint32 seq, uint8 flags,
   }
 
 #if _DEBUGMSG >= _DBG_VERBOSE
-  LOG(LS_INFO) << "<-- <CONV=" << m_conv
+  BLOG(LS_INFO) << "<-- <CONV=" << m_conv
                << "><FLG=" << static_cast<unsigned>(flags)
                << "><SEQ=" << seq << ":" << seq + len
                << "><ACK=" << m_rcv_nxt
@@ -606,7 +606,7 @@ bool PseudoTcp::parse(const uint8* buffer, uint32 size) {
   seg.len = size - HEADER_SIZE;
 
 #if _DEBUGMSG >= _DBG_VERBOSE
-  LOG(LS_INFO) << "--> <CONV=" << seg.conv
+  BLOG(LS_INFO) << "--> <CONV=" << seg.conv
                << "><FLG=" << static_cast<unsigned>(seg.flags)
                << "><SEQ=" << seg.seq << ":" << seg.seq + seg.len
                << "><ACK=" << seg.ack
@@ -698,12 +698,12 @@ bool PseudoTcp::process(Segment& seg) {
 
       if (m_state == TCP_LISTEN) {
         m_state = TCP_SYN_RECEIVED;
-        LOG(LS_INFO) << "State: TCP_SYN_RECEIVED";
+        BLOG(LS_INFO) << "State: TCP_SYN_RECEIVED";
         //m_notify->associate(addr);
         queueConnectMessage();
       } else if (m_state == TCP_SYN_SENT) {
         m_state = TCP_ESTABLISHED;
-        LOG(LS_INFO) << "State: TCP_ESTABLISHED";
+        BLOG(LS_INFO) << "State: TCP_ESTABLISHED";
         adjustMTU();
         if (m_notify) {
           m_notify->OnTcpOpen(this);
@@ -737,7 +737,7 @@ bool PseudoTcp::process(Segment& seg) {
         m_rx_rto = bound(MIN_RTO, m_rx_srtt +
             talk_base::_max<uint32>(1, 4 * m_rx_rttvar), MAX_RTO);
 #if _DEBUGMSG >= _DBG_VERBOSE
-        LOG(LS_INFO) << "rtt: " << rtt
+        BLOG(LS_INFO) << "rtt: " << rtt
                      << "  srtt: " << m_rx_srtt
                      << "  rto: " << m_rx_rto;
 #endif // _DEBUGMSG
@@ -774,12 +774,12 @@ bool PseudoTcp::process(Segment& seg) {
         uint32 nInFlight = m_snd_nxt - m_snd_una;
         m_cwnd = talk_base::_min(m_ssthresh, nInFlight + m_mss); // (Fast Retransmit)
 #if _DEBUGMSG >= _DBG_NORMAL
-        LOG(LS_INFO) << "exit recovery";
+        BLOG(LS_INFO) << "exit recovery";
 #endif // _DEBUGMSG
         m_dup_acks = 0;
       } else {
 #if _DEBUGMSG >= _DBG_NORMAL
-        LOG(LS_INFO) << "recovery retransmit";
+        BLOG(LS_INFO) << "recovery retransmit";
 #endif // _DEBUGMSG
         if (!transmit(m_slist.begin(), now)) {
           closedown(ECONNABORTED);
@@ -807,8 +807,8 @@ bool PseudoTcp::process(Segment& seg) {
       m_dup_acks += 1;
       if (m_dup_acks == 3) { // (Fast Retransmit)
 #if _DEBUGMSG >= _DBG_NORMAL
-        LOG(LS_INFO) << "enter recovery";
-        LOG(LS_INFO) << "recovery retransmit";
+        BLOG(LS_INFO) << "enter recovery";
+        BLOG(LS_INFO) << "recovery retransmit";
 #endif // _DEBUGMSG
         if (!transmit(m_slist.begin(), now)) {
           closedown(ECONNABORTED);
@@ -817,7 +817,7 @@ bool PseudoTcp::process(Segment& seg) {
         m_recover = m_snd_nxt;
         uint32 nInFlight = m_snd_nxt - m_snd_una;
         m_ssthresh = talk_base::_max(nInFlight / 2, 2 * m_mss);
-        //LOG(LS_INFO) << "m_ssthresh: " << m_ssthresh << "  nInFlight: " << nInFlight << "  m_mss: " << m_mss;
+        //BLOG(LS_INFO) << "m_ssthresh: " << m_ssthresh << "  nInFlight: " << nInFlight << "  m_mss: " << m_mss;
         m_cwnd = m_ssthresh + 3 * m_mss;
       } else if (m_dup_acks > 3) {
         m_cwnd += m_mss;
@@ -830,7 +830,7 @@ bool PseudoTcp::process(Segment& seg) {
   // !?! A bit hacky
   if ((m_state == TCP_SYN_RECEIVED) && !bConnect) {
     m_state = TCP_ESTABLISHED;
-    LOG(LS_INFO) << "State: TCP_ESTABLISHED";
+    BLOG(LS_INFO) << "State: TCP_ESTABLISHED";
     adjustMTU();
     if (m_notify) {
       m_notify->OnTcpOpen(this);
@@ -930,7 +930,7 @@ bool PseudoTcp::process(Segment& seg) {
             sflags = sfImmediateAck; // (Fast Recovery)
             uint32 nAdjust = (it->seq + it->len) - m_rcv_nxt;
 #if _DEBUGMSG >= _DBG_NORMAL
-            LOG(LS_INFO) << "Recovered " << nAdjust << " bytes (" << m_rcv_nxt << " -> " << m_rcv_nxt + nAdjust << ")";
+            BLOG(LS_INFO) << "Recovered " << nAdjust << " bytes (" << m_rcv_nxt << " -> " << m_rcv_nxt + nAdjust << ")";
 #endif // _DEBUGMSG
             m_rbuf.ConsumeWriteBuffer(nAdjust);
             m_rcv_nxt += nAdjust;
@@ -940,7 +940,7 @@ bool PseudoTcp::process(Segment& seg) {
         }
       } else {
 #if _DEBUGMSG >= _DBG_NORMAL
-        LOG(LS_INFO) << "Saving " << seg.len << " bytes (" << seg.seq << " -> " << seg.seq + seg.len << ")";
+        BLOG(LS_INFO) << "Saving " << seg.len << " bytes (" << seg.seq << " -> " << seg.seq + seg.len << ")";
 #endif // _DEBUGMSG
         RSegment rseg;
         rseg.seq = seg.seq;
@@ -1009,7 +1009,7 @@ bool PseudoTcp::transmit(const SList::iterator& seg, uint32 now) {
       }
     }
 #if _DEBUGMSG >= _DBG_NORMAL
-    LOG(LS_INFO) << "Adjusting mss to " << m_mss << " bytes";
+    BLOG(LS_INFO) << "Adjusting mss to " << m_mss << " bytes";
 #endif // _DEBUGMSG
   }
 
@@ -1078,7 +1078,7 @@ void PseudoTcp::attemptSend(SendFlags sflags) {
       m_sbuf.GetWriteRemaining(&available_space);
 
       bFirst = false;
-      LOG(LS_INFO) << "[cwnd: " << m_cwnd
+      BLOG(LS_INFO) << "[cwnd: " << m_cwnd
                    << "  nWindow: " << nWindow
                    << "  nInFlight: " << nInFlight
                    << "  nAvailable: " << nAvailable
@@ -1136,7 +1136,7 @@ void PseudoTcp::attemptSend(SendFlags sflags) {
 
 void
 PseudoTcp::closedown(uint32 err) {
-  LOG(LS_INFO) << "State: TCP_CLOSED";
+  BLOG(LS_INFO) << "State: TCP_CLOSED";
   m_state = TCP_CLOSED;
   if (m_notify) {
     m_notify->OnTcpClosed(this, err);
@@ -1155,7 +1155,7 @@ PseudoTcp::adjustMTU() {
   m_mss = m_mtu_advise - PACKET_OVERHEAD;
   // !?! Should we reset m_largest here?
 #if _DEBUGMSG >= _DBG_NORMAL
-  LOG(LS_INFO) << "Adjusting mss to " << m_mss << " bytes";
+  BLOG(LS_INFO) << "Adjusting mss to " << m_mss << " bytes";
 #endif // _DEBUGMSG
   // Enforce minimums on ssthresh and cwnd
   m_ssthresh = talk_base::_max(m_ssthresh, 2 * m_mss);
@@ -1218,14 +1218,14 @@ PseudoTcp::parseOptions(const char* data, uint32 len) {
       applyOption(kind, buf.Data(), opt_len);
       buf.Consume(opt_len);
     } else {
-      LOG(LS_ERROR) << "Invalid option length received.";
+      BLOG(LS_ERROR) << "Invalid option length received.";
       return;
     }
     options_specified.insert(kind);
   }
 
   if (options_specified.find(TCP_OPT_WND_SCALE) == options_specified.end()) {
-    LOG(LS_WARNING) << "Peer doesn't support window scaling";
+    BLOG(LS_WARNING) << "Peer doesn't support window scaling";
 
     if (m_rwnd_scale > 0) {
       // Peer doesn't support TCP options and window scaling.
@@ -1239,7 +1239,7 @@ PseudoTcp::parseOptions(const char* data, uint32 len) {
 void
 PseudoTcp::applyOption(char kind, const char* data, uint32 len) {
   if (kind == TCP_OPT_MSS) {
-    LOG(LS_WARNING) << "Peer specified MSS option which is not supported.";
+    BLOG(LS_WARNING) << "Peer specified MSS option which is not supported.";
     // TODO: Implement.
   } else if (kind == TCP_OPT_WND_SCALE) {
     // Window scale factor.

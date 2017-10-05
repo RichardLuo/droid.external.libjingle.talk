@@ -75,7 +75,7 @@ const int SRTP_MASTER_KEY_SALT_LEN = 14;
 // to log that the functions that require it won't do anything.
 namespace {
 bool SrtpNotAvailable(const char *func) {
-  LOG(LS_ERROR) << func << ": SRTP is not available on your system.";
+  BLOG(LS_ERROR) << func << ": SRTP is not available on your system.";
   return false;
 }
 }  // anonymous namespace
@@ -112,7 +112,7 @@ bool SrtpFilter::IsActive() const {
 bool SrtpFilter::SetOffer(const std::vector<CryptoParams>& offer_params,
                           ContentSource source) {
   if (!ExpectOffer(source)) {
-     LOG(LS_ERROR) << "Wrong state to update SRTP offer";
+     BLOG(LS_ERROR) << "Wrong state to update SRTP offer";
      return false;
   }
   return StoreParams(offer_params, source);
@@ -134,7 +134,7 @@ bool SrtpFilter::SetRtpParams(const std::string& send_cs,
                               const std::string& recv_cs,
                               const uint8* recv_key, int recv_key_len) {
   if (state_ == ST_ACTIVE) {
-    LOG(LS_ERROR) << "Tried to set SRTP Params when filter already active";
+    BLOG(LS_ERROR) << "Tried to set SRTP Params when filter already active";
     return false;
   }
   CreateSrtpSessions();
@@ -146,7 +146,7 @@ bool SrtpFilter::SetRtpParams(const std::string& send_cs,
 
   state_ = ST_ACTIVE;
 
-  LOG(LS_INFO) << "SRTP activated with negotiated parameters:"
+  BLOG(LS_INFO) << "SRTP activated with negotiated parameters:"
                << " send cipher_suite " << send_cs
                << " recv cipher_suite " << recv_cs;
 
@@ -168,7 +168,7 @@ bool SrtpFilter::SetRtcpParams(const std::string& send_cs,
   // This can only be called once, but can be safely called after
   // SetRtpParams
   if (send_rtcp_session_ || send_rtcp_session_) {
-    LOG(LS_ERROR) << "Tried to set SRTCP Params when filter already active";
+    BLOG(LS_ERROR) << "Tried to set SRTCP Params when filter already active";
     return false;
   }
 
@@ -184,7 +184,7 @@ bool SrtpFilter::SetRtcpParams(const std::string& send_cs,
   if (!recv_rtcp_session_->SetRecv(recv_cs, recv_key, recv_key_len))
     return false;
 
-  LOG(LS_INFO) << "SRTCP activated with negotiated parameters:"
+  BLOG(LS_INFO) << "SRTCP activated with negotiated parameters:"
                << " send cipher_suite " << send_cs
                << " recv cipher_suite " << recv_cs;
 
@@ -193,7 +193,7 @@ bool SrtpFilter::SetRtcpParams(const std::string& send_cs,
 
 bool SrtpFilter::ProtectRtp(void* p, int in_len, int max_len, int* out_len) {
   if (!IsActive()) {
-    LOG(LS_WARNING) << "Failed to ProtectRtp: SRTP not active";
+    BLOG(LS_WARNING) << "Failed to ProtectRtp: SRTP not active";
     return false;
   }
   return send_session_->ProtectRtp(p, in_len, max_len, out_len);
@@ -201,7 +201,7 @@ bool SrtpFilter::ProtectRtp(void* p, int in_len, int max_len, int* out_len) {
 
 bool SrtpFilter::ProtectRtcp(void* p, int in_len, int max_len, int* out_len) {
   if (!IsActive()) {
-    LOG(LS_WARNING) << "Failed to ProtectRtcp: SRTP not active";
+    BLOG(LS_WARNING) << "Failed to ProtectRtcp: SRTP not active";
     return false;
   }
   if (send_rtcp_session_) {
@@ -213,7 +213,7 @@ bool SrtpFilter::ProtectRtcp(void* p, int in_len, int max_len, int* out_len) {
 
 bool SrtpFilter::UnprotectRtp(void* p, int in_len, int* out_len) {
   if (!IsActive()) {
-    LOG(LS_WARNING) << "Failed to UnprotectRtp: SRTP not active";
+    BLOG(LS_WARNING) << "Failed to UnprotectRtp: SRTP not active";
     return false;
   }
   return recv_session_->UnprotectRtp(p, in_len, out_len);
@@ -221,7 +221,7 @@ bool SrtpFilter::UnprotectRtp(void* p, int in_len, int* out_len) {
 
 bool SrtpFilter::UnprotectRtcp(void* p, int in_len, int* out_len) {
   if (!IsActive()) {
-    LOG(LS_WARNING) << "Failed to UnprotectRtcp: SRTP not active";
+    BLOG(LS_WARNING) << "Failed to UnprotectRtcp: SRTP not active";
     return false;
   }
   if (recv_rtcp_session_) {
@@ -279,7 +279,7 @@ bool SrtpFilter::DoSetAnswer(const std::vector<CryptoParams>& answer_params,
                              ContentSource source,
                              bool final) {
   if (!ExpectAnswer(source)) {
-    LOG(LS_ERROR) << "Invalid state for SRTP answer";
+    BLOG(LS_ERROR) << "Invalid state for SRTP answer";
     return false;
   }
 
@@ -350,7 +350,7 @@ bool SrtpFilter::NegotiateParams(const std::vector<CryptoParams>& answer_params,
   }
 
   if (!ret) {
-    LOG(LS_WARNING) << "Invalid parameters in SRTP answer";
+    BLOG(LS_WARNING) << "Invalid parameters in SRTP answer";
   }
   return ret;
 }
@@ -370,11 +370,11 @@ bool SrtpFilter::ApplyParams(const CryptoParams& send_params,
                                   recv_key, sizeof(recv_key)));
   }
   if (ret) {
-    LOG(LS_INFO) << "SRTP activated with negotiated parameters:"
+    BLOG(LS_INFO) << "SRTP activated with negotiated parameters:"
                  << " send cipher_suite " << send_params.cipher_suite
                  << " recv cipher_suite " << recv_params.cipher_suite;
   } else {
-    LOG(LS_WARNING) << "Failed to apply negotiated SRTP parameters";
+    BLOG(LS_WARNING) << "Failed to apply negotiated SRTP parameters";
   }
   return ret;
 }
@@ -382,7 +382,7 @@ bool SrtpFilter::ApplyParams(const CryptoParams& send_params,
 bool SrtpFilter::ResetParams() {
   offer_params_.clear();
   state_ = ST_INIT;
-  LOG(LS_INFO) << "SRTP reset to init state";
+  BLOG(LS_INFO) << "SRTP reset to init state";
   return true;
 }
 
@@ -441,13 +441,13 @@ bool SrtpSession::SetRecv(const std::string& cs, const uint8* key, int len) {
 
 bool SrtpSession::ProtectRtp(void* p, int in_len, int max_len, int* out_len) {
   if (!session_) {
-    LOG(LS_WARNING) << "Failed to protect SRTP packet: no SRTP Session";
+    BLOG(LS_WARNING) << "Failed to protect SRTP packet: no SRTP Session";
     return false;
   }
 
   int need_len = in_len + rtp_auth_tag_len_;  // NOLINT
   if (max_len < need_len) {
-    LOG(LS_WARNING) << "Failed to protect SRTP packet: The buffer length "
+    BLOG(LS_WARNING) << "Failed to protect SRTP packet: The buffer length "
                     << max_len << " is less than the needed " << need_len;
     return false;
   }
@@ -461,7 +461,7 @@ bool SrtpSession::ProtectRtp(void* p, int in_len, int max_len, int* out_len) {
   int seq_num;
   GetRtpSeqNum(p, in_len, &seq_num);
   if (err != err_status_ok) {
-    LOG(LS_WARNING) << "Failed to protect SRTP packet, seqnum="
+    BLOG(LS_WARNING) << "Failed to protect SRTP packet, seqnum="
                     << seq_num << ", err=" << err << ", last seqnum="
                     << last_send_seq_num_;
     return false;
@@ -472,13 +472,13 @@ bool SrtpSession::ProtectRtp(void* p, int in_len, int max_len, int* out_len) {
 
 bool SrtpSession::ProtectRtcp(void* p, int in_len, int max_len, int* out_len) {
   if (!session_) {
-    LOG(LS_WARNING) << "Failed to protect SRTCP packet: no SRTP Session";
+    BLOG(LS_WARNING) << "Failed to protect SRTCP packet: no SRTP Session";
     return false;
   }
 
   int need_len = in_len + sizeof(uint32) + rtcp_auth_tag_len_;  // NOLINT
   if (max_len < need_len) {
-    LOG(LS_WARNING) << "Failed to protect SRTCP packet: The buffer length "
+    BLOG(LS_WARNING) << "Failed to protect SRTCP packet: The buffer length "
                     << max_len << " is less than the needed " << need_len;
     return false;
   }
@@ -487,7 +487,7 @@ bool SrtpSession::ProtectRtcp(void* p, int in_len, int max_len, int* out_len) {
   int err = srtp_protect_rtcp(session_, p, out_len);
   srtp_stat_->AddProtectRtcpResult(err);
   if (err != err_status_ok) {
-    LOG(LS_WARNING) << "Failed to protect SRTCP packet, err=" << err;
+    BLOG(LS_WARNING) << "Failed to protect SRTCP packet, err=" << err;
     return false;
   }
   return true;
@@ -495,7 +495,7 @@ bool SrtpSession::ProtectRtcp(void* p, int in_len, int max_len, int* out_len) {
 
 bool SrtpSession::UnprotectRtp(void* p, int in_len, int* out_len) {
   if (!session_) {
-    LOG(LS_WARNING) << "Failed to unprotect SRTP packet: no SRTP Session";
+    BLOG(LS_WARNING) << "Failed to unprotect SRTP packet: no SRTP Session";
     return false;
   }
 
@@ -506,7 +506,7 @@ bool SrtpSession::UnprotectRtp(void* p, int in_len, int* out_len) {
     srtp_stat_->AddUnprotectRtpResult(ssrc, err);
   }
   if (err != err_status_ok) {
-    LOG(LS_WARNING) << "Failed to unprotect SRTP packet, err=" << err;
+    BLOG(LS_WARNING) << "Failed to unprotect SRTP packet, err=" << err;
     return false;
   }
   return true;
@@ -514,7 +514,7 @@ bool SrtpSession::UnprotectRtp(void* p, int in_len, int* out_len) {
 
 bool SrtpSession::UnprotectRtcp(void* p, int in_len, int* out_len) {
   if (!session_) {
-    LOG(LS_WARNING) << "Failed to unprotect SRTCP packet: no SRTP Session";
+    BLOG(LS_WARNING) << "Failed to unprotect SRTCP packet: no SRTP Session";
     return false;
   }
 
@@ -522,7 +522,7 @@ bool SrtpSession::UnprotectRtcp(void* p, int in_len, int* out_len) {
   int err = srtp_unprotect_rtcp(session_, p, out_len);
   srtp_stat_->AddUnprotectRtcpResult(err);
   if (err != err_status_ok) {
-    LOG(LS_WARNING) << "Failed to unprotect SRTCP packet, err=" << err;
+    BLOG(LS_WARNING) << "Failed to unprotect SRTCP packet, err=" << err;
     return false;
   }
   return true;
@@ -535,7 +535,7 @@ void SrtpSession::set_signal_silent_time(uint32 signal_silent_time_in_ms) {
 bool SrtpSession::SetKey(int type, const std::string& cs,
                          const uint8* key, int len) {
   if (session_) {
-    LOG(LS_ERROR) << "Failed to create SRTP session: "
+    BLOG(LS_ERROR) << "Failed to create SRTP session: "
                   << "SRTP session already created";
     return false;
   }
@@ -554,13 +554,13 @@ bool SrtpSession::SetKey(int type, const std::string& cs,
     crypto_policy_set_aes_cm_128_hmac_sha1_32(&policy.rtp);   // rtp is 32,
     crypto_policy_set_aes_cm_128_hmac_sha1_80(&policy.rtcp);  // rtcp still 80
   } else {
-    LOG(LS_WARNING) << "Failed to create SRTP session: unsupported"
+    BLOG(LS_WARNING) << "Failed to create SRTP session: unsupported"
                     << " cipher_suite " << cs.c_str();
     return false;
   }
 
   if (!key || len != SRTP_MASTER_KEY_LEN) {
-    LOG(LS_WARNING) << "Failed to create SRTP session: invalid key";
+    BLOG(LS_WARNING) << "Failed to create SRTP session: invalid key";
     return false;
   }
 
@@ -574,7 +574,7 @@ bool SrtpSession::SetKey(int type, const std::string& cs,
 
   int err = srtp_create(&session_, &policy);
   if (err != err_status_ok) {
-    LOG(LS_ERROR) << "Failed to create SRTP session, err=" << err;
+    BLOG(LS_ERROR) << "Failed to create SRTP session, err=" << err;
     return false;
   }
 
@@ -588,13 +588,13 @@ bool SrtpSession::Init() {
     int err;
     err = srtp_init();
     if (err != err_status_ok) {
-      LOG(LS_ERROR) << "Failed to init SRTP, err=" << err;
+      BLOG(LS_ERROR) << "Failed to init SRTP, err=" << err;
       return false;
     }
 
     err = srtp_install_event_handler(&SrtpSession::HandleEventThunk);
     if (err != err_status_ok) {
-      LOG(LS_ERROR) << "Failed to install SRTP event handler, err=" << err;
+      BLOG(LS_ERROR) << "Failed to install SRTP event handler, err=" << err;
       return false;
     }
 
@@ -607,19 +607,19 @@ bool SrtpSession::Init() {
 void SrtpSession::HandleEvent(const srtp_event_data_t* ev) {
   switch (ev->event) {
     case event_ssrc_collision:
-      LOG(LS_INFO) << "SRTP event: SSRC collision";
+      BLOG(LS_INFO) << "SRTP event: SSRC collision";
       break;
     case event_key_soft_limit:
-      LOG(LS_INFO) << "SRTP event: reached soft key usage limit";
+      BLOG(LS_INFO) << "SRTP event: reached soft key usage limit";
       break;
     case event_key_hard_limit:
-      LOG(LS_INFO) << "SRTP event: reached hard key usage limit";
+      BLOG(LS_INFO) << "SRTP event: reached hard key usage limit";
       break;
     case event_packet_index_limit:
-      LOG(LS_INFO) << "SRTP event: reached hard packet limit (2^48 packets)";
+      BLOG(LS_INFO) << "SRTP event: reached hard packet limit (2^48 packets)";
       break;
     default:
-      LOG(LS_INFO) << "SRTP event: unknown " << ev->event;
+      BLOG(LS_INFO) << "SRTP event: unknown " << ev->event;
       break;
   }
 }
@@ -644,7 +644,7 @@ std::list<SrtpSession*>* SrtpSession::sessions() {
 // On some systems, SRTP is not (yet) available.
 
 SrtpSession::SrtpSession() {
-  LOG(WARNING) << "SRTP implementation is missing.";
+  BLOG(WARNING) << "SRTP implementation is missing.";
 }
 
 SrtpSession::~SrtpSession() {
@@ -760,7 +760,7 @@ void SrtpStat::HandleSrtpResult(const SrtpStat::FailureKey& key) {
 
 SrtpStat::SrtpStat()
     : signal_silent_time_(1000) {
-  LOG(WARNING) << "SRTP implementation is missing.";
+  BLOG(WARNING) << "SRTP implementation is missing.";
 }
 
 void SrtpStat::AddProtectRtpResult(uint32 ssrc, int result) {

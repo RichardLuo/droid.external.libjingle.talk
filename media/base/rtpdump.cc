@@ -328,7 +328,7 @@ RtpDumpWriter::RtpDumpWriter(talk_base::StreamInterface* stream)
 
 void RtpDumpWriter::set_packet_filter(int filter) {
   packet_filter_ = filter;
-  LOG(LS_INFO) << "RtpDumpWriter set_packet_filter to " << packet_filter_;
+  BLOG(LS_INFO) << "RtpDumpWriter set_packet_filter to " << packet_filter_;
 }
 
 uint32 RtpDumpWriter::GetElapsedTime() const {
@@ -415,7 +415,7 @@ talk_base::StreamResult RtpDumpWriter::WriteToStream(
       stream_->WriteAll(data, data_len, NULL, NULL);
   uint32 delay = talk_base::TimeSince(before);
   if (delay >= warn_slow_writes_delay_) {
-    LOG(LS_WARNING) << "Slow RtpDump: took " << delay << "ms to write "
+    BLOG(LS_WARNING) << "Slow RtpDump: took " << delay << "ms to write "
                     << data_len << " bytes.";
   }
   return result;

@@ -44,8 +44,8 @@ TEST(LogTest, SingleStream) {
   LogMessage::AddLogToStream(&stream, LS_INFO);
   EXPECT_EQ(LS_INFO, LogMessage::GetLogToStream(&stream));
 
-  LOG(LS_INFO) << "INFO";
-  LOG(LS_VERBOSE) << "VERBOSE";
+  BLOG(LS_INFO) << "INFO";
+  BLOG(LS_VERBOSE) << "VERBOSE";
   EXPECT_NE(std::string::npos, str.find("INFO"));
   EXPECT_EQ(std::string::npos, str.find("VERBOSE"));
 
@@ -68,8 +68,8 @@ TEST(LogTest, MultipleStreams) {
   EXPECT_EQ(LS_INFO, LogMessage::GetLogToStream(&stream1));
   EXPECT_EQ(LS_VERBOSE, LogMessage::GetLogToStream(&stream2));
 
-  LOG(LS_INFO) << "INFO";
-  LOG(LS_VERBOSE) << "VERBOSE";
+  BLOG(LS_INFO) << "INFO";
+  BLOG(LS_VERBOSE) << "VERBOSE";
 
   EXPECT_NE(std::string::npos, str1.find("INFO"));
   EXPECT_EQ(std::string::npos, str1.find("VERBOSE"));
@@ -89,7 +89,7 @@ TEST(LogTest, MultipleStreams) {
 class LogThread : public Thread {
   void Run() {
     // LS_SENSITIVE to avoid cluttering up any real logging going on
-    LOG(LS_SENSITIVE) << "LOG";
+    BLOG(LS_SENSITIVE) << "BLOG";
   }
 };
 
@@ -135,7 +135,7 @@ TEST(LogTest, Perf) {
   uint32 start = Time(), finish;
   std::string message('X', 80);
   for (int i = 0; i < 1000; ++i) {
-    LOG(LS_SENSITIVE) << message;
+    BLOG(LS_SENSITIVE) << message;
   }
   finish = Time();
 
@@ -143,7 +143,7 @@ TEST(LogTest, Perf) {
   stream.Close();
   Filesystem::DeleteFile(path);
 
-  LOG(LS_INFO) << "Average log time: " << TimeDiff(finish, start) << " us";
+  BLOG(LS_INFO) << "Average log time: " << TimeDiff(finish, start) << " us";
 }
 
 }  // namespace talk_base

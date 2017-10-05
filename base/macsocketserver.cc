@@ -335,7 +335,7 @@ bool MacCarbonAppSocketServer::Wait(int cms, bool process_io) {
     OSStatus error =
         SetEventLoopTimerNextFireTime(timer_, cms / 1000.0);
     if (error != noErr) {
-      LOG(LS_ERROR) << "Failed setting next fire time.";
+      BLOG(LS_ERROR) << "Failed setting next fire time.";
     }
   }
   if (!process_io) {

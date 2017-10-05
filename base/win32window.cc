@@ -120,7 +120,7 @@ LRESULT Win32Window::WndProc(HWND hwnd, UINT uMsg,
     if (WM_DESTROY == uMsg) {
       for (HWND child = ::GetWindow(hwnd, GW_CHILD); child;
            child = ::GetWindow(child, GW_HWNDNEXT)) {
-        LOG(LS_INFO) << "Child window: " << static_cast<void*>(child);
+        BLOG(LS_INFO) << "Child window: " << static_cast<void*>(child);
       }
     }
     if (WM_NCDESTROY == uMsg) {

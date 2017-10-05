@@ -264,7 +264,7 @@ bool CaptureManager::StartWithBestCaptureFormat(
   VideoFormat capture_format;
   if (!video_capturer->GetBestCaptureFormat(highest_asked_format,
                                             &capture_format)) {
-     LOG(LS_WARNING) << "Unsupported format:"
+     BLOG(LS_WARNING) << "Unsupported format:"
                      << " width=" << highest_asked_format.width
                      << " height=" << highest_asked_format.height
                      << ". Supported formats are:";
@@ -273,7 +273,7 @@ bool CaptureManager::StartWithBestCaptureFormat(
      for (std::vector<VideoFormat>::const_iterator i = formats->begin();
           i != formats->end(); ++i) {
        const VideoFormat& format = *i;
-       LOG(LS_WARNING) << "  " << GetFourccName(format.fourcc) << ":"
+       BLOG(LS_WARNING) << "  " << GetFourccName(format.fourcc) << ":"
                        << format.width << "x" << format.height << "x"
                        << format.framerate();
      }

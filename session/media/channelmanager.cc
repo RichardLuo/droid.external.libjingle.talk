@@ -321,18 +321,18 @@ bool ChannelManager::Init() {
       const std::string preferred_camera_device = camera_device_;
       Device device;
       if (!device_manager_->GetAudioInputDevice(audio_in_device_, &device)) {
-        LOG(LS_WARNING) << "The preferred microphone '" << audio_in_device_
+        BLOG(LS_WARNING) << "The preferred microphone '" << audio_in_device_
                         << "' is unavailable. Fall back to the default.";
         audio_in_device_ = DeviceManagerInterface::kDefaultDeviceName;
       }
       if (!device_manager_->GetAudioOutputDevice(audio_out_device_, &device)) {
-        LOG(LS_WARNING) << "The preferred speaker '" << audio_out_device_
+        BLOG(LS_WARNING) << "The preferred speaker '" << audio_out_device_
                         << "' is unavailable. Fall back to the default.";
         audio_out_device_ = DeviceManagerInterface::kDefaultDeviceName;
       }
       if (!device_manager_->GetVideoCaptureDevice(camera_device_, &device)) {
         if (!camera_device_.empty()) {
-          LOG(LS_WARNING) << "The preferred camera '" << camera_device_
+          BLOG(LS_WARNING) << "The preferred camera '" << camera_device_
                           << "' is unavailable. Fall back to the default.";
         }
         camera_device_ = DeviceManagerInterface::kDefaultDeviceName;
@@ -340,7 +340,7 @@ bool ChannelManager::Init() {
 
       if (!SetAudioOptions(audio_in_device_, audio_out_device_,
                            audio_options_, audio_delay_offset_)) {
-        LOG(LS_WARNING) << "Failed to SetAudioOptions with"
+        BLOG(LS_WARNING) << "Failed to SetAudioOptions with"
                         << " microphone: " << audio_in_device_
                         << " speaker: " << audio_out_device_
                         << " options: " << audio_options_
@@ -351,11 +351,11 @@ bool ChannelManager::Init() {
       // audio output volume of the engine.
       if (kNotSetOutputVolume != audio_output_volume_ &&
           !SetOutputVolume(audio_output_volume_)) {
-        LOG(LS_WARNING) << "Failed to SetOutputVolume to "
+        BLOG(LS_WARNING) << "Failed to SetOutputVolume to "
                         << audio_output_volume_;
       }
       if (!SetVideoOptions(camera_device_) && !camera_device_.empty()) {
-        LOG(LS_WARNING) << "Failed to SetVideoOptions with camera: "
+        BLOG(LS_WARNING) << "Failed to SetVideoOptions with camera: "
                         << camera_device_;
       }
 
@@ -400,7 +400,7 @@ void ChannelManager::Terminate_w() {
     DestroySoundclip_w(soundclips_.back());
   }
   if (!SetVideoOptions_w(NULL)) {
-    LOG(LS_WARNING) << "failed to delete video capturer";
+    BLOG(LS_WARNING) << "failed to delete video capturer";
   }
 }
 
@@ -514,7 +514,7 @@ DataChannel* ChannelManager::CreateDataChannel_w(
       worker_thread_, media_channel,
       session, content_name, rtcp);
   if (!data_channel->Init()) {
-    LOG(LS_WARNING) << "Failed to init data channel.";
+    BLOG(LS_WARNING) << "Failed to init data channel.";
     delete data_channel;
     return NULL;
   }
@@ -604,11 +604,11 @@ bool ChannelManager::SetAudioOptions(const std::string& in_name,
   // Get device ids from DeviceManager.
   Device in_dev, out_dev;
   if (!device_manager_->GetAudioInputDevice(in_name, &in_dev)) {
-    LOG(LS_WARNING) << "Failed to GetAudioInputDevice: " << in_name;
+    BLOG(LS_WARNING) << "Failed to GetAudioInputDevice: " << in_name;
     return false;
   }
   if (!device_manager_->GetAudioOutputDevice(out_name, &out_dev)) {
-    LOG(LS_WARNING) << "Failed to GetAudioOutputDevice: " << out_name;
+    BLOG(LS_WARNING) << "Failed to GetAudioOutputDevice: " << out_name;
     return false;
   }
 
@@ -703,7 +703,7 @@ bool ChannelManager::GetVideoOptions(std::string* cam_name) {
     Device device;
     if (!device_manager_->GetVideoCaptureDevice(
         DeviceManagerInterface::kDefaultDeviceName, &device)) {
-      LOG(LS_WARNING) << "Device manager can't find default camera: " <<
+      BLOG(LS_WARNING) << "Device manager can't find default camera: " <<
           DeviceManagerInterface::kDefaultDeviceName;
       return false;
     }
@@ -718,7 +718,7 @@ bool ChannelManager::SetVideoOptions(const std::string& cam_name) {
   bool ret = true;
   if (!device_manager_->GetVideoCaptureDevice(cam_name, &device)) {
     if (!cam_name.empty()) {
-      LOG(LS_WARNING) << "Device manager can't find camera: " << cam_name;
+      BLOG(LS_WARNING) << "Device manager can't find camera: " << cam_name;
     }
     ret = false;
   }
@@ -738,7 +738,7 @@ bool ChannelManager::SetVideoOptions(const std::string& cam_name) {
     Device default_device;
     if (!device_manager_->GetVideoCaptureDevice(
         DeviceManagerInterface::kDefaultDeviceName, &default_device)) {
-      LOG(LS_WARNING) << "Device manager can't find default camera: " <<
+      BLOG(LS_WARNING) << "Device manager can't find default camera: " <<
           DeviceManagerInterface::kDefaultDeviceName;
     }
     camera_device_ = default_device.name;
@@ -751,7 +751,7 @@ VideoCapturer* ChannelManager::CreateVideoCapturer() {
   Device device;
   if (!device_manager_->GetVideoCaptureDevice(camera_device_, &device)) {
     if (!camera_device_.empty()) {
-      LOG(LS_WARNING) << "Device manager can't find camera: " << camera_device_;
+      BLOG(LS_WARNING) << "Device manager can't find camera: " << camera_device_;
     }
     return NULL;
   }

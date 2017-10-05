@@ -678,7 +678,7 @@ void CallClient::StartXmppPing() {
 }
 
 void CallClient::OnPingTimeout() {
-  LOG(LS_WARNING) << "XMPP Ping timeout. Will keep trying...";
+  BLOG(LS_WARNING) << "XMPP Ping timeout. Will keep trying...";
   StartXmppPing();
 
   // Or should we do this instead?
@@ -756,7 +756,7 @@ void CallClient::SendData(const std::string& stream_name,
   cricket::StreamParams stream;
   if (!cricket::GetStreamByNickAndName(
           data->streams(), "", stream_name, &stream)) {
-    LOG(LS_WARNING) << "Could not send data: no such stream: "
+    BLOG(LS_WARNING) << "Could not send data: no such stream: "
                     << stream_name << ".";
     return;
   }
@@ -1552,20 +1552,20 @@ buzz::Jid CallClient::GenerateRandomMucJid() {
 bool CallClient::SelectFirstDesktopScreencastId(
     cricket::ScreencastId* screencastid) {
   if (!talk_base::WindowPickerFactory::IsSupported()) {
-    LOG(LS_WARNING) << "Window picker not suported on this OS.";
+    BLOG(LS_WARNING) << "Window picker not suported on this OS.";
     return false;
   }
 
   talk_base::WindowPicker* picker =
       talk_base::WindowPickerFactory::CreateWindowPicker();
   if (!picker) {
-    LOG(LS_WARNING) << "Could not create a window picker.";
+    BLOG(LS_WARNING) << "Could not create a window picker.";
     return false;
   }
 
   talk_base::DesktopDescriptionList desktops;
   if (!picker->GetDesktopList(&desktops) || desktops.empty()) {
-    LOG(LS_WARNING) << "Could not get a list of desktops.";
+    BLOG(LS_WARNING) << "Could not get a list of desktops.";
     return false;
   }
 

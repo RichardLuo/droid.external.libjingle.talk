@@ -114,7 +114,7 @@ class AlsaStream {
     // anything else on their worker threads, so snd_pcm_wait() is good enough.
     frames = symbol_table()->snd_pcm_avail_update()(handle_);
     if (frames < 0) {
-      LOG(LS_ERROR) << "snd_pcm_avail_update(): " << GetError(frames);
+      BLOG(LS_ERROR) << "snd_pcm_avail_update(): " << GetError(frames);
       Recover(frames);
       return 0;
     } else if (frames > 0) {
@@ -124,26 +124,26 @@ class AlsaStream {
     // Else no space/data available, so must wait.
     int ready = symbol_table()->snd_pcm_wait()(handle_, wait_timeout_ms_);
     if (ready < 0) {
-      LOG(LS_ERROR) << "snd_pcm_wait(): " << GetError(ready);
+      BLOG(LS_ERROR) << "snd_pcm_wait(): " << GetError(ready);
       Recover(ready);
       return 0;
     } else if (ready == 0) {
       // Timeout, so nothing can be written/read right now.
       // We set the timeout to twice the requested latency, so continuous
       // timeouts are indicative of a problem, so log as a warning.
-      LOG(LS_WARNING) << "Timeout while waiting on stream";
+      BLOG(LS_WARNING) << "Timeout while waiting on stream";
       return 0;
     }
     // Else ready > 0 (i.e., 1), so it's ready. Get count.
     frames = symbol_table()->snd_pcm_avail_update()(handle_);
     if (frames < 0) {
-      LOG(LS_ERROR) << "snd_pcm_avail_update(): " << GetError(frames);
+      BLOG(LS_ERROR) << "snd_pcm_avail_update(): " << GetError(frames);
       Recover(frames);
       return 0;
     } else if (frames == 0) {
       // wait() said we were ready, so this ought to have been positive. Has
       // been observed to happen in practice though.
-      LOG(LS_WARNING) << "Spurious wake-up";
+      BLOG(LS_WARNING) << "Spurious wake-up";
     }
     return frames;
   }
@@ -156,7 +156,7 @@ class AlsaStream {
     snd_pcm_sframes_t delay;
     int err = symbol_table()->snd_pcm_delay()(handle_, &delay);
     if (err != 0) {
-      LOG(LS_ERROR) << "snd_pcm_delay(): " << GetError(err);
+      BLOG(LS_ERROR) << "snd_pcm_delay(): " << GetError(err);
       Recover(err);
       // We'd rather continue playout/capture with an incorrect delay than stop
       // it altogether, so return a valid value.
@@ -180,7 +180,7 @@ class AlsaStream {
       // Docs say snd_pcm_recover returns the original error if it is not one
       // of the recoverable ones, so this log message will probably contain the
       // same error twice.
-      LOG(LS_ERROR) << "Unable to recover from \"" << GetError(error) << "\": "
+      BLOG(LS_ERROR) << "Unable to recover from \"" << GetError(error) << "\": "
                     << GetError(err);
       return false;
     }
@@ -190,7 +190,7 @@ class AlsaStream {
       // data flowing again.
       err = symbol_table()->snd_pcm_start()(handle_);
       if (err != 0) {
-        LOG(LS_ERROR) << "snd_pcm_start(): " << GetError(err);
+        BLOG(LS_ERROR) << "snd_pcm_start(): " << GetError(err);
         return false;
       }
     }
@@ -202,12 +202,12 @@ class AlsaStream {
       int err;
       err = symbol_table()->snd_pcm_drop()(handle_);
       if (err != 0) {
-        LOG(LS_ERROR) << "snd_pcm_drop(): " << GetError(err);
+        BLOG(LS_ERROR) << "snd_pcm_drop(): " << GetError(err);
         // Continue anyways.
       }
       err = symbol_table()->snd_pcm_close()(handle_);
       if (err != 0) {
-        LOG(LS_ERROR) << "snd_pcm_close(): " << GetError(err);
+        BLOG(LS_ERROR) << "snd_pcm_close(): " << GetError(err);
         // Continue anyways.
       }
       handle_ = NULL;
@@ -314,12 +314,12 @@ class AlsaInputStream :
           buffer_.get(),
           avail);
       if (read < 0) {
-        LOG(LS_ERROR) << "snd_pcm_readi(): " << GetError(read);
+        BLOG(LS_ERROR) << "snd_pcm_readi(): " << GetError(read);
         stream_.Recover(read);
       } else if (read == 0) {
         // Docs say this shouldn't happen.
         ASSERT(false);
-        LOG(LS_ERROR) << "No data?";
+        BLOG(LS_ERROR) << "No data?";
       } else {
         // Got data. Pass it off to the app.
         SignalSamplesRead(buffer_.get(),
@@ -384,7 +384,7 @@ class AlsaOutputStream :
       // (If we wanted to support it, we'd basically just buffer the fractional
       // frame until we get more data.)
       ASSERT(false);
-      LOG(LS_ERROR) << "Writes with fractional frames are not supported";
+      BLOG(LS_ERROR) << "Writes with fractional frames are not supported";
       return false;
     }
     snd_pcm_uframes_t frames = size / stream_.frame_size();
@@ -393,12 +393,12 @@ class AlsaOutputStream :
         sample_data,
         frames);
     if (written < 0) {
-      LOG(LS_ERROR) << "snd_pcm_writei(): " << GetError(written);
+      BLOG(LS_ERROR) << "snd_pcm_writei(): " << GetError(written);
       stream_.Recover(written);
       return false;
     } else if (static_cast<snd_pcm_uframes_t>(written) < frames) {
       // Shouldn't happen. Drop the rest of the data.
-      LOG(LS_ERROR) << "Stream wrote only " << written << " of " << frames
+      BLOG(LS_ERROR) << "Stream wrote only " << written << " of " << frames
                     << " frames!";
       return false;
     }
@@ -468,7 +468,7 @@ bool AlsaSoundSystem::Init() {
   // Load libasound.
   if (!symbol_table_.Load()) {
     // Very odd for a Linux machine to not have a working libasound ...
-    LOG(LS_ERROR) << "Failed to load symbol table";
+    BLOG(LS_ERROR) << "Failed to load symbol table";
     return false;
   }
 
@@ -558,7 +558,7 @@ bool AlsaSoundSystem::EnumerateDevices(
                                              "pcm",  // Only PCM devices
                                              &hints);
   if (err != 0) {
-    LOG(LS_ERROR) << "snd_device_name_hint(): " << GetError(err);
+    BLOG(LS_ERROR) << "snd_device_name_hint(): " << GetError(err);
     return false;
   }
 
@@ -575,7 +575,7 @@ bool AlsaSoundSystem::EnumerateDevices(
 
     char *name = symbol_table_.snd_device_name_get_hint()(*list, "NAME");
     if (!name) {
-      LOG(LS_ERROR) << "Device has no name???";
+      BLOG(LS_ERROR) << "Device has no name???";
       // Skip it.
       continue;
     }
@@ -608,7 +608,7 @@ bool AlsaSoundSystem::EnumerateDevices(
 
   err = symbol_table_.snd_device_name_free_hint()(hints);
   if (err != 0) {
-    LOG(LS_ERROR) << "snd_device_name_free_hint(): " << GetError(err);
+    BLOG(LS_ERROR) << "snd_device_name_free_hint(): " << GetError(err);
     // Continue and return true anyways, since we did get the whole list.
   }
 
@@ -659,10 +659,10 @@ StreamInterface *AlsaSoundSystem::OpenDevice(
       // No flags.
       0);
   if (err != 0) {
-    LOG(LS_ERROR) << "snd_pcm_open(" << dev << "): " << GetError(err);
+    BLOG(LS_ERROR) << "snd_pcm_open(" << dev << "): " << GetError(err);
     return NULL;
   }
-  LOG(LS_VERBOSE) << "Opening " << dev;
+  BLOG(LS_VERBOSE) << "Opening " << dev;
   ASSERT(handle);  // If open succeeded, handle ought to be valid
 
   // Compute requested latency in microseconds.
@@ -693,13 +693,13 @@ StreamInterface *AlsaSoundSystem::OpenDevice(
       1,  // Allow ALSA to resample.
       latency);
   if (err != 0) {
-    LOG(LS_ERROR) << "snd_pcm_set_params(): " << GetError(err);
+    BLOG(LS_ERROR) << "snd_pcm_set_params(): " << GetError(err);
     goto fail;
   }
 
   err = symbol_table_.snd_pcm_prepare()(handle);
   if (err != 0) {
-    LOG(LS_ERROR) << "snd_pcm_prepare(): " << GetError(err);
+    BLOG(LS_ERROR) << "snd_pcm_prepare(): " << GetError(err);
     goto fail;
   }
 
@@ -719,7 +719,7 @@ StreamInterface *AlsaSoundSystem::OpenDevice(
  fail:
   err = symbol_table_.snd_pcm_close()(handle);
   if (err != 0) {
-    LOG(LS_ERROR) << "snd_pcm_close(): " << GetError(err);
+    BLOG(LS_ERROR) << "snd_pcm_close(): " << GetError(err);
   }
   return NULL;
 }
@@ -747,7 +747,7 @@ SoundInputStreamInterface *AlsaSoundSystem::StartInputStream(
   int err;
   err = symbol_table_.snd_pcm_start()(handle);
   if (err != 0) {
-    LOG(LS_ERROR) << "snd_pcm_start(): " << GetError(err);
+    BLOG(LS_ERROR) << "snd_pcm_start(): " << GetError(err);
     return NULL;
   }
   return new AlsaInputStream(

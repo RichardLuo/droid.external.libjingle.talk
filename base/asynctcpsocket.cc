@@ -57,11 +57,11 @@ AsyncTCPSocket* AsyncTCPSocket::Create(
     const SocketAddress& remote_address) {
   scoped_ptr<AsyncSocket> owned_socket(socket);
   if (socket->Bind(bind_address) < 0) {
-    LOG(LS_ERROR) << "Bind() failed with error " << socket->GetError();
+    BLOG(LS_ERROR) << "Bind() failed with error " << socket->GetError();
     return NULL;
   }
   if (socket->Connect(remote_address) < 0) {
-    LOG(LS_ERROR) << "Connect() failed with error " << socket->GetError();
+    BLOG(LS_ERROR) << "Connect() failed with error " << socket->GetError();
     return NULL;
   }
   return new AsyncTCPSocket(owned_socket.release(), false);
@@ -85,7 +85,7 @@ AsyncTCPSocket::AsyncTCPSocket(AsyncSocket* socket, bool listen)
 
   if (listen_) {
     if (socket_->Listen(LISTEN_BACKLOG) < 0) {
-      LOG(LS_ERROR) << "Listen() failed with error " << socket_->GetError();
+      BLOG(LS_ERROR) << "Listen() failed with error " << socket_->GetError();
     }
   }
 }
@@ -242,7 +242,7 @@ void AsyncTCPSocket::OnReadEvent(AsyncSocket* socket) {
     if (!new_socket) {
       // TODO: Do something better like forwarding the error
       // to the user.
-      LOG(LS_ERROR) << "TCP accept failed with error " << socket_->GetError();
+      BLOG(LS_ERROR) << "TCP accept failed with error " << socket_->GetError();
       return;
     }
 
@@ -255,7 +255,7 @@ void AsyncTCPSocket::OnReadEvent(AsyncSocket* socket) {
     if (len < 0) {
       // TODO: Do something better like forwarding the error to the user.
       if (!socket_->IsBlocking()) {
-        LOG(LS_ERROR) << "Recv() returned error: " << socket_->GetError();
+        BLOG(LS_ERROR) << "Recv() returned error: " << socket_->GetError();
       }
       return;
     }
@@ -265,7 +265,7 @@ void AsyncTCPSocket::OnReadEvent(AsyncSocket* socket) {
     ProcessInput(inbuf_, inpos_);
 
     if (inpos_ >= insize_) {
-      LOG(LS_ERROR) << "input buffer overflow";
+      BLOG(LS_ERROR) << "input buffer overflow";
       ASSERT(false);
       inpos_ = 0;
     }

@@ -99,7 +99,7 @@ class Pathname;
     if (res) { \
       break; \
     } \
-    LOG(LS_WARNING) << "Expression " << #ex << " still not true after " << \
+    BLOG(LS_WARNING) << "Expression " << #ex << " still not true after " << \
         timeout << "ms; waiting an additional " << margin << "ms"; \
     WAIT_(ex, margin, res); \
     if (!res) { \

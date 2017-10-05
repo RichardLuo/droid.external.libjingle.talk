@@ -428,7 +428,7 @@ BaseChannel::BaseChannel(talk_base::Thread* thread,
       dtls_keyed_(false),
       secure_required_(false) {
   ASSERT(worker_thread_ == talk_base::Thread::Current());
-  LOG(LS_INFO) << "Created channel for " << content_name;
+  BLOG(LS_INFO) << "Created channel for " << content_name;
 }
 
 BaseChannel::~BaseChannel() {
@@ -443,7 +443,7 @@ BaseChannel::~BaseChannel() {
   set_rtcp_transport_channel(NULL);
   if (transport_channel_ != NULL)
     session_->DestroyChannel(content_name_, transport_channel_->component());
-  LOG(LS_INFO) << "Destroyed channel";
+  BLOG(LS_INFO) << "Destroyed channel";
 }
 
 bool BaseChannel::Init(TransportChannel* transport_channel,
@@ -652,7 +652,7 @@ bool BaseChannel::SendPacket(bool rtcp, talk_base::Buffer* packet) {
 
   // Protect ourselves against crazy data.
   if (!ValidPacket(rtcp, packet)) {
-    LOG(LS_ERROR) << "Dropping outgoing " << content_name_ << " "
+    BLOG(LS_ERROR) << "Dropping outgoing " << content_name_ << " "
                   << PacketType(rtcp) << " packet: wrong size="
                   << packet->length();
     return false;
@@ -676,7 +676,7 @@ bool BaseChannel::SendPacket(bool rtcp, talk_base::Buffer* packet) {
         uint32 ssrc = 0;
         GetRtpSeqNum(data, len, &seq_num);
         GetRtpSsrc(data, len, &ssrc);
-        LOG(LS_ERROR) << "Failed to protect " << content_name_
+        BLOG(LS_ERROR) << "Failed to protect " << content_name_
                       << " RTP packet: size=" << len
                       << ", seqnum=" << seq_num << ", SSRC=" << ssrc;
         return false;
@@ -686,7 +686,7 @@ bool BaseChannel::SendPacket(bool rtcp, talk_base::Buffer* packet) {
       if (!res) {
         int type = -1;
         GetRtcpType(data, len, &type);
-        LOG(LS_ERROR) << "Failed to protect " << content_name_
+        BLOG(LS_ERROR) << "Failed to protect " << content_name_
                       << " RTCP packet: size=" << len << ", type=" << type;
         return false;
       }
@@ -696,7 +696,7 @@ bool BaseChannel::SendPacket(bool rtcp, talk_base::Buffer* packet) {
     packet->SetLength(len);
   } else if (secure_required_) {
     // This is a double check for something that supposedly can't happen.
-    LOG(LS_ERROR) <<
+    BLOG(LS_ERROR) <<
         "Trying to send insecure packet when crypto is required by policy";
     ASSERT(false);
     return false;
@@ -722,7 +722,7 @@ void BaseChannel::HandlePacket(bool rtcp, talk_base::Buffer* packet) {
 
   // Protect ourselvs against crazy data.
   if (!ValidPacket(rtcp, packet)) {
-    LOG(LS_ERROR) << "Dropping incoming " << content_name_ << " "
+    BLOG(LS_ERROR) << "Dropping incoming " << content_name_ << " "
                   << PacketType(rtcp) << " packet: wrong size="
                   << packet->length();
     return;
@@ -754,7 +754,7 @@ void BaseChannel::HandlePacket(bool rtcp, talk_base::Buffer* packet) {
         uint32 ssrc = 0;
         GetRtpSeqNum(data, len, &seq_num);
         GetRtpSsrc(data, len, &ssrc);
-        LOG(LS_ERROR) << "Failed to unprotect " << content_name_
+        BLOG(LS_ERROR) << "Failed to unprotect " << content_name_
                       << " RTP packet: size=" << len
                       << ", seqnum=" << seq_num << ", SSRC=" << ssrc;
         return;
@@ -764,7 +764,7 @@ void BaseChannel::HandlePacket(bool rtcp, talk_base::Buffer* packet) {
       if (!res) {
         int type = -1;
         GetRtcpType(data, len, &type);
-        LOG(LS_ERROR) << "Failed to unprotect " << content_name_
+        BLOG(LS_ERROR) << "Failed to unprotect " << content_name_
                       << " RTCP packet: size=" << len << ", type=" << type;
         return;
       }
@@ -773,7 +773,7 @@ void BaseChannel::HandlePacket(bool rtcp, talk_base::Buffer* packet) {
     packet->SetLength(len);
   } else if (secure_required_) {
     // This is a double check for something that supposedly can't happen.
-    LOG(LS_ERROR) <<
+    BLOG(LS_ERROR) <<
         "Trying to receive insecure packet when crypto is required by policy";
     ASSERT(false);
     return;
@@ -804,7 +804,7 @@ void BaseChannel::OnSessionState(BaseSession* session,
     content_desc = GetContentDescription(content_info);
     if (content_desc && content_info && !content_info->rejected &&
         !SetLocalContent(content_desc, action)) {
-      LOG(LS_ERROR) << "Failure in SetLocalContent with action " << action;
+      BLOG(LS_ERROR) << "Failure in SetLocalContent with action " << action;
       session->SetError(BaseSession::ERROR_CONTENT);
     }
   }
@@ -813,7 +813,7 @@ void BaseChannel::OnSessionState(BaseSession* session,
     content_desc = GetContentDescription(content_info);
     if (content_desc && content_info && !content_info->rejected &&
         !SetRemoteContent(content_desc, action)) {
-      LOG(LS_ERROR) << "Failure in SetRemoteContent with  action " << action;
+      BLOG(LS_ERROR) << "Failure in SetRemoteContent with  action " << action;
       session->SetError(BaseSession::ERROR_CONTENT);
     }
   }
@@ -824,7 +824,7 @@ void BaseChannel::EnableMedia_w() {
   if (enabled_)
     return;
 
-  LOG(LS_INFO) << "Channel enabled";
+  BLOG(LS_INFO) << "Channel enabled";
   enabled_ = true;
   ChangeState();
 }
@@ -834,7 +834,7 @@ void BaseChannel::DisableMedia_w() {
   if (!enabled_)
     return;
 
-  LOG(LS_INFO) << "Channel disabled";
+  BLOG(LS_INFO) << "Channel disabled";
   enabled_ = false;
   ChangeState();
 }
@@ -861,7 +861,7 @@ void BaseChannel::ChannelWritable_w() {
   if (writable_)
     return;
 
-  LOG(LS_INFO) << "Channel socket writable ("
+  BLOG(LS_INFO) << "Channel socket writable ("
                << transport_channel_->content_name() << ", "
                << transport_channel_->component() << ")"
                << (was_ever_writable_ ? "" : " for the first time");
@@ -871,7 +871,7 @@ void BaseChannel::ChannelWritable_w() {
   for (std::vector<ConnectionInfo>::const_iterator it = infos.begin();
        it != infos.end(); ++it) {
     if (it->best_connection) {
-      LOG(LS_INFO) << "Using " << it->local_candidate.ToString() << "->"
+      BLOG(LS_INFO) << "Using " << it->local_candidate.ToString() << "->"
                    << it->remote_candidate.ToString();
       break;
     }
@@ -880,7 +880,7 @@ void BaseChannel::ChannelWritable_w() {
   // If we're doing DTLS-SRTP, now is the time.
   if (!was_ever_writable_) {
     if (!SetupDtlsSrtp(false)) {
-      LOG(LS_ERROR) << "Couldn't finish DTLS-SRTP on RTP channel";
+      BLOG(LS_ERROR) << "Couldn't finish DTLS-SRTP on RTP channel";
       SessionErrorMessageData data(BaseSession::ERROR_TRANSPORT);
       // Sent synchronously.
       signaling_thread()->Send(this, MSG_SESSION_ERROR, &data);
@@ -889,7 +889,7 @@ void BaseChannel::ChannelWritable_w() {
 
     if (rtcp_transport_channel_) {
       if (!SetupDtlsSrtp(true)) {
-        LOG(LS_ERROR) << "Couldn't finish DTLS-SRTP on RTCP channel";
+        BLOG(LS_ERROR) << "Couldn't finish DTLS-SRTP on RTCP channel";
         SessionErrorMessageData data(BaseSession::ERROR_TRANSPORT);
         // Sent synchronously.
         signaling_thread()->Send(this, MSG_SESSION_ERROR, &data);
@@ -930,11 +930,11 @@ bool BaseChannel::SetupDtlsSrtp(bool rtcp_channel) {
   std::string selected_cipher;
 
   if (!channel->GetSrtpCipher(&selected_cipher)) {
-    LOG(LS_ERROR) << "No DTLS-SRTP selected cipher";
+    BLOG(LS_ERROR) << "No DTLS-SRTP selected cipher";
     return false;
   }
 
-  LOG(LS_INFO) << "Installing keys from DTLS-SRTP on "
+  BLOG(LS_INFO) << "Installing keys from DTLS-SRTP on "
                << content_name() << " "
                << PacketType(rtcp_channel);
 
@@ -947,7 +947,7 @@ bool BaseChannel::SetupDtlsSrtp(bool rtcp_channel) {
           kDtlsSrtpExporterLabel,
           NULL, 0, false,
           &dtls_buffer[0], dtls_buffer.size())) {
-    LOG(LS_WARNING) << "DTLS-SRTP key export failed";
+    BLOG(LS_WARNING) << "DTLS-SRTP key export failed";
     ASSERT(false);  // This should never happen
     return false;
   }
@@ -993,7 +993,7 @@ bool BaseChannel::SetupDtlsSrtp(bool rtcp_channel) {
   }
 
   if (!ret)
-    LOG(LS_WARNING) << "DTLS-SRTP key installation failed";
+    BLOG(LS_WARNING) << "DTLS-SRTP key installation failed";
   else
     dtls_keyed_ = true;
 
@@ -1005,7 +1005,7 @@ void BaseChannel::ChannelNotWritable_w() {
   if (!writable_)
     return;
 
-  LOG(LS_INFO) << "Channel socket not writable ("
+  BLOG(LS_INFO) << "Channel socket not writable ("
                << transport_channel_->content_name() << ", "
                << transport_channel_->component() << ")";
   writable_ = false;
@@ -1028,7 +1028,7 @@ bool BaseChannel::SetSrtp_w(const std::vector<CryptoParams>& cryptos,
       // If we're doing DTLS-SRTP, we don't want to update the filter
       // with an answer, because we already have SRTP parameters.
       if (transport_channel_->IsDtlsActive()) {
-        LOG(LS_INFO) <<
+        BLOG(LS_INFO) <<
           "Ignoring SDES answer parameters because we are using DTLS-SRTP";
         ret = true;
       } else {
@@ -1039,7 +1039,7 @@ bool BaseChannel::SetSrtp_w(const std::vector<CryptoParams>& cryptos,
       // If we're doing DTLS-SRTP, we don't want to update the filter
       // with an answer, because we already have SRTP parameters.
       if (transport_channel_->IsDtlsActive()) {
-        LOG(LS_INFO) <<
+        BLOG(LS_INFO) <<
           "Ignoring SDES answer parameters because we are using DTLS-SRTP";
         ret = true;
       } else {
@@ -1122,21 +1122,21 @@ bool BaseChannel::UpdateLocalStreams_w(const std::vector<StreamParams>& streams,
       if (!stream_exist && it->has_ssrcs()) {
         if (media_channel()->AddSendStream(*it)) {
           local_streams_.push_back(*it);
-          LOG(LS_INFO) << "Add send stream ssrc: " << it->first_ssrc();
+          BLOG(LS_INFO) << "Add send stream ssrc: " << it->first_ssrc();
         } else {
-          LOG(LS_INFO) << "Failed to add send stream ssrc: "
+          BLOG(LS_INFO) << "Failed to add send stream ssrc: "
                        << it->first_ssrc();
           return false;
         }
       } else if (stream_exist && !it->has_ssrcs()) {
         if (!media_channel()->RemoveSendStream(existing_stream.first_ssrc())) {
-            LOG(LS_ERROR) << "Failed to remove send stream with ssrc "
+            BLOG(LS_ERROR) << "Failed to remove send stream with ssrc "
                           << it->first_ssrc() << ".";
             return false;
         }
         RemoveStreamBySsrc(&local_streams_, existing_stream.first_ssrc());
       } else {
-        LOG(LS_WARNING) << "Ignore unsupported stream update";
+        BLOG(LS_WARNING) << "Ignore unsupported stream update";
       }
     }
     return true;
@@ -1149,7 +1149,7 @@ bool BaseChannel::UpdateLocalStreams_w(const std::vector<StreamParams>& streams,
        it != local_streams_.end(); ++it) {
     if (!GetStreamBySsrc(streams, it->first_ssrc(), NULL)) {
       if (!media_channel()->RemoveSendStream(it->first_ssrc())) {
-        LOG(LS_ERROR) << "Failed to remove send stream with ssrc "
+        BLOG(LS_ERROR) << "Failed to remove send stream with ssrc "
                       << it->first_ssrc() << ".";
         ret = false;
       }
@@ -1160,9 +1160,9 @@ bool BaseChannel::UpdateLocalStreams_w(const std::vector<StreamParams>& streams,
        it != streams.end(); ++it) {
     if (!GetStreamBySsrc(local_streams_, it->first_ssrc(), NULL)) {
       if (media_channel()->AddSendStream(*it)) {
-        LOG(LS_INFO) << "Add send ssrc: " << it->ssrcs[0];
+        BLOG(LS_INFO) << "Add send ssrc: " << it->ssrcs[0];
       } else {
-        LOG(LS_INFO) << "Failed to add send stream ssrc: " << it->first_ssrc();
+        BLOG(LS_INFO) << "Failed to add send stream ssrc: " << it->first_ssrc();
         ret = false;
       }
     }
@@ -1188,21 +1188,21 @@ bool BaseChannel::UpdateRemoteStreams_w(
       if (!stream_exists && it->has_ssrcs()) {
         if (AddRecvStream_w(*it)) {
           remote_streams_.push_back(*it);
-          LOG(LS_INFO) << "Add remote stream ssrc: " << it->first_ssrc();
+          BLOG(LS_INFO) << "Add remote stream ssrc: " << it->first_ssrc();
         } else {
-          LOG(LS_INFO) << "Failed to add remote stream ssrc: "
+          BLOG(LS_INFO) << "Failed to add remote stream ssrc: "
                        << it->first_ssrc();
           return false;
         }
       } else if (stream_exists && !it->has_ssrcs()) {
         if (!RemoveRecvStream_w(existing_stream.first_ssrc())) {
-            LOG(LS_ERROR) << "Failed to remove remote stream with ssrc "
+            BLOG(LS_ERROR) << "Failed to remove remote stream with ssrc "
                           << it->first_ssrc() << ".";
             return false;
         }
         RemoveStreamBySsrc(&remote_streams_, existing_stream.first_ssrc());
       } else {
-        LOG(LS_WARNING) << "Ignore unsupported stream update."
+        BLOG(LS_WARNING) << "Ignore unsupported stream update."
                         << " Stream exists? " << stream_exists
                         << " existing stream = " << existing_stream.ToString()
                         << " new stream = " << it->ToString();
@@ -1218,7 +1218,7 @@ bool BaseChannel::UpdateRemoteStreams_w(
        it != remote_streams_.end(); ++it) {
     if (!GetStreamBySsrc(streams, it->first_ssrc(), NULL)) {
       if (!RemoveRecvStream_w(it->first_ssrc())) {
-        LOG(LS_ERROR) << "Failed to remove remote stream with ssrc "
+        BLOG(LS_ERROR) << "Failed to remove remote stream with ssrc "
                       << it->first_ssrc() << ".";
         ret = false;
       }
@@ -1229,9 +1229,9 @@ bool BaseChannel::UpdateRemoteStreams_w(
       it != streams.end(); ++it) {
     if (!GetStreamBySsrc(remote_streams_, it->first_ssrc(), NULL)) {
       if (AddRecvStream_w(*it)) {
-        LOG(LS_INFO) << "Add remote ssrc: " << it->ssrcs[0];
+        BLOG(LS_INFO) << "Add remote ssrc: " << it->ssrcs[0];
       } else {
-        LOG(LS_INFO) << "Failed to add remote stream ssrc: "
+        BLOG(LS_INFO) << "Failed to add remote stream ssrc: "
                      << it->first_ssrc();
         ret = false;
       }
@@ -1554,11 +1554,11 @@ void VoiceChannel::ChangeState() {
   bool send = IsReadyToSend();
   SendFlags send_flag = send ? SEND_MICROPHONE : SEND_NOTHING;
   if (!media_channel()->SetSend(send_flag)) {
-    LOG(LS_ERROR) << "Failed to SetSend " << send_flag << " on voice channel";
+    BLOG(LS_ERROR) << "Failed to SetSend " << send_flag << " on voice channel";
     SendLastMediaError();
   }
 
-  LOG(LS_INFO) << "Changing voice state, recv=" << recv << " send=" << send;
+  BLOG(LS_INFO) << "Changing voice state, recv=" << recv << " send=" << send;
 }
 
 const ContentInfo* VoiceChannel::GetFirstContent(
@@ -1569,7 +1569,7 @@ const ContentInfo* VoiceChannel::GetFirstContent(
 bool VoiceChannel::SetLocalContent_w(const MediaContentDescription* content,
                                      ContentAction action) {
   ASSERT(worker_thread() == talk_base::Thread::Current());
-  LOG(LS_INFO) << "Setting local voice description";
+  BLOG(LS_INFO) << "Setting local voice description";
 
   const AudioContentDescription* audio =
       static_cast<const AudioContentDescription*>(content);
@@ -1588,7 +1588,7 @@ bool VoiceChannel::SetLocalContent_w(const MediaContentDescription* content,
   if (ret) {
     ChangeState();
   } else {
-    LOG(LS_WARNING) << "Failed to set local voice description";
+    BLOG(LS_WARNING) << "Failed to set local voice description";
   }
   return ret;
 }
@@ -1596,7 +1596,7 @@ bool VoiceChannel::SetLocalContent_w(const MediaContentDescription* content,
 bool VoiceChannel::SetRemoteContent_w(const MediaContentDescription* content,
                                       ContentAction action) {
   ASSERT(worker_thread() == talk_base::Thread::Current());
-  LOG(LS_INFO) << "Setting remote voice description";
+  BLOG(LS_INFO) << "Setting remote voice description";
 
   const AudioContentDescription* audio =
       static_cast<const AudioContentDescription*>(content);
@@ -1615,7 +1615,7 @@ bool VoiceChannel::SetRemoteContent_w(const MediaContentDescription* content,
     // Tweak our audio processing settings, if needed.
     AudioOptions audio_options;
     if (!media_channel()->GetOptions(&audio_options)) {
-      LOG(LS_WARNING) << "Can not set audio options from on remote content.";
+      BLOG(LS_WARNING) << "Can not set audio options from on remote content.";
     } else {
       if (audio->conference_mode()) {
         audio_options.conference_mode.Set(true);
@@ -1625,7 +1625,7 @@ bool VoiceChannel::SetRemoteContent_w(const MediaContentDescription* content,
       }
       if (!media_channel()->SetOptions(audio_options)) {
         // Log an error on failure, but don't abort the call.
-        LOG(LS_ERROR) << "Failed to set voice channel options";
+        BLOG(LS_ERROR) << "Failed to set voice channel options";
       }
     }
   }
@@ -1634,7 +1634,7 @@ bool VoiceChannel::SetRemoteContent_w(const MediaContentDescription* content,
   if (ret) {
     ChangeState();
   } else {
-    LOG(LS_WARNING) << "Failed to set remote voice description";
+    BLOG(LS_WARNING) << "Failed to set remote voice description";
   }
   return ret;
 }
@@ -1647,9 +1647,9 @@ bool VoiceChannel::SetRingbackTone_w(const void* buf, int len) {
 bool VoiceChannel::PlayRingbackTone_w(uint32 ssrc, bool play, bool loop) {
   ASSERT(worker_thread() == talk_base::Thread::Current());
   if (play) {
-    LOG(LS_INFO) << "Playing ringback tone, loop=" << loop;
+    BLOG(LS_INFO) << "Playing ringback tone, loop=" << loop;
   } else {
-    LOG(LS_INFO) << "Stopping ringback tone";
+    BLOG(LS_INFO) << "Stopping ringback tone";
   }
   return media_channel()->PlayRingbackTone(ssrc, play, loop);
 }
@@ -1657,7 +1657,7 @@ bool VoiceChannel::PlayRingbackTone_w(uint32 ssrc, bool play, bool loop) {
 void VoiceChannel::HandleEarlyMediaTimeout() {
   // This occurs on the main thread, not the worker thread.
   if (!received_media_) {
-    LOG(LS_INFO) << "No early media received before timeout";
+    BLOG(LS_INFO) << "No early media received before timeout";
     SignalEarlyMediaTimeout(this);
   }
 }
@@ -1846,7 +1846,7 @@ VideoChannel::~VideoChannel() {
   ScreencastMap::iterator iter;
   while (!screencast_capturers_.empty()) {
     if (!RemoveScreencast(screencast_capturers_.begin()->first)) {
-      LOG(LS_ERROR) << "Unable to delete screencast with ssrc "
+      BLOG(LS_ERROR) << "Unable to delete screencast with ssrc "
                     << screencast_capturers_.begin()->first;
       ASSERT(false);
       break;
@@ -1922,7 +1922,7 @@ void VideoChannel::ChangeState() {
   // content. We receive data on the default channel and multiplexed streams.
   bool recv = IsReadyToReceive();
   if (!media_channel()->SetRender(recv)) {
-    LOG(LS_ERROR) << "Failed to SetRender on video channel";
+    BLOG(LS_ERROR) << "Failed to SetRender on video channel";
     // TODO(gangji): Report error back to server.
   }
 
@@ -1930,11 +1930,11 @@ void VideoChannel::ChangeState() {
   // and we have had some form of connectivity.
   bool send = IsReadyToSend();
   if (!media_channel()->SetSend(send)) {
-    LOG(LS_ERROR) << "Failed to SetSend on video channel";
+    BLOG(LS_ERROR) << "Failed to SetSend on video channel";
     // TODO(gangji): Report error back to server.
   }
 
-  LOG(LS_INFO) << "Changing video state, recv=" << recv << " send=" << send;
+  BLOG(LS_INFO) << "Changing video state, recv=" << recv << " send=" << send;
 }
 
 bool VideoChannel::GetStats(VideoMediaInfo* stats) {
@@ -1966,7 +1966,7 @@ const ContentInfo* VideoChannel::GetFirstContent(
 bool VideoChannel::SetLocalContent_w(const MediaContentDescription* content,
                                      ContentAction action) {
   ASSERT(worker_thread() == talk_base::Thread::Current());
-  LOG(LS_INFO) << "Setting local video description";
+  BLOG(LS_INFO) << "Setting local video description";
 
   const VideoContentDescription* video =
       static_cast<const VideoContentDescription*>(content);
@@ -1983,7 +1983,7 @@ bool VideoChannel::SetLocalContent_w(const MediaContentDescription* content,
   if (ret) {
     ChangeState();
   } else {
-    LOG(LS_WARNING) << "Failed to set local video description";
+    BLOG(LS_WARNING) << "Failed to set local video description";
   }
   return ret;
 }
@@ -1991,7 +1991,7 @@ bool VideoChannel::SetLocalContent_w(const MediaContentDescription* content,
 bool VideoChannel::SetRemoteContent_w(const MediaContentDescription* content,
                                       ContentAction action) {
   ASSERT(worker_thread() == talk_base::Thread::Current());
-  LOG(LS_INFO) << "Setting remote video description";
+  BLOG(LS_INFO) << "Setting remote video description";
 
   const VideoContentDescription* video =
       static_cast<const VideoContentDescription*>(content);
@@ -2015,7 +2015,7 @@ bool VideoChannel::SetRemoteContent_w(const MediaContentDescription* content,
 
     if (!media_channel()->SetOptions(video_options)) {
       // Log an error on failure, but don't abort the call.
-      LOG(LS_ERROR) << "Failed to set video channel options";
+      BLOG(LS_ERROR) << "Failed to set video channel options";
     }
   }
 
@@ -2023,7 +2023,7 @@ bool VideoChannel::SetRemoteContent_w(const MediaContentDescription* content,
   if (ret) {
     ChangeState();
   } else {
-    LOG(LS_WARNING) << "Failed to set remote video description";
+    BLOG(LS_WARNING) << "Failed to set remote video description";
   }
   return ret;
 }
@@ -2057,7 +2057,7 @@ bool VideoChannel::ApplyViewRequest_w(const ViewRequest& request) {
   for (StaticVideoViews::const_iterator it = request.static_video_views.begin();
       it != request.static_video_views.end(); ++it) {
     if (!GetStreamBySsrc(local_streams(), it->ssrc, NULL)) {
-      LOG(LS_WARNING) << "View request's SSRC " << it->ssrc
+      BLOG(LS_WARNING) << "View request's SSRC " << it->ssrc
                       << " is not in the local streams.";
     }
   }
@@ -2372,14 +2372,14 @@ const ContentInfo* DataChannel::GetFirstContent(
 
 // Sets the maximum bandwidth.  Anything over this will be dropped.
 bool DataChannel::SetMaxSendBandwidth_w(int max_bps) {
-  LOG(LS_INFO) << "DataChannel: Setting max bandwidth to " << max_bps;
+  BLOG(LS_INFO) << "DataChannel: Setting max bandwidth to " << max_bps;
   return media_channel()->SetSendBandwidth(false, max_bps);
 }
 
 bool DataChannel::SetLocalContent_w(const MediaContentDescription* content,
                                     ContentAction action) {
   ASSERT(worker_thread() == talk_base::Thread::Current());
-  LOG(LS_INFO) << "Setting local data description";
+  BLOG(LS_INFO) << "Setting local data description";
 
   const DataContentDescription* data =
       static_cast<const DataContentDescription*>(content);
@@ -2396,7 +2396,7 @@ bool DataChannel::SetLocalContent_w(const MediaContentDescription* content,
   if (ret) {
     ChangeState();
   } else {
-    LOG(LS_WARNING) << "Failed to set local data description";
+    BLOG(LS_WARNING) << "Failed to set local data description";
   }
   return ret;
 }
@@ -2415,7 +2415,7 @@ bool DataChannel::SetRemoteContent_w(const MediaContentDescription* content,
   if (action != CA_UPDATE && !data->has_codecs()) {
     return true;
   }
-  LOG(LS_INFO) << "Setting remote data description";
+  BLOG(LS_INFO) << "Setting remote data description";
 
   bool ret = true;
   // Set remote video codecs (what the other side wants to receive).
@@ -2437,7 +2437,7 @@ bool DataChannel::SetRemoteContent_w(const MediaContentDescription* content,
   if (ret) {
     ChangeState();
   } else {
-    LOG(LS_WARNING) << "Failed to set remote data description";
+    BLOG(LS_WARNING) << "Failed to set remote data description";
   }
   return ret;
 }
@@ -2447,21 +2447,21 @@ void DataChannel::ChangeState() {
   // content. We receive data on the default channel and multiplexed streams.
   bool recv = IsReadyToReceive();
   if (!media_channel()->SetReceive(recv)) {
-    LOG(LS_ERROR) << "Failed to SetReceive on data channel";
+    BLOG(LS_ERROR) << "Failed to SetReceive on data channel";
   }
 
   // Send outgoing data if we're the active call, we have the remote content,
   // and we have had some form of connectivity.
   bool send = IsReadyToSend();
   if (!media_channel()->SetSend(send)) {
-    LOG(LS_ERROR) << "Failed to SetSend on data channel";
+    BLOG(LS_ERROR) << "Failed to SetSend on data channel";
   }
 
   // Post to trigger SignalReadyToSendData.
   signaling_thread()->Post(this, MSG_READYTOSENDDATA,
                            new BoolMessageData(send));
 
-  LOG(LS_INFO) << "Changing data state, recv=" << recv << " send=" << send;
+  BLOG(LS_INFO) << "Changing data state, recv=" << recv << " send=" << send;
 }
 
 void DataChannel::OnMessage(talk_base::Message *pmsg) {

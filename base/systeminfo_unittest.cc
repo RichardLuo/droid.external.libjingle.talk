@@ -32,7 +32,7 @@
 #if defined(CPU_X86) || defined(CPU_ARM)
 TEST(SystemInfoTest, CpuVendorNonEmpty) {
   talk_base::SystemInfo info;
-  LOG(LS_INFO) << "CpuVendor: " << info.GetCpuVendor();
+  BLOG(LS_INFO) << "CpuVendor: " << info.GetCpuVendor();
   EXPECT_FALSE(info.GetCpuVendor().empty());
 }
 
@@ -54,7 +54,7 @@ TEST(SystemInfoTest, CpuVendorIntelAMDARM) {
 // Tests CpuArchitecture matches expectations.
 TEST(SystemInfoTest, GetCpuArchitecture) {
   talk_base::SystemInfo info;
-  LOG(LS_INFO) << "CpuArchitecture: " << info.GetCpuArchitecture();
+  BLOG(LS_INFO) << "CpuArchitecture: " << info.GetCpuArchitecture();
   talk_base::SystemInfo::Architecture architecture = info.GetCpuArchitecture();
 #if defined(CPU_X86) || defined(CPU_ARM)
   if (sizeof(intptr_t) == 8) {
@@ -72,7 +72,7 @@ TEST(SystemInfoTest, GetCpuArchitecture) {
 // Tests Cpu Cache Size
 TEST(SystemInfoTest, CpuCacheSize) {
   talk_base::SystemInfo info;
-  LOG(LS_INFO) << "CpuCacheSize: " << info.GetCpuCacheSize();
+  BLOG(LS_INFO) << "CpuCacheSize: " << info.GetCpuCacheSize();
   EXPECT_GE(info.GetCpuCacheSize(), 8192);  // 8 KB min cache
   EXPECT_LE(info.GetCpuCacheSize(), 1024 * 1024 * 1024);  // 1 GB max cache
 }
@@ -82,7 +82,7 @@ TEST(SystemInfoTest, MachineModelKnown) {
   talk_base::SystemInfo info;
   EXPECT_FALSE(info.GetMachineModel().empty());
   const char *machine_model = info.GetMachineModel().c_str();
-  LOG(LS_INFO) << "MachineModel: " << machine_model;
+  BLOG(LS_INFO) << "MachineModel: " << machine_model;
   bool known = true;
 #if defined(OSX)
   // Full list as of May 2012.  Update when new OSX based models are added.
@@ -99,14 +99,14 @@ TEST(SystemInfoTest, MachineModelKnown) {
                                   "Not available");
 #endif
   if (!known) {
-    LOG(LS_WARNING) << "Machine Model Unknown: " << machine_model;
+    BLOG(LS_WARNING) << "Machine Model Unknown: " << machine_model;
   }
 }
 
 // Tests maximum cpu clockrate.
 TEST(SystemInfoTest, CpuMaxCpuSpeed) {
   talk_base::SystemInfo info;
-  LOG(LS_INFO) << "MaxCpuSpeed: " << info.GetMaxCpuSpeed();
+  BLOG(LS_INFO) << "MaxCpuSpeed: " << info.GetMaxCpuSpeed();
   EXPECT_GT(info.GetMaxCpuSpeed(), 0);
   EXPECT_LT(info.GetMaxCpuSpeed(), 100000);  // 100 Ghz
 }
@@ -114,7 +114,7 @@ TEST(SystemInfoTest, CpuMaxCpuSpeed) {
 // Tests current cpu clockrate.
 TEST(SystemInfoTest, CpuCurCpuSpeed) {
   talk_base::SystemInfo info;
-  LOG(LS_INFO) << "MaxCurSpeed: " << info.GetCurCpuSpeed();
+  BLOG(LS_INFO) << "MaxCurSpeed: " << info.GetCurCpuSpeed();
   EXPECT_GT(info.GetCurCpuSpeed(), 0);
   EXPECT_LT(info.GetMaxCpuSpeed(), 100000);
 }
@@ -122,21 +122,21 @@ TEST(SystemInfoTest, CpuCurCpuSpeed) {
 // Tests physical memory size.
 TEST(SystemInfoTest, MemorySize) {
   talk_base::SystemInfo info;
-  LOG(LS_INFO) << "MemorySize: " << info.GetMemorySize();
+  BLOG(LS_INFO) << "MemorySize: " << info.GetMemorySize();
   EXPECT_GT(info.GetMemorySize(), -1);
 }
 
 // Tests number of logical cpus available to the system.
 TEST(SystemInfoTest, MaxCpus) {
   talk_base::SystemInfo info;
-  LOG(LS_INFO) << "MaxCpus: " << info.GetMaxCpus();
+  BLOG(LS_INFO) << "MaxCpus: " << info.GetMaxCpus();
   EXPECT_GT(info.GetMaxCpus(), 0);
 }
 
 // Tests number of physical cpus available to the system.
 TEST(SystemInfoTest, MaxPhysicalCpus) {
   talk_base::SystemInfo info;
-  LOG(LS_INFO) << "MaxPhysicalCpus: " << info.GetMaxPhysicalCpus();
+  BLOG(LS_INFO) << "MaxPhysicalCpus: " << info.GetMaxPhysicalCpus();
   EXPECT_GT(info.GetMaxPhysicalCpus(), 0);
   EXPECT_LE(info.GetMaxPhysicalCpus(), info.GetMaxCpus());
 }
@@ -144,7 +144,7 @@ TEST(SystemInfoTest, MaxPhysicalCpus) {
 // Tests number of logical cpus available to the process.
 TEST(SystemInfoTest, CurCpus) {
   talk_base::SystemInfo info;
-  LOG(LS_INFO) << "CurCpus: " << info.GetCurCpus();
+  BLOG(LS_INFO) << "CurCpus: " << info.GetCurCpus();
   EXPECT_GT(info.GetCurCpus(), 0);
   EXPECT_LE(info.GetCurCpus(), info.GetMaxCpus());
 }
@@ -157,21 +157,21 @@ TEST(SystemInfoTest, CurCpus) {
 // Tests Intel CPU Family identification.
 TEST(SystemInfoTest, CpuFamily) {
   talk_base::SystemInfo info;
-  LOG(LS_INFO) << "CpuFamily: " << info.GetCpuFamily();
+  BLOG(LS_INFO) << "CpuFamily: " << info.GetCpuFamily();
   EXPECT_GT(info.GetCpuFamily(), 0);
 }
 
 // Tests Intel CPU Model identification.
 TEST(SystemInfoTest, CpuModel) {
   talk_base::SystemInfo info;
-  LOG(LS_INFO) << "CpuModel: " << info.GetCpuModel();
+  BLOG(LS_INFO) << "CpuModel: " << info.GetCpuModel();
   EXPECT_GT(info.GetCpuModel(), 0);
 }
 
 // Tests Intel CPU Stepping identification.
 TEST(SystemInfoTest, CpuStepping) {
   talk_base::SystemInfo info;
-  LOG(LS_INFO) << "CpuStepping: " << info.GetCpuStepping();
+  BLOG(LS_INFO) << "CpuStepping: " << info.GetCpuStepping();
   EXPECT_GT(info.GetCpuStepping(), 0);
 }
 #else  // CPU_X86
@@ -179,21 +179,21 @@ TEST(SystemInfoTest, CpuStepping) {
 // return 0.
 TEST(SystemInfoTest, CpuFamily) {
   talk_base::SystemInfo info;
-  LOG(LS_INFO) << "CpuFamily: " << info.GetCpuFamily();
+  BLOG(LS_INFO) << "CpuFamily: " << info.GetCpuFamily();
   EXPECT_EQ(0, info.GetCpuFamily());
 }
 
 // Tests Intel CPU Model identification.
 TEST(SystemInfoTest, CpuModel) {
   talk_base::SystemInfo info;
-  LOG(LS_INFO) << "CpuModel: " << info.GetCpuModel();
+  BLOG(LS_INFO) << "CpuModel: " << info.GetCpuModel();
   EXPECT_EQ(0, info.GetCpuModel());
 }
 
 // Tests Intel CPU Stepping identification.
 TEST(SystemInfoTest, CpuStepping) {
   talk_base::SystemInfo info;
-  LOG(LS_INFO) << "CpuStepping: " << info.GetCpuStepping();
+  BLOG(LS_INFO) << "CpuStepping: " << info.GetCpuStepping();
   EXPECT_EQ(0, info.GetCpuStepping());
 }
 #endif  // CPU_X86
@@ -203,9 +203,9 @@ TEST(SystemInfoTest, GpuInfo) {
   talk_base::SystemInfo info;
   talk_base::SystemInfo::GpuInfo gi;
   EXPECT_TRUE(info.GetGpuInfo(&gi));
-  LOG(LS_INFO) << "GpuDriver: " << gi.driver;
+  BLOG(LS_INFO) << "GpuDriver: " << gi.driver;
   EXPECT_FALSE(gi.driver.empty());
-  LOG(LS_INFO) << "GpuDriverVersion: " << gi.driver_version;
+  BLOG(LS_INFO) << "GpuDriverVersion: " << gi.driver_version;
   EXPECT_FALSE(gi.driver_version.empty());
 }
 #endif

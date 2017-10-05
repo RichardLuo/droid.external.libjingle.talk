@@ -48,7 +48,7 @@ static int kExporterContextLen = sizeof(kExporterContext);
 
 #define MAYBE_SKIP_TEST(feature)                    \
   if (!(talk_base::SSLStreamAdapter::feature())) {  \
-    LOG(LS_INFO) << "Feature disabled... skipping"; \
+    BLOG(LS_INFO) << "Feature disabled... skipping"; \
     return;                                         \
   }
 
@@ -96,7 +96,7 @@ class SSLDummyStream : public talk_base::StreamInterface,
     int mask = (talk_base::SE_READ | talk_base::SE_CLOSE);
 
     if (sig & mask) {
-      LOG(LS_INFO) << "SSLDummyStream::OnEvent side=" << side_ <<  " sig="
+      BLOG(LS_INFO) << "SSLDummyStream::OnEvent side=" << side_ <<  " sig="
         << sig << " forwarding upward";
       PostEvent(sig & mask, 0);
     }
@@ -106,7 +106,7 @@ class SSLDummyStream : public talk_base::StreamInterface,
   virtual void OnEventOut(talk_base::StreamInterface *stream, int sig,
                           int err) {
     if (sig & talk_base::SE_WRITE) {
-      LOG(LS_INFO) << "SSLDummyStream::OnEvent side=" << side_ <<  " sig="
+      BLOG(LS_INFO) << "SSLDummyStream::OnEvent side=" << side_ <<  " sig="
         << sig << " forwarding upward";
 
       PostEvent(sig & talk_base::SE_WRITE, 0);
@@ -124,7 +124,7 @@ class SSLDummyStream : public talk_base::StreamInterface,
                                         size_t* written, int* error);
 
   virtual void Close() {
-    LOG(LS_INFO) << "Closing outbound stream";
+    BLOG(LS_INFO) << "Closing outbound stream";
     out_->Close();
   }
 
@@ -175,7 +175,7 @@ class SSLStreamAdapterTestBase : public testing::Test,
   }
 
   virtual void OnEvent(talk_base::StreamInterface *stream, int sig, int err) {
-    LOG(LS_INFO) << "SSLStreamAdapterTestBase::OnEvent sig=" << sig;
+    BLOG(LS_INFO) << "SSLStreamAdapterTestBase::OnEvent sig=" << sig;
 
     if (sig & talk_base::SE_READ) {
       ReadData(stream);
@@ -187,7 +187,7 @@ class SSLStreamAdapterTestBase : public testing::Test,
   }
 
   void SetPeerIdentitiesByCertificate(bool correct) {
-    LOG(LS_INFO) << "Setting peer identities by certificate";
+    BLOG(LS_INFO) << "Setting peer identities by certificate";
 
     if (correct) {
       client_ssl_->SetPeerCertificate(server_identity_->certificate().
@@ -209,14 +209,14 @@ class SSLStreamAdapterTestBase : public testing::Test,
     size_t digest_len;
     bool rv;
 
-    LOG(LS_INFO) << "Setting peer identities by digest";
+    BLOG(LS_INFO) << "Setting peer identities by digest";
 
     rv = server_identity_->certificate().ComputeDigest(talk_base::DIGEST_SHA_1,
                                                       digest, 20,
                                                       &digest_len);
     ASSERT_TRUE(rv);
     if (!correct) {
-      LOG(LS_INFO) << "Setting bogus digest for server cert";
+      BLOG(LS_INFO) << "Setting bogus digest for server cert";
       digest[0]++;
     }
     rv = client_ssl_->SetPeerCertificateDigest(talk_base::DIGEST_SHA_1, digest,
@@ -228,7 +228,7 @@ class SSLStreamAdapterTestBase : public testing::Test,
                                                       digest, 20, &digest_len);
     ASSERT_TRUE(rv);
     if (!correct) {
-      LOG(LS_INFO) << "Setting bogus digest for client cert";
+      BLOG(LS_INFO) << "Setting bogus digest for client cert";
       digest[0]++;
     }
     rv = server_ssl_->SetPeerCertificateDigest(talk_base::DIGEST_SHA_1, digest,
@@ -280,12 +280,12 @@ class SSLStreamAdapterTestBase : public testing::Test,
                                       int *error) {
     // Randomly drop loss_ percent of packets
     if (talk_base::CreateRandomId() % 100 < static_cast<uint32>(loss_)) {
-      LOG(LS_INFO) << "Randomly dropping packet, size=" << data_len;
+      BLOG(LS_INFO) << "Randomly dropping packet, size=" << data_len;
       *written = data_len;
       return talk_base::SR_SUCCESS;
     }
     if (dtls_ && (data_len > mtu_)) {
-      LOG(LS_INFO) << "Dropping packet > mtu, size=" << data_len;
+      BLOG(LS_INFO) << "Dropping packet > mtu, size=" << data_len;
       *written = data_len;
       return talk_base::SR_SUCCESS;
     }
@@ -296,7 +296,7 @@ class SSLStreamAdapterTestBase : public testing::Test,
     if (damage_ && (*static_cast<const unsigned char *>(data) == 23)) {
       std::vector<char> buf(data_len);
 
-      LOG(LS_INFO) << "Damaging packet";
+      BLOG(LS_INFO) << "Damaging packet";
 
       memcpy(&buf[0], data, data_len);
       buf[data_len - 1]++;
@@ -400,7 +400,7 @@ class SSLStreamAdapterTestTLS : public SSLStreamAdapterTestBase {
 
   // Test data transfer for TLS
   virtual void TestTransfer(int size) {
-    LOG(LS_INFO) << "Starting transfer test with " << size << " bytes";
+    BLOG(LS_INFO) << "Starting transfer test with " << size << " bytes";
     // Create some dummy data to send.
     size_t received;
 
@@ -446,9 +446,9 @@ class SSLStreamAdapterTestTLS : public SSLStreamAdapterTestBase {
 
         if (rv == talk_base::SR_SUCCESS) {
           send_stream_.SetPosition(position + sent);
-          LOG(LS_VERBOSE) << "Sent: " << position + sent;
+          BLOG(LS_VERBOSE) << "Sent: " << position + sent;
         } else if (rv == talk_base::SR_BLOCK) {
-          LOG(LS_VERBOSE) << "Blocked...";
+          BLOG(LS_VERBOSE) << "Blocked...";
           send_stream_.SetPosition(position);
           break;
         } else {
@@ -457,7 +457,7 @@ class SSLStreamAdapterTestTLS : public SSLStreamAdapterTestBase {
         }
       } else {
         // Now close
-        LOG(LS_INFO) << "Wrote " << position << " bytes. Closing";
+        BLOG(LS_INFO) << "Wrote " << position << " bytes. Closing";
         client_ssl_->Close();
         break;
       }
@@ -484,7 +484,7 @@ class SSLStreamAdapterTestTLS : public SSLStreamAdapterTestBase {
         break;
 
       ASSERT_EQ(talk_base::SR_SUCCESS, r);
-      LOG(LS_INFO) << "Read " << bread;
+      BLOG(LS_INFO) << "Read " << bread;
 
       recv_stream_.Write(buffer, bread, NULL, NULL);
     }
@@ -513,10 +513,10 @@ class SSLStreamAdapterTestDTLS : public SSLStreamAdapterTestBase {
       size_t sent;
       int rv = client_ssl_->Write(packet, packet_size_, &sent, 0);
       if (rv == talk_base::SR_SUCCESS) {
-        LOG(LS_VERBOSE) << "Sent: " << sent_;
+        BLOG(LS_VERBOSE) << "Sent: " << sent_;
         sent_++;
       } else if (rv == talk_base::SR_BLOCK) {
-        LOG(LS_VERBOSE) << "Blocked...";
+        BLOG(LS_VERBOSE) << "Blocked...";
         break;
       } else {
         ADD_FAILURE();
@@ -548,7 +548,7 @@ class SSLStreamAdapterTestDTLS : public SSLStreamAdapterTestBase {
         break;
 
       ASSERT_EQ(talk_base::SR_SUCCESS, r);
-      LOG(LS_INFO) << "Read " << bread;
+      BLOG(LS_INFO) << "Read " << bread;
 
       // Now parse the datagram
       ASSERT_EQ(packet_size_, bread);
@@ -567,7 +567,7 @@ class SSLStreamAdapterTestDTLS : public SSLStreamAdapterTestBase {
     WriteData();
 
     EXPECT_TRUE_WAIT(sent_ == count_, 10000);
-    LOG(LS_INFO) << "sent_ == " << sent_;
+    BLOG(LS_INFO) << "sent_ == " << sent_;
 
     if (damage_) {
       WAIT(false, 2000);
@@ -575,7 +575,7 @@ class SSLStreamAdapterTestDTLS : public SSLStreamAdapterTestBase {
     } else if (loss_ == 0) {
         EXPECT_EQ_WAIT(static_cast<size_t>(sent_), received_.size(), 1000);
     } else {
-      LOG(LS_INFO) << "Sent " << sent_ << " packets; received " <<
+      BLOG(LS_INFO) << "Sent " << sent_ << " packets; received " <<
           received_.size();
     }
   };
@@ -592,12 +592,12 @@ talk_base::StreamResult SSLDummyStream::Write(const void* data, size_t data_len,
                                               size_t* written, int* error) {
   *written = data_len;
 
-  LOG(LS_INFO) << "Writing to loopback " << data_len;
+  BLOG(LS_INFO) << "Writing to loopback " << data_len;
 
   if (first_packet_) {
     first_packet_ = false;
     if (test_->GetLoseFirstPacket()) {
-      LOG(LS_INFO) << "Losing initial packet of length " << data_len;
+      BLOG(LS_INFO) << "Losing initial packet of length " << data_len;
       return talk_base::SR_SUCCESS;
     }
   }

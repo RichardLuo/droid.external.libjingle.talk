@@ -460,7 +460,7 @@ void BasicPortAllocatorSession::DoAllocate() {
   std::vector<talk_base::Network*> networks;
   allocator_->network_manager()->GetNetworks(&networks);
   if (networks.empty()) {
-    LOG(LS_WARNING) << "Machine has no networks; no ports will be allocated";
+    BLOG(LS_WARNING) << "Machine has no networks; no ports will be allocated";
     done_signal_needed = true;
   } else {
     for (uint32 i = 0; i < networks.size(); ++i) {
@@ -540,7 +540,7 @@ void BasicPortAllocatorSession::AddAllocatedPort(Port* port,
   if (!port)
     return;
 
-  LOG(LS_INFO) << "Adding allocated port for " << content_name();
+  BLOG(LS_INFO) << "Adding allocated port for " << content_name();
   port->set_content_name(content_name());
   port->set_component(component_);
   port->set_generation(generation());
@@ -687,7 +687,7 @@ void BasicPortAllocatorSession::MaybeSignalCandidatesAllocationDone() {
     if (!it->complete())
       return;
   }
-  LOG(LS_INFO) << "All candidates gathered for " << content_name_ << ":"
+  BLOG(LS_INFO) << "All candidates gathered for " << content_name_ << ":"
                << component_ << ":" << generation();
   SignalCandidatesAllocationDone(this);
 }
@@ -720,7 +720,7 @@ void BasicPortAllocatorSession::OnConnectionStateChange(Connection* conn) {
 }
 
 void BasicPortAllocatorSession::OnShake() {
-  LOG(INFO) << ">>>>> SHAKE <<<<< >>>>> SHAKE <<<<< >>>>> SHAKE <<<<<";
+  BLOG(INFO) << ">>>>> SHAKE <<<<< >>>>> SHAKE <<<<< >>>>> SHAKE <<<<<";
 
   std::vector<Port*> ports;
   std::vector<Connection*> connections;
@@ -739,7 +739,7 @@ void BasicPortAllocatorSession::OnShake() {
     }
   }
 
-  LOG(INFO) << ">>>>> Destroying " << ports.size() << " ports and "
+  BLOG(INFO) << ">>>>> Destroying " << ports.size() << " ports and "
             << connections.size() << " connections";
 
   for (size_t i = 0; i < connections.size(); ++i)
@@ -786,7 +786,7 @@ AllocationSequence::AllocationSequence(BasicPortAllocatorSession* session,
 bool AllocationSequence::Init() {
   if (IsFlagSet(PORTALLOCATOR_ENABLE_SHARED_SOCKET) &&
       !IsFlagSet(PORTALLOCATOR_ENABLE_SHARED_UFRAG)) {
-    LOG(LS_ERROR) << "Shared socket option can't be set without "
+    BLOG(LS_ERROR) << "Shared socket option can't be set without "
                   << "shared ufrag.";
     ASSERT(false);
     return false;
@@ -934,7 +934,7 @@ bool AllocationSequence::ProtocolEnabled(ProtocolType proto) const {
 
 void AllocationSequence::CreateUDPPorts() {
   if (IsFlagSet(PORTALLOCATOR_DISABLE_UDP)) {
-    LOG(LS_VERBOSE) << "AllocationSequence: UDP ports disabled, skipping.";
+    BLOG(LS_VERBOSE) << "AllocationSequence: UDP ports disabled, skipping.";
     return;
   }
 
@@ -962,7 +962,7 @@ void AllocationSequence::CreateUDPPorts() {
         !IsFlagSet(PORTALLOCATOR_DISABLE_STUN)) {
       ASSERT(config_ && !config_->stun_address.IsNil());
       if (!(config_ && !config_->stun_address.IsNil())) {
-        LOG(LS_WARNING)
+        BLOG(LS_WARNING)
             << "AllocationSequence: No STUN server configured, skipping.";
         return;
       }
@@ -976,7 +976,7 @@ void AllocationSequence::CreateUDPPorts() {
 
 void AllocationSequence::CreateTCPPorts() {
   if (IsFlagSet(PORTALLOCATOR_DISABLE_TCP)) {
-    LOG(LS_VERBOSE) << "AllocationSequence: TCP ports disabled, skipping.";
+    BLOG(LS_VERBOSE) << "AllocationSequence: TCP ports disabled, skipping.";
     return;
   }
 
@@ -996,12 +996,12 @@ void AllocationSequence::CreateTCPPorts() {
 
 void AllocationSequence::CreateStunPorts() {
   if (IsFlagSet(PORTALLOCATOR_DISABLE_STUN)) {
-    LOG(LS_VERBOSE) << "AllocationSequence: STUN ports disabled, skipping.";
+    BLOG(LS_VERBOSE) << "AllocationSequence: STUN ports disabled, skipping.";
     return;
   }
 
   if (IsFlagSet(PORTALLOCATOR_ENABLE_SHARED_SOCKET)) {
-    LOG(LS_INFO) << "AllocationSequence: "
+    BLOG(LS_INFO) << "AllocationSequence: "
                  << "UDPPort will be handling the STUN candidate generation.";
     return;
   }
@@ -1010,7 +1010,7 @@ void AllocationSequence::CreateStunPorts() {
   // ought to have an address for them here.
   ASSERT(config_ && !config_->stun_address.IsNil());
   if (!(config_ && !config_->stun_address.IsNil())) {
-    LOG(LS_WARNING)
+    BLOG(LS_WARNING)
         << "AllocationSequence: No STUN server configured, skipping.";
     return;
   }
@@ -1031,7 +1031,7 @@ void AllocationSequence::CreateStunPorts() {
 
 void AllocationSequence::CreateRelayPorts() {
   if (IsFlagSet(PORTALLOCATOR_DISABLE_RELAY)) {
-     LOG(LS_VERBOSE) << "AllocationSequence: Relay ports disabled, skipping.";
+     BLOG(LS_VERBOSE) << "AllocationSequence: Relay ports disabled, skipping.";
      return;
   }
 
@@ -1039,7 +1039,7 @@ void AllocationSequence::CreateRelayPorts() {
   // ought to have a relay list for them here.
   ASSERT(config_ && !config_->relays.empty());
   if (!(config_ && !config_->relays.empty())) {
-    LOG(LS_WARNING)
+    BLOG(LS_WARNING)
         << "AllocationSequence: No relay server configured, skipping.";
     return;
   }
@@ -1106,7 +1106,7 @@ void AllocationSequence::CreateTurnPort(const RelayServerConfig& config) {
         session_->AddAllocatedPort(port, this);
       }
     } else {
-      LOG(LS_WARNING) << ProtoToString(relay_port->proto)
+      BLOG(LS_WARNING) << ProtoToString(relay_port->proto)
                       << " server address: " << relay_port->address.ToString()
                       << " is not currently supported.";
     }

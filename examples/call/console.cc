@@ -55,11 +55,11 @@ Console::~Console() {
 void Console::Start() {
   if (!console_thread_) {
     // stdin was closed in Stop(), so we can't restart.
-    LOG(LS_ERROR) << "Cannot re-start";
+    BLOG(LS_ERROR) << "Cannot re-start";
     return;
   }
   if (console_thread_->started()) {
-    LOG(LS_WARNING) << "Already started";
+    BLOG(LS_WARNING) << "Already started";
     return;
   }
   console_thread_->Start();
@@ -151,7 +151,7 @@ void Console::OnMessage(talk_base::Message *msg) {
       sigemptyset(&act.sa_mask);
       act.sa_flags = 0;
       if (sigaction(SIGUSR1, &act, NULL) < 0) {
-        LOG(LS_WARNING) << "Can't install signal";
+        BLOG(LS_WARNING) << "Can't install signal";
       }
 #endif
       RunConsole();

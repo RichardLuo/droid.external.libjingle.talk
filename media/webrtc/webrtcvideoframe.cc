@@ -238,7 +238,7 @@ size_t WebRtcVideoFrame::ConvertToRgbBuffer(uint32 to_fourcc,
   size_t height = frame()->Height();
   size_t needed = (stride_rgb >= 0 ? stride_rgb : -stride_rgb) * height;
   if (size < needed) {
-    LOG(LS_WARNING) << "RGB buffer is not large enough";
+    BLOG(LS_WARNING) << "RGB buffer is not large enough";
     return needed;
   }
 
@@ -248,7 +248,7 @@ size_t WebRtcVideoFrame::ConvertToRgbBuffer(uint32 to_fourcc,
                               buffer, stride_rgb,
                               width, height,
                               to_fourcc)) {
-    LOG(LS_WARNING) << "RGB type not supported: " << to_fourcc;
+    BLOG(LS_WARNING) << "RGB type not supported: " << to_fourcc;
     return 0;  // 0 indicates error
   }
   return needed;
@@ -348,7 +348,7 @@ bool WebRtcVideoFrame::Reset(uint32 format, int w, int h, int dw, int dh,
                                 static_cast<libyuv::RotationMode>(rotation),
                                 format);
   if (r) {
-    LOG(LS_ERROR) << "Error parsing format: " << GetFourccName(format)
+    BLOG(LS_ERROR) << "Error parsing format: " << GetFourccName(format)
                   << " return code : " << r;
     return false;
   }

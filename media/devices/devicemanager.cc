@@ -164,7 +164,7 @@ bool DeviceManager::GetVideoCaptureDevice(const std::string& name,
                                           Device* out) {
   // If the name is empty, return the default device.
   if (name.empty() || name == kDefaultDeviceName) {
-    LOG(LS_INFO) << "Creating default VideoCapturer";
+    BLOG(LS_INFO) << "Creating default VideoCapturer";
     return GetDefaultVideoCaptureDevice(out);
   }
 
@@ -176,7 +176,7 @@ bool DeviceManager::GetVideoCaptureDevice(const std::string& name,
   for (std::vector<Device>::const_iterator it = devices.begin();
       it != devices.end(); ++it) {
     if (name == it->name) {
-      LOG(LS_INFO) << "Creating VideoCapturer for " << name;
+      BLOG(LS_INFO) << "Creating VideoCapturer for " << name;
       *out = *it;
       return true;
     }
@@ -184,7 +184,7 @@ bool DeviceManager::GetVideoCaptureDevice(const std::string& name,
 
   // If |name| is a valid name for a file, return a file video capturer device.
   if (talk_base::Filesystem::IsFile(name)) {
-    LOG(LS_INFO) << "Creating FileVideoCapturer";
+    BLOG(LS_INFO) << "Creating FileVideoCapturer";
     *out = FileVideoCapturer::CreateFileVideoCapturerDevice(name);
     return true;
   }
@@ -370,7 +370,7 @@ bool DeviceManager::ShouldDeviceBeIgnored(const std::string& device_name,
   while (exclusion_list[i]) {
     if (strnicmp(device_name.c_str(), exclusion_list[i],
         strlen(exclusion_list[i])) == 0) {
-      LOG(LS_INFO) << "Ignoring device " << device_name;
+      BLOG(LS_INFO) << "Ignoring device " << device_name;
       return true;
     }
     ++i;

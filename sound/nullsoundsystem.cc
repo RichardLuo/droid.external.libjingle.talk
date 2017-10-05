@@ -92,7 +92,7 @@ class NullSoundOutputStream : public SoundOutputStreamInterface {
 
   virtual bool WriteSamples(const void *sample_data,
                             size_t size) {
-    LOG(LS_VERBOSE) << "Got " << size << " bytes of playback samples";
+    BLOG(LS_VERBOSE) << "Got " << size << " bytes of playback samples";
     return true;
   }
 

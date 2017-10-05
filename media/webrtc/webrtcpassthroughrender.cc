@@ -32,7 +32,7 @@
 
 namespace cricket {
 
-#define LOG_FIND_STREAM_ERROR(func, id) LOG(LS_ERROR) \
+#define LOG_FIND_STREAM_ERROR(func, id) BLOG(LS_ERROR) \
     << "" << func << " - Failed to find stream: " << id
 
 class PassthroughStream: public webrtc::VideoRenderCallback {
@@ -97,7 +97,7 @@ webrtc::VideoRenderCallback* WebRtcPassthroughRender::AddIncomingRenderStream(
   talk_base::CritScope cs(&render_critical_);
   // Stream already exist.
   if (FindStream(stream_id) != NULL) {
-    LOG(LS_ERROR) << "AddIncomingRenderStream - Stream already exists: "
+    BLOG(LS_ERROR) << "AddIncomingRenderStream - Stream already exists: "
                   << stream_id;
     return NULL;
   }

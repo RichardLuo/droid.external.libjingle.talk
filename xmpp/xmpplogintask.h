@@ -50,7 +50,7 @@ public:
   XmppLoginTask(XmppEngineImpl *pctx);
   ~XmppLoginTask();
 
-  bool IsDone()
+  bool IsDone() const
     { return state_ == LOGINSTATE_DONE; }
   void IncomingStanza(const XmlElement * element, bool isStart);
   void OutgoingStanza(const XmlElement *element);

@@ -105,7 +105,7 @@ class NSSIdentity : public SSLIdentity {
  public:
   static NSSIdentity* Generate(const std::string& common_name);
   virtual ~NSSIdentity() {
-    LOG(LS_INFO) << "Destroying NSS identity";
+    BLOG(LS_INFO) << "Destroying NSS identity";
   }
 
 

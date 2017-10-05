@@ -306,7 +306,7 @@ static bool ParseFailed(const std::string& message,
     error->line = first_line;
     error->description = description;
   }
-  LOG(LS_ERROR) << "Failed to parse: \"" << first_line
+  BLOG(LS_ERROR) << "Failed to parse: \"" << first_line
                 << "\". Reason: " << description;
   return false;
 }
@@ -1812,7 +1812,7 @@ bool ParseMediaDescription(const std::string& message,
       // Sort the codecs according to the m-line fmt list.
       media_desc->SortCodecs();
     } else {
-      LOG(LS_WARNING) << "Unsupported media type: " << line;
+      BLOG(LS_WARNING) << "Unsupported media type: " << line;
       continue;
     }
 
@@ -1948,7 +1948,7 @@ bool ParseContent(const std::string& message,
 
     if (!IsLineType(line, kLineTypeAttributes)) {
       // TODO: Handle other lines if needed.
-      LOG(LS_INFO) << "Ignored line: " << line;
+      BLOG(LS_INFO) << "Ignored line: " << line;
       continue;
     }
 
@@ -2034,7 +2034,7 @@ bool ParseContent(const std::string& message,
       media_desc->AddRtpHeaderExtension(extmap);
     } else {
       // Only parse lines that we are interested of.
-      LOG(LS_INFO) << "Ignored line: " << line;
+      BLOG(LS_INFO) << "Ignored line: " << line;
       continue;
     }
   }

@@ -43,7 +43,7 @@ bool PlatformSoundSystemFactory::SetupInstance() {
     instance_.reset(CreatePlatformSoundSystem());
   }
   if (!instance_->Init()) {
-    LOG(LS_ERROR) << "Can't initialize platform's sound system";
+    BLOG(LS_ERROR) << "Can't initialize platform's sound system";
     return false;
   }
   return true;

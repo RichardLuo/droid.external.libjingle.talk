@@ -612,19 +612,19 @@ bool BaseSession::MaybeEnableMuxingSupport() {
         local_description_->GetContentByName(*content_name);
     ASSERT(content != NULL);
     if (!SetSelectedProxy(content->name, local_bundle_group)) {
-      LOG(LS_WARNING) << "Failed to set up BUNDLE";
+      BLOG(LS_WARNING) << "Failed to set up BUNDLE";
       return false;
     }
 
     // If we weren't done gathering before, we might be done now, as a result
     // of enabling mux.
-    LOG(LS_INFO) << "Enabling BUNDLE, bundling onto transport: "
+    BLOG(LS_INFO) << "Enabling BUNDLE, bundling onto transport: "
                  << *content_name;
     if (!candidates_allocated) {
       MaybeCandidateAllocationDone();
     }
   } else {
-    LOG(LS_INFO) << "No BUNDLE information, not bundling.";
+    BLOG(LS_INFO) << "No BUNDLE information, not bundling.";
   }
   return true;
 }
@@ -680,14 +680,14 @@ bool BaseSession::IsCandidateAllocationDone() const {
 
 void BaseSession::MaybeCandidateAllocationDone() {
   if (IsCandidateAllocationDone()) {
-    LOG(LS_INFO) << "Candidate gathering is complete.";
+    BLOG(LS_INFO) << "Candidate gathering is complete.";
     OnCandidatesAllocationDone();
   }
 }
 
 void BaseSession::OnRoleConflict() {
   if (role_switch_) {
-    LOG(LS_WARNING) << "Repeat of role conflict signal from Transport.";
+    BLOG(LS_WARNING) << "Repeat of role conflict signal from Transport.";
     return;
   }
 
@@ -701,7 +701,7 @@ void BaseSession::OnRoleConflict() {
 }
 
 void BaseSession::LogState(State old_state, State new_state) {
-  LOG(LS_INFO) << "Session:" << id()
+  BLOG(LS_INFO) << "Session:" << id()
                << " Old state:" << StateToString(old_state)
                << " New state:" << StateToString(new_state)
                << " Type:" << content_type()
@@ -783,12 +783,12 @@ bool Session::Initiate(const std::string &to,
   set_local_description(sdesc);
   if (!CreateTransportProxies(GetEmptyTransportInfos(sdesc->contents()),
                               &error)) {
-    LOG(LS_ERROR) << "Could not create transports: " << error.text;
+    BLOG(LS_ERROR) << "Could not create transports: " << error.text;
     return false;
   }
 
   if (!SendInitiateMessage(sdesc, &error)) {
-    LOG(LS_ERROR) << "Could not send initiate message: " << error.text;
+    BLOG(LS_ERROR) << "Could not send initiate message: " << error.text;
     return false;
   }
 
@@ -813,7 +813,7 @@ bool Session::Accept(const SessionDescription* sdesc) {
 
   SessionError error;
   if (!SendAcceptMessage(sdesc, &error)) {
-    LOG(LS_ERROR) << "Could not send accept message: " << error.text;
+    BLOG(LS_ERROR) << "Could not send accept message: " << error.text;
     return false;
   }
   // TODO(juberti): Add BUNDLE support to transport-info messages.
@@ -833,7 +833,7 @@ bool Session::Reject(const std::string& reason) {
 
   SessionError error;
   if (!SendRejectMessage(reason, &error)) {
-    LOG(LS_ERROR) << "Could not send reject message: " << error.text;
+    BLOG(LS_ERROR) << "Could not send reject message: " << error.text;
     return false;
   }
 
@@ -859,7 +859,7 @@ bool Session::TerminateWithReason(const std::string& reason) {
     default:
       SessionError error;
       if (!SendTerminateMessage(reason, &error)) {
-        LOG(LS_ERROR) << "Could not send terminate message: " << error.text;
+        BLOG(LS_ERROR) << "Could not send terminate message: " << error.text;
         return false;
       }
       break;
@@ -873,7 +873,7 @@ bool Session::SendInfoMessage(const XmlElements& elems) {
   ASSERT(signaling_thread()->IsCurrent());
   SessionError error;
   if (!SendMessage(ACTION_SESSION_INFO, elems, &error)) {
-    LOG(LS_ERROR) << "Could not send info message " << error.text;
+    BLOG(LS_ERROR) << "Could not send info message " << error.text;
     return false;
   }
   return true;
@@ -886,13 +886,13 @@ bool Session::SendDescriptionInfoMessage(const ContentInfos& contents) {
                             contents,
                             GetContentParsers(),
                             &elems, &write_error)) {
-    LOG(LS_ERROR) << "Could not write description info message: "
+    BLOG(LS_ERROR) << "Could not write description info message: "
                   << write_error.text;
     return false;
   }
   SessionError error;
   if (!SendMessage(ACTION_DESCRIPTION_INFO, elems, &error)) {
-    LOG(LS_ERROR) << "Could not send description info message: "
+    BLOG(LS_ERROR) << "Could not send description info message: "
                   << error.text;
     return false;
   }
@@ -1012,7 +1012,7 @@ void Session::OnTransportProxyCandidatesReady(TransportProxy* transproxy,
       }
       SessionError error;
       if (!SendTransportInfoMessage(transproxy, candidates, &error)) {
-        LOG(LS_ERROR) << "Could not send transport info message: "
+        BLOG(LS_ERROR) << "Could not send transport info message: "
                       << error.text;
         return;
       }
@@ -1112,7 +1112,7 @@ void Session::OnFailedSend(const buzz::XmlElement* orig_stanza,
   SessionMessage msg;
   ParseError parse_error;
   if (!ParseSessionMessage(orig_stanza, &msg, &parse_error)) {
-    LOG(LS_ERROR) << "Error parsing failed send: " << parse_error.text
+    BLOG(LS_ERROR) << "Error parsing failed send: " << parse_error.text
                   << ":" << orig_stanza;
     return;
   }
@@ -1125,7 +1125,7 @@ void Session::OnFailedSend(const buzz::XmlElement* orig_stanza,
     if (!OnRedirectError(redirect, &error)) {
       // TODO: Should we send a message back?  The standard
       // says nothing about it.
-      LOG(LS_ERROR) << "Failed to redirect: " << error.text;
+      BLOG(LS_ERROR) << "Failed to redirect: " << error.text;
       SetError(ERROR_RESPONSE);
     }
     return;
@@ -1137,11 +1137,11 @@ void Session::OnFailedSend(const buzz::XmlElement* orig_stanza,
   if (error) {
     error_type = error->Attr(buzz::QN_TYPE);
 
-    LOG(LS_ERROR) << "Session error:\n" << error->Str() << "\n"
+    BLOG(LS_ERROR) << "Session error:\n" << error->Str() << "\n"
                   << "in response to:\n" << orig_stanza->Str();
   } else {
     // don't crash if <error> is missing
-    LOG(LS_ERROR) << "Session error without <error/> element, ignoring";
+    BLOG(LS_ERROR) << "Session error without <error/> element, ignoring";
     return;
   }
 
@@ -1247,7 +1247,7 @@ bool Session::OnTerminateMessage(const SessionMessage& msg,
 
   SignalReceivedTerminateReason(this, term.reason);
   if (term.debug_reason != buzz::STR_EMPTY) {
-    LOG(LS_VERBOSE) << "Received error on call: " << term.debug_reason;
+    BLOG(LS_VERBOSE) << "Received error on call: " << term.debug_reason;
   }
 
   SetState(STATE_RECEIVEDTERMINATE);
@@ -1473,7 +1473,7 @@ bool Session::ResendAllTransportInfoMessages(SessionError* error) {
     if (transproxy->sent_candidates().size() > 0) {
       if (!SendTransportInfoMessage(
               transproxy, transproxy->sent_candidates(), error)) {
-        LOG(LS_ERROR) << "Could not resend transport info messages: "
+        BLOG(LS_ERROR) << "Could not resend transport info messages: "
                       << error->text;
         return false;
       }
@@ -1490,7 +1490,7 @@ bool Session::SendAllUnsentTransportInfoMessages(SessionError* error) {
     if (transproxy->unsent_candidates().size() > 0) {
       if (!SendTransportInfoMessage(
               transproxy, transproxy->unsent_candidates(), error)) {
-        LOG(LS_ERROR) << "Could not send unsent transport info messages: "
+        BLOG(LS_ERROR) << "Could not send unsent transport info messages: "
                       << error->text;
         return false;
       }

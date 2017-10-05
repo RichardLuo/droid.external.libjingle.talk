@@ -77,7 +77,7 @@ TEST(TestClientTest, TestUdpIPv6) {
   if (HasIPv6Enabled()) {
     TestUdpInternal(SocketAddress("::1", 0));
   } else {
-    LOG(LS_INFO) << "Skipping IPv6 test.";
+    BLOG(LS_INFO) << "Skipping IPv6 test.";
   }
 }
 
@@ -90,6 +90,6 @@ TEST(TestClientTest, TestTcpIPv6) {
   if (HasIPv6Enabled()) {
     TestTcpInternal(SocketAddress("::1", 0));
   } else {
-    LOG(LS_INFO) << "Skipping IPv6 test.";
+    BLOG(LS_INFO) << "Skipping IPv6 test.";
   }
 }

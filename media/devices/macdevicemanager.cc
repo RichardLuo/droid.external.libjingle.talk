@@ -114,7 +114,7 @@ static bool GetAudioDeviceIDs(bool input,
   OSErr err = AudioHardwareGetPropertyInfo(kAudioHardwarePropertyDevices,
                                            &propsize, NULL);
   if (0 != err) {
-    LOG(LS_ERROR) << "Couldn't get information about property, "
+    BLOG(LS_ERROR) << "Couldn't get information about property, "
                   << "so no device list acquired.";
     return false;
   }
@@ -126,7 +126,7 @@ static bool GetAudioDeviceIDs(bool input,
   err = AudioHardwareGetProperty(kAudioHardwarePropertyDevices,
                                  &propsize, device_ids.get());
   if (0 != err) {
-    LOG(LS_ERROR) << "Failed to get device ids, "
+    BLOG(LS_ERROR) << "Failed to get device ids, "
                   << "so no device listing acquired.";
     return false;
   }
@@ -145,7 +145,7 @@ static bool GetAudioDeviceIDs(bool input,
         out_dev_ids->push_back(an_id);
       }
     } else {
-      LOG(LS_ERROR) << "No property info for stream property for device id "
+      BLOG(LS_ERROR) << "No property info for stream property for device id "
                     << an_id << "(is_input == " << input
                     << "), so not including it in the list.";
     }
@@ -163,7 +163,7 @@ static bool GetAudioDeviceName(AudioDeviceID id,
                                      kAudioDevicePropertyDeviceName,
                                      &nameLength, name);
   if (0 != err) {
-    LOG(LS_ERROR) << "No name acquired for device id " << id;
+    BLOG(LS_ERROR) << "No name acquired for device id " << id;
     return false;
   }
 

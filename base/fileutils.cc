@@ -245,7 +245,7 @@ Pathname Filesystem::GetCurrentDirectory() {
 }
 
 bool CreateUniqueFile(Pathname& path, bool create_empty) {
-  LOG(LS_INFO) << "Path " << path.pathname() << std::endl;
+  BLOG(LS_INFO) << "Path " << path.pathname() << std::endl;
   // If no folder is supplied, use the temporary folder
   if (path.folder().empty()) {
     Pathname temporary_path;

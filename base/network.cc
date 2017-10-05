@@ -489,11 +489,11 @@ void BasicNetworkManager::DoUpdateNetworks() {
 void BasicNetworkManager::DumpNetworks(bool include_ignored) {
   NetworkList list;
   CreateNetworks(include_ignored, &list);
-  LOG(LS_INFO) << "NetworkManager detected " << list.size() << " networks:";
+  BLOG(LS_INFO) << "NetworkManager detected " << list.size() << " networks:";
   for (size_t i = 0; i < list.size(); ++i) {
     const Network* network = list[i];
     if (!network->ignored() || include_ignored) {
-      LOG(LS_INFO) << network->ToString() << ": " << network->description()
+      BLOG(LS_INFO) << network->ToString() << ": " << network->description()
                    << ((network->ignored()) ? ", Ignored" : "");
     }
   }

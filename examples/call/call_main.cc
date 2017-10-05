@@ -132,7 +132,7 @@ class DebugLog : public sigslot::has_slots<> {
           time_string[time_len-1] = 0;    // trim off terminating \n
         }
       }
-      LOG(INFO) << (output ? "SEND >>>>>>>>>>>>>>>>" : "RECV <<<<<<<<<<<<<<<<")
+      BLOG(INFO) << (output ? "SEND >>>>>>>>>>>>>>>>" : "RECV <<<<<<<<<<<<<<<<")
                 << " : " << time_string;
 
       bool indent;
@@ -149,7 +149,7 @@ class DebugLog : public sigslot::has_slots<> {
           }
 
           // Output a tag
-          LOG(INFO) << std::setw(nest) << " "
+          BLOG(INFO) << std::setw(nest) << " "
                     << std::string(buf + start, i + 1 - start);
 
           if (indent)
@@ -166,10 +166,10 @@ class DebugLog : public sigslot::has_slots<> {
 
         if (buf[i] == '<' && start < i) {
           if (censor_password_) {
-            LOG(INFO) << std::setw(nest) << " " << "## TEXT REMOVED ##";
+            BLOG(INFO) << std::setw(nest) << " " << "## TEXT REMOVED ##";
             censor_password_ = false;
           } else {
-            LOG(INFO) << std::setw(nest) << " "
+            BLOG(INFO) << std::setw(nest) << " "
                       << std::string(buf + start, i - start);
           }
           start = i;

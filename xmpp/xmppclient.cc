@@ -124,7 +124,7 @@ XmppReturnStatus XmppClient::Connect(
 
   d_->engine_.reset(XmppEngine::Create());
   if(settings.for_registration()) {
-      LOGFL("The xmppclient is for registration, replace login handler");
+      // LOGFL("The xmppclient is for registration, replace login handler");
       XmppRegistrationTask *registration_task = new XmppRegistrationTask(d_->engine_.get(), settings.pass());
       d_->engine_->SetRegistrationTask(registration_task);
   }
@@ -222,7 +222,7 @@ std::string XmppClient::GetAuthToken() {
 int XmppClient::ProcessStart() {
   // Should not happen, but was observed in crash reports
   if (!d_->socket_) {
-    LOG(LS_ERROR) << "socket_ already reset";
+    BLOG(LS_ERROR) << "socket_ already reset";
     return STATE_DONE;
   }
 
@@ -249,7 +249,7 @@ void XmppClient::OnAuthDone() {
 int XmppClient::ProcessTokenLogin() {
   // Should not happen, but was observed in crash reports
   if (!d_->socket_) {
-    LOG(LS_ERROR) << "socket_ already reset";
+    BLOG(LS_ERROR) << "socket_ already reset";
     return STATE_DONE;
   }
 
@@ -293,7 +293,7 @@ int XmppClient::ProcessTokenLogin() {
 int XmppClient::ProcessStartXmppLogin() {
   // Should not happen, but was observed in crash reports
   if (!d_->socket_) {
-    LOG(LS_ERROR) << "socket_ already reset";
+    BLOG(LS_ERROR) << "socket_ already reset";
     return STATE_DONE;
   }
 
@@ -379,7 +379,7 @@ void XmppClient::Private::OnSocketRead() {
   for (;;) {
     // Should not happen, but was observed in crash reports
     if (!socket_) {
-      LOG(LS_ERROR) << "socket_ already reset";
+      BLOG(LS_ERROR) << "socket_ already reset";
       return;
     }
 

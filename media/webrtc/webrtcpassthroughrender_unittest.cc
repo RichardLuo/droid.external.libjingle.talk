@@ -22,7 +22,7 @@ class WebRtcPassthroughRenderTest : public testing::Test {
         const WebRtc_UWord32 stream_id,
         webrtc::I420VideoFrame& videoFrame) {
       ++frame_num_;
-      LOG(INFO) << "RenderFrame stream_id: " << stream_id
+      BLOG(INFO) << "RenderFrame stream_id: " << stream_id
                 << " frame_num: " << frame_num_;
       return 0;
     }

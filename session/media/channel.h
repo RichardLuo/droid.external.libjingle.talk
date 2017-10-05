@@ -132,7 +132,7 @@ class BaseChannel
     ASSERT(signaling_thread()->IsCurrent());
     ASSERT(!writable_);
     if (session_->state() != BaseSession::STATE_INIT) {
-      LOG(LS_ERROR) << "Content name for a channel can be changed only "
+      BLOG(LS_ERROR) << "Content name for a channel can be changed only "
                     << "when BaseSession is in STATE_INIT state.";
       return;
     }

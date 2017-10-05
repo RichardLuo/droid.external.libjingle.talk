@@ -221,7 +221,7 @@ void RelayPort::AddExternalAddress(const ProtocolAddress& addr) {
   for (std::vector<ProtocolAddress>::iterator it = external_addr_.begin();
        it != external_addr_.end(); ++it) {
     if ((it->address == addr.address) && (it->proto == addr.proto)) {
-      LOG(INFO) << "Redundant relay address: " << proto_name
+      BLOG(INFO) << "Redundant relay address: " << proto_name
                 << " @ " << addr.address.ToString();
       return;
     }
@@ -417,7 +417,7 @@ void RelayConnection::OnSendPacket(const void* data, size_t size,
                                    StunRequest* req) {
   int sent = socket_->SendTo(data, size, GetAddress());
   if (sent <= 0) {
-    LOG(LS_VERBOSE) << "OnSendPacket: failed sending to " << GetAddress() <<
+    BLOG(LS_VERBOSE) << "OnSendPacket: failed sending to " << GetAddress() <<
         std::strerror(socket_->GetError());
     ASSERT(sent < 0);
   }
@@ -452,7 +452,7 @@ void RelayEntry::Connect() {
   // If we've exhausted all options, bail out.
   const ProtocolAddress* ra = port()->ServerAddress(server_index_);
   if (!ra) {
-    LOG(LS_WARNING) << "No more relay addresses left to try";
+    BLOG(LS_WARNING) << "No more relay addresses left to try";
     return;
   }
 
@@ -463,7 +463,7 @@ void RelayEntry::Connect() {
   }
 
   // Try to set up our new socket.
-  LOG(LS_INFO) << "Connecting to relay via " << ProtoToString(ra->proto) <<
+  BLOG(LS_INFO) << "Connecting to relay via " << ProtoToString(ra->proto) <<
       " @ " << ra->address.ToString();
 
   talk_base::AsyncPacketSocket* socket = NULL;
@@ -478,11 +478,11 @@ void RelayEntry::Connect() {
         talk_base::SocketAddress(port_->ip(), 0), ra->address,
         port_->proxy(), port_->user_agent(), ra->proto == PROTO_SSLTCP);
   } else {
-    LOG(LS_WARNING) << "Unknown protocol (" << ra->proto << ")";
+    BLOG(LS_WARNING) << "Unknown protocol (" << ra->proto << ")";
   }
 
   if (!socket) {
-    LOG(LS_WARNING) << "Socket creation failed";
+    BLOG(LS_WARNING) << "Socket creation failed";
   }
 
   // If we failed to get a socket, move on to the next protocol.
@@ -527,7 +527,7 @@ void RelayEntry::OnConnect(const talk_base::SocketAddress& mapped_addr,
                            RelayConnection* connection) {
   // We are connected, notify our parent.
   ProtocolType proto = PROTO_UDP;
-  LOG(INFO) << "Relay allocate succeeded: " << ProtoToString(proto)
+  BLOG(INFO) << "Relay allocate succeeded: " << ProtoToString(proto)
             << " @ " << mapped_addr.ToString();
   connected_ = true;
 
@@ -626,7 +626,7 @@ void RelayEntry::OnMessage(talk_base::Message *pmsg) {
   ASSERT(pmsg->message_id == kMessageConnectTimeout);
   if (current_connection_) {
     const ProtocolAddress* ra = current_connection_->protocol_address();
-    LOG(LS_WARNING) << "Relay " << ra->proto << " connection to " <<
+    BLOG(LS_WARNING) << "Relay " << ra->proto << " connection to " <<
         ra->address << " timed out";
 
     // Currently we connect to each server address in sequence. If we
@@ -644,7 +644,7 @@ void RelayEntry::OnMessage(talk_base::Message *pmsg) {
 }
 
 void RelayEntry::OnSocketConnect(talk_base::AsyncPacketSocket* socket) {
-  LOG(INFO) << "relay tcp connected to " <<
+  BLOG(INFO) << "relay tcp connected to " <<
       socket->GetRemoteAddress().ToString();
   if (current_connection_ != NULL) {
     current_connection_->SendAllocateRequest(this, 0);
@@ -665,7 +665,7 @@ void RelayEntry::OnReadPacket(talk_base::AsyncPacketSocket* socket,
 
   if (current_connection_ == NULL || socket != current_connection_->socket()) {
     // This packet comes from an unknown address.
-    LOG(WARNING) << "Dropping packet: unknown address";
+    BLOG(WARNING) << "Dropping packet: unknown address";
     return;
   }
 
@@ -675,7 +675,7 @@ void RelayEntry::OnReadPacket(talk_base::AsyncPacketSocket* socket,
     if (locked_) {
       port_->OnReadPacket(data, size, ext_addr_, PROTO_UDP);
     } else {
-      LOG(WARNING) << "Dropping packet: entry not locked";
+      BLOG(WARNING) << "Dropping packet: entry not locked";
     }
     return;
   }
@@ -683,7 +683,7 @@ void RelayEntry::OnReadPacket(talk_base::AsyncPacketSocket* socket,
   talk_base::ByteBuffer buf(data, size);
   RelayMessage msg;
   if (!msg.Read(&buf)) {
-    LOG(INFO) << "Incoming packet was not STUN";
+    BLOG(INFO) << "Incoming packet was not STUN";
     return;
   }
 
@@ -700,7 +700,7 @@ void RelayEntry::OnReadPacket(talk_base::AsyncPacketSocket* socket,
     }
     return;
   } else if (msg.type() != STUN_DATA_INDICATION) {
-    LOG(INFO) << "Received BAD stun type from server: " << msg.type();
+    BLOG(INFO) << "Received BAD stun type from server: " << msg.type();
     return;
   }
 
@@ -709,10 +709,10 @@ void RelayEntry::OnReadPacket(talk_base::AsyncPacketSocket* socket,
   const StunAddressAttribute* addr_attr =
       msg.GetAddress(STUN_ATTR_SOURCE_ADDRESS2);
   if (!addr_attr) {
-    LOG(INFO) << "Data indication has no source address";
+    BLOG(INFO) << "Data indication has no source address";
     return;
   } else if (addr_attr->family() != 1) {
-    LOG(INFO) << "Source address has bad family";
+    BLOG(INFO) << "Source address has bad family";
     return;
   }
 
@@ -720,7 +720,7 @@ void RelayEntry::OnReadPacket(talk_base::AsyncPacketSocket* socket,
 
   const StunByteStringAttribute* data_attr = msg.GetByteString(STUN_ATTR_DATA);
   if (!data_attr) {
-    LOG(INFO) << "Data indication has no data";
+    BLOG(INFO) << "Data indication has no data";
     return;
   }
 
@@ -770,9 +770,9 @@ void AllocateRequest::OnResponse(StunMessage* response) {
   const StunAddressAttribute* addr_attr =
       response->GetAddress(STUN_ATTR_MAPPED_ADDRESS);
   if (!addr_attr) {
-    LOG(INFO) << "Allocate response missing mapped address.";
+    BLOG(INFO) << "Allocate response missing mapped address.";
   } else if (addr_attr->family() != 1) {
-    LOG(INFO) << "Mapped address has bad family";
+    BLOG(INFO) << "Mapped address has bad family";
   } else {
     talk_base::SocketAddress addr(addr_attr->ipaddr(), addr_attr->port());
     entry_->OnConnect(addr, connection_);
@@ -786,9 +786,9 @@ void AllocateRequest::OnResponse(StunMessage* response) {
 void AllocateRequest::OnErrorResponse(StunMessage* response) {
   const StunErrorCodeAttribute* attr = response->GetErrorCode();
   if (!attr) {
-    LOG(INFO) << "Bad allocate response error code";
+    BLOG(INFO) << "Bad allocate response error code";
   } else {
-    LOG(INFO) << "Allocate error response:"
+    BLOG(INFO) << "Allocate error response:"
               << " code=" << attr->code()
               << " reason='" << attr->reason() << "'";
   }
@@ -798,7 +798,7 @@ void AllocateRequest::OnErrorResponse(StunMessage* response) {
 }
 
 void AllocateRequest::OnTimeout() {
-  LOG(INFO) << "Allocate request timed out";
+  BLOG(INFO) << "Allocate request timed out";
   entry_->HandleConnectFailure(connection_->socket());
 }
 

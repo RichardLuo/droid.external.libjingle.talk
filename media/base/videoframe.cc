@@ -197,7 +197,7 @@ bool VideoFrame::Validate(uint32 fourcc, int w, int h,
   }
   // 16384 is maximum resolution for VP8 codec.
   if (w < 1 || w > 16384 || h < 1 || h > 16384) {
-    LOG(LS_ERROR) << "Invalid dimensions: " << w << "x" << h;
+    BLOG(LS_ERROR) << "Invalid dimensions: " << w << "x" << h;
     return false;
   }
   uint32 format = CanonicalFourCC(fourcc);
@@ -260,7 +260,7 @@ bool VideoFrame::Validate(uint32 fourcc, int w, int h,
     expected_size = ((w + 15) / 16) * ((h + 15) / 16) * 4 / 8;
   }
   if (sample == NULL) {
-    LOG(LS_ERROR) << "NULL sample pointer."
+    BLOG(LS_ERROR) << "NULL sample pointer."
                   << " format: " << GetFourccName(format)
                   << " bpp: " << expected_bpp
                   << " size: " << w << "x" << h
@@ -269,7 +269,7 @@ bool VideoFrame::Validate(uint32 fourcc, int w, int h,
     return false;
   }
   if (sample_size < expected_size) {
-    LOG(LS_ERROR) << "Size field is too small."
+    BLOG(LS_ERROR) << "Size field is too small."
                   << " format: " << GetFourccName(format)
                   << " bpp: " << expected_bpp
                   << " size: " << w << "x" << h
@@ -282,7 +282,7 @@ bool VideoFrame::Validate(uint32 fourcc, int w, int h,
     return false;
   }
   if (sample_size > kMaxSampleSize) {
-    LOG(LS_WARNING) << "Size field is invalid."
+    BLOG(LS_WARNING) << "Size field is invalid."
                     << " format: " << GetFourccName(format)
                     << " bpp: " << expected_bpp
                     << " size: " << w << "x" << h
@@ -301,7 +301,7 @@ bool VideoFrame::Validate(uint32 fourcc, int w, int h,
       (sample_size > large_expected_size || sample_size > kMaxSampleSize) &&
       large_warn100 % 100 == 0) {
     ++large_warn100;
-    LOG(LS_WARNING) << "Size field is too large."
+    BLOG(LS_WARNING) << "Size field is too large."
                     << " format: " << GetFourccName(format)
                     << " bpp: " << expected_bpp
                     << " size: " << w << "x" << h
@@ -316,7 +316,7 @@ bool VideoFrame::Validate(uint32 fourcc, int w, int h,
   // to generate an error.
   if (!memcmp(sample + sample_size - 8, sample + sample_size - 4, 4) &&
       !memcmp(sample, sample + 4, sample_size - 4)) {
-    LOG(LS_WARNING) << "Duplicate value for all pixels."
+    BLOG(LS_WARNING) << "Duplicate value for all pixels."
                     << " format: " << GetFourccName(format)
                     << " bpp: " << expected_bpp
                     << " size: " << w << "x" << h
@@ -331,7 +331,7 @@ bool VideoFrame::Validate(uint32 fourcc, int w, int h,
   static bool valid_once = true;
   if (valid_once) {
     valid_once = false;
-    LOG(LS_INFO) << "Validate frame passed."
+    BLOG(LS_INFO) << "Validate frame passed."
                  << " format: " << GetFourccName(format)
                  << " bpp: " << expected_bpp
                  << " size: " << w << "x" << h

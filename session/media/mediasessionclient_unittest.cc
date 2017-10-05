@@ -2629,7 +2629,7 @@ class MediaSessionClientTest : public sigslot::has_slots<> {
  private:
   void OnSendStanza(cricket::SessionManager* manager,
                     const buzz::XmlElement* stanza) {
-    LOG(LS_INFO) << stanza->Str();
+    BLOG(LS_INFO) << stanza->Str();
     stanzas_.push_back(new buzz::XmlElement(*stanza));
   }
 

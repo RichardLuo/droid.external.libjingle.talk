@@ -235,7 +235,7 @@ bool GtkMainWnd::Destroy() {
 }
 
 void GtkMainWnd::SwitchToConnectUI() {
-  LOG(INFO) << __FUNCTION__;
+  BLOG(INFO) << __FUNCTION__;
 
   ASSERT(IsWindow());
   ASSERT(vbox_ == NULL);
@@ -283,7 +283,7 @@ void GtkMainWnd::SwitchToConnectUI() {
 }
 
 void GtkMainWnd::SwitchToPeerList(const Peers& peers) {
-  LOG(INFO) << __FUNCTION__;
+  BLOG(INFO) << __FUNCTION__;
 
   if (!peer_list_) {
     gtk_container_set_border_width(GTK_CONTAINER(window_), 0);
@@ -320,7 +320,7 @@ void GtkMainWnd::SwitchToPeerList(const Peers& peers) {
 }
 
 void GtkMainWnd::SwitchToStreamingUI() {
-  LOG(INFO) << __FUNCTION__;
+  BLOG(INFO) << __FUNCTION__;
 
   ASSERT(draw_area_ == NULL);
 

@@ -90,7 +90,7 @@ TEST(DBusMonitorTest, StartStopStartStop) {
     EXPECT_TRUE(monitor->StopMonitoring());
     EXPECT_EQ(monitor->GetStatus(), DBusMonitor::DMS_STOPPED);
   } else {
-    LOG(LS_WARNING) << "DBus Monitor not started. Skipping test.";
+    BLOG(LS_WARNING) << "DBus Monitor not started. Skipping test.";
   }
 }
 
@@ -111,7 +111,7 @@ TEST(DBusMonitorTest, ReceivedNameAcquiredSignal) {
     EXPECT_TRUE(monitor->StopMonitoring());
     EXPECT_EQ(monitor->GetStatus(), DBusMonitor::DMS_STOPPED);
   } else {
-    LOG(LS_WARNING) << "DBus Monitor not started. Skipping test.";
+    BLOG(LS_WARNING) << "DBus Monitor not started. Skipping test.";
   }
 }
 
@@ -139,7 +139,7 @@ TEST(DBusMonitorTest, ConcurrentMonitors) {
     EXPECT_TRUE(monitor1->StopMonitoring());
     EXPECT_EQ(monitor1->GetStatus(), DBusMonitor::DMS_STOPPED);
   } else {
-    LOG(LS_WARNING) << "DBus Monitor not started. Skipping test.";
+    BLOG(LS_WARNING) << "DBus Monitor not started. Skipping test.";
   }
 }
 
@@ -161,7 +161,7 @@ TEST(DBusMonitorTest, ConcurrentFilters) {
     EXPECT_TRUE(monitor->StopMonitoring());
     EXPECT_EQ(monitor->GetStatus(), DBusMonitor::DMS_STOPPED);
   } else {
-    LOG(LS_WARNING) << "DBus Monitor not started. Skipping test.";
+    BLOG(LS_WARNING) << "DBus Monitor not started. Skipping test.";
   }
 }
 
@@ -180,7 +180,7 @@ TEST(DBusMonitorTest, NoAddFilterIfRunning) {
     EXPECT_TRUE(monitor->StopMonitoring());
     EXPECT_EQ(monitor->GetStatus(), DBusMonitor::DMS_STOPPED);
   } else {
-    LOG(LS_WARNING) << "DBus Monitor not started. Skipping test.";
+    BLOG(LS_WARNING) << "DBus Monitor not started. Skipping test.";
   }
 }
 
@@ -205,7 +205,7 @@ TEST(DBusMonitorTest, AddFilterAfterStop) {
     EXPECT_TRUE(monitor->StopMonitoring());
     EXPECT_EQ(monitor->GetStatus(), DBusMonitor::DMS_STOPPED);
   } else {
-    LOG(LS_WARNING) << "DBus Monitor not started. Skipping test.";
+    BLOG(LS_WARNING) << "DBus Monitor not started. Skipping test.";
   }
 }
 
@@ -227,7 +227,7 @@ TEST(DBusMonitorTest, StopRightAfterStart) {
     // that the testing (main) thread is reset to a clean state.
     talk_base::Thread::Current()->ProcessMessages(1);
   } else {
-    LOG(LS_WARNING) << "DBus Monitor not started.";
+    BLOG(LS_WARNING) << "DBus Monitor not started.";
   }
 }
 

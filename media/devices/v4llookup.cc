@@ -46,14 +46,14 @@ bool V4LLookup::CheckIsV4L2Device(const std::string& device_path) {
         if ((errno == EBUSY) ||
             (::ioctl(video_fd, VIDIOC_QUERYCAP, &video_caps) >= 0 &&
             (video_caps.capabilities & V4L2_CAP_VIDEO_CAPTURE))) {
-          LOG(LS_INFO) << "Found V4L2 capture device " << device_path;
+          BLOG(LS_INFO) << "Found V4L2 capture device " << device_path;
 
           is_v4l2 = true;
         } else {
-          LOG(LS_ERROR) << "VIDIOC_QUERYCAP failed for " << device_path;
+          BLOG(LS_ERROR) << "VIDIOC_QUERYCAP failed for " << device_path;
         }
       } else {
-        LOG(LS_ERROR) << "Failed to open " << device_path;
+        BLOG(LS_ERROR) << "Failed to open " << device_path;
       }
     }
   }

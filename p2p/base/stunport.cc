@@ -63,10 +63,10 @@ class StunBindingRequest : public StunRequest {
     const StunAddressAttribute* addr_attr =
         response->GetAddress(STUN_ATTR_MAPPED_ADDRESS);
     if (!addr_attr) {
-      LOG(LS_ERROR) << "Binding response missing mapped address.";
+      BLOG(LS_ERROR) << "Binding response missing mapped address.";
     } else if (addr_attr->family() != STUN_ADDRESS_IPV4 &&
                addr_attr->family() != STUN_ADDRESS_IPV6) {
-      LOG(LS_ERROR) << "Binding address has bad family";
+      BLOG(LS_ERROR) << "Binding address has bad family";
     } else {
       talk_base::SocketAddress addr(addr_attr->ipaddr(), addr_attr->port());
       port_->OnStunBindingRequestSucceeded(addr);
@@ -84,9 +84,9 @@ class StunBindingRequest : public StunRequest {
   virtual void OnErrorResponse(StunMessage* response) {
     const StunErrorCodeAttribute* attr = response->GetErrorCode();
     if (!attr) {
-      LOG(LS_ERROR) << "Bad allocate response error code";
+      BLOG(LS_ERROR) << "Bad allocate response error code";
     } else {
-      LOG(LS_ERROR) << "Binding error response:"
+      BLOG(LS_ERROR) << "Binding error response:"
                  << " class=" << attr->eclass()
                  << " number=" << attr->number()
                  << " reason='" << attr->reason() << "'";
@@ -103,7 +103,7 @@ class StunBindingRequest : public StunRequest {
   }
 
   virtual void OnTimeout() {
-    LOG(LS_ERROR) << "Binding request timed out from "
+    BLOG(LS_ERROR) << "Binding request timed out from "
       << port_->GetLocalAddress().ToString()
       << " (" << port_->Network()->name() << ")";
 

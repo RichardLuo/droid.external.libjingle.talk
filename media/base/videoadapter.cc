@@ -250,7 +250,7 @@ bool VideoAdapter::StretchToOutputFrame(const VideoFrame* in_frame) {
     output_frame_.reset(
         in_frame->Stretch(output_width, output_height, true, true));
     if (!output_frame_) {
-      LOG(LS_WARNING) << "Adapter failed to stretch frame to "
+      BLOG(LS_WARNING) << "Adapter failed to stretch frame to "
                       << output_width << "x" << output_height;
       return false;
     }
@@ -345,7 +345,7 @@ void CoordinatedVideoAdapter::OnOutputFormatRequest(const VideoFormat& format) {
   view_desired_interval_ = format.interval;
   int new_width, new_height;
   bool changed = AdaptToMinimumFormat(&new_width, &new_height);
-  LOG(LS_INFO) << "VAdapt View Request: "
+  BLOG(LS_INFO) << "VAdapt View Request: "
                << format.width << "x" << format.height
                << " Pixels: " << view_desired_num_pixels_
                << " Changed: " << (changed ? "true" : "false")
@@ -364,7 +364,7 @@ void CoordinatedVideoAdapter::OnEncoderResolutionRequest(
     int new_encoder_desired_num_pixels = width * height;
     int old_num_pixels = GetOutputNumPixels();
     if (new_encoder_desired_num_pixels != old_num_pixels) {
-      LOG(LS_VERBOSE) << "VAdapt GD resolution stale.  Ignored";
+      BLOG(LS_VERBOSE) << "VAdapt GD resolution stale.  Ignored";
     } else {
       // Update the encoder desired format based on the request.
       encoder_desired_num_pixels_ = new_encoder_desired_num_pixels;
@@ -377,10 +377,10 @@ void CoordinatedVideoAdapter::OnEncoderResolutionRequest(
   // Ignore up or keep if no change.
   if (DOWNGRADE != request && view_switch_ && !changed) {
     encoder_desired_num_pixels_ = old_encoder_desired_num_pixels;
-    LOG(LS_VERBOSE) << "VAdapt ignoring GD request.";
+    BLOG(LS_VERBOSE) << "VAdapt ignoring GD request.";
   }
 
-  LOG(LS_INFO) << "VAdapt GD Request: "
+  BLOG(LS_INFO) << "VAdapt GD Request: "
                << (DOWNGRADE == request ? "down" :
                    (UPGRADE == request ? "up" : "keep"))
                << " From: " << width << "x" << height
@@ -407,7 +407,7 @@ void CoordinatedVideoAdapter::OnCpuLoadUpdated(
         if (cpu_downgrade_wait_time_ != 0 &&
             talk_base::TimeIsLater(talk_base::Time(),
                                    cpu_downgrade_wait_time_)) {
-          LOG(LS_VERBOSE) << "VAdapt CPU load high but do not downgrade until "
+          BLOG(LS_VERBOSE) << "VAdapt CPU load high but do not downgrade until "
                           << talk_base::TimeUntil(cpu_downgrade_wait_time_)
                           << " ms.";
           request = KEEP;
@@ -415,7 +415,7 @@ void CoordinatedVideoAdapter::OnCpuLoadUpdated(
           ++cpu_downgrade_count_;
         }
       } else {
-          LOG(LS_VERBOSE) << "VAdapt CPU load high but do not downgrade "
+          BLOG(LS_VERBOSE) << "VAdapt CPU load high but do not downgrade "
                              "because maximum downgrades reached";
           SignalCpuAdaptationUnable();
       }
@@ -426,11 +426,11 @@ void CoordinatedVideoAdapter::OnCpuLoadUpdated(
         if (is_min) {
           --cpu_downgrade_count_;
         } else {
-         LOG(LS_VERBOSE) << "VAdapt CPU load low but do not upgrade "
+         BLOG(LS_VERBOSE) << "VAdapt CPU load low but do not upgrade "
                              "because cpu is not limiting resolution";
         }
       } else {
-          LOG(LS_VERBOSE) << "VAdapt CPU load low but do not upgrade "
+          BLOG(LS_VERBOSE) << "VAdapt CPU load low but do not upgrade "
                              "because minimum downgrades reached";
       }
       break;
@@ -446,7 +446,7 @@ void CoordinatedVideoAdapter::OnCpuLoadUpdated(
   }
   int new_width, new_height;
   bool changed = AdaptToMinimumFormat(&new_width, &new_height);
-  LOG(LS_INFO) << "VAdapt CPU Request: "
+  BLOG(LS_INFO) << "VAdapt CPU Request: "
                << (DOWNGRADE == request ? "down" :
                    (UPGRADE == request ? "up" : "keep"))
                << " Process: " << process_load
@@ -530,7 +530,7 @@ bool CoordinatedVideoAdapter::AdaptToMinimumFormat(int* new_width,
   int new_num_pixels = GetOutputNumPixels();
   bool changed = new_num_pixels != old_num_pixels;
 
-  LOG(LS_VERBOSE) << "VAdapt Status View: " << view_desired_num_pixels_
+  BLOG(LS_VERBOSE) << "VAdapt Status View: " << view_desired_num_pixels_
                   << " GD: " << encoder_desired_num_pixels_
                   << " CPU: " << cpu_desired_num_pixels_
                   << " Pixels: " << min_num_pixels

@@ -137,7 +137,7 @@ bool ParseIceServers(const PeerConnectionInterface::IceServers& configuration,
   for (size_t i = 0; i < configuration.size(); ++i) {
     webrtc::PeerConnectionInterface::IceServer server = configuration[i];
     if (server.uri.empty()) {
-      LOG(WARNING) << "Empty uri.";
+      BLOG(WARNING) << "Empty uri.";
       continue;
     }
     std::vector<std::string> tokens;
@@ -147,7 +147,7 @@ bool ParseIceServers(const PeerConnectionInterface::IceServers& configuration,
     tokens.clear();
     talk_base::tokenize(uri_without_transport, ':', &tokens);
     if (tokens.size() < kMinIceUriTokens) {
-      LOG(WARNING) << "Invalid uri: " << server.uri;
+      BLOG(WARNING) << "Invalid uri: " << server.uri;
       continue;
     }
     ServiceType service_type = INVALID;
@@ -159,19 +159,19 @@ bool ParseIceServers(const PeerConnectionInterface::IceServers& configuration,
       }
     }
     if (service_type == INVALID) {
-      LOG(WARNING) << "Invalid service type: " << type;
+      BLOG(WARNING) << "Invalid service type: " << type;
       continue;
     }
     std::string address = tokens[1];
     int port = kDefaultPort;
     if (tokens.size() > kMinIceUriTokens) {
       if (!talk_base::FromString(tokens[2], &port)) {
-        LOG(LS_WARNING)  << "Failed to parse port string: " << tokens[2];
+        BLOG(LS_WARNING)  << "Failed to parse port string: " << tokens[2];
         continue;
       }
 
       if (port <= 0 || port > 0xffff) {
-        LOG(WARNING) << "Invalid port: " << port;
+        BLOG(WARNING) << "Invalid port: " << port;
         continue;
       }
     }
@@ -187,7 +187,7 @@ bool ParseIceServers(const PeerConnectionInterface::IceServers& configuration,
         std::vector<std::string> turn_tokens;
         talk_base::tokenize(address, '@', &turn_tokens);
         if (turn_tokens.size() != kTurnHostTokensNum) {
-          LOG(LS_ERROR) << "Invalid TURN configuration : "
+          BLOG(LS_ERROR) << "Invalid TURN configuration : "
                         << address << " can't proceed.";
           return false;
         }
@@ -201,7 +201,7 @@ bool ParseIceServers(const PeerConnectionInterface::IceServers& configuration,
       }
       case INVALID:
       default:
-        LOG(WARNING) << "Configuration not supported: " << server.uri;
+        BLOG(WARNING) << "Configuration not supported: " << server.uri;
         return false;
     }
   }
@@ -223,7 +223,7 @@ bool CanAddLocalMediaStream(webrtc::StreamCollectionInterface* current_streams,
     }
   }
   if (audio_track_exist && (new_stream->audio_tracks()->count() > 0)) {
-    LOG(LS_ERROR) << "AddStream - Currently only one audio track is supported"
+    BLOG(LS_ERROR) << "AddStream - Currently only one audio track is supported"
                   << "per PeerConnection.";
     return false;
   }
@@ -336,18 +336,18 @@ void PeerConnection::RemoveStream(MediaStreamInterface* remove_stream) {
 talk_base::scoped_refptr<DtmfSenderInterface> PeerConnection::CreateDtmfSender(
     AudioTrackInterface* track) {
   if (!track) {
-    LOG(LS_ERROR) << "CreateDtmfSender - track is NULL.";
+    BLOG(LS_ERROR) << "CreateDtmfSender - track is NULL.";
     return NULL;
   }
   if (!local_media_streams_->FindAudioTrack(track->id())) {
-    LOG(LS_ERROR) << "CreateDtmfSender is called with a non local audio track.";
+    BLOG(LS_ERROR) << "CreateDtmfSender is called with a non local audio track.";
     return NULL;
   }
 
   talk_base::scoped_refptr<DtmfSenderInterface> sender(
       DtmfSender::Create(track, signaling_thread(), session_.get()));
   if (!sender.get()) {
-    LOG(LS_ERROR) << "CreateDtmfSender failed on DtmfSender::Create.";
+    BLOG(LS_ERROR) << "CreateDtmfSender failed on DtmfSender::Create.";
     return NULL;
   }
   return DtmfSenderProxy::Create(signaling_thread(), sender.get());
@@ -356,7 +356,7 @@ talk_base::scoped_refptr<DtmfSenderInterface> PeerConnection::CreateDtmfSender(
 bool PeerConnection::GetStats(StatsObserver* observer,
                               MediaStreamTrackInterface* track) {
   if (!VERIFY(observer != NULL)) {
-    LOG(LS_ERROR) << "GetStats - observer is NULL.";
+    BLOG(LS_ERROR) << "GetStats - observer is NULL.";
     return false;
   }
 
@@ -403,7 +403,7 @@ PeerConnection::CreateDataChannel(
 void PeerConnection::CreateOffer(CreateSessionDescriptionObserver* observer,
                                  const MediaConstraintsInterface* constraints) {
   if (!VERIFY(observer != NULL)) {
-    LOG(LS_ERROR) << "CreateOffer - observer is NULL.";
+    BLOG(LS_ERROR) << "CreateOffer - observer is NULL.";
     return;
   }
 
@@ -424,7 +424,7 @@ void PeerConnection::CreateAnswer(
     CreateSessionDescriptionObserver* observer,
     const MediaConstraintsInterface* constraints) {
   if (!VERIFY(observer != NULL)) {
-    LOG(LS_ERROR) << "CreateAnswer - observer is NULL.";
+    BLOG(LS_ERROR) << "CreateAnswer - observer is NULL.";
     return;
   }
 
@@ -459,7 +459,7 @@ void PeerConnection::SetLocalDescription(
     SetSessionDescriptionObserver* observer,
     SessionDescriptionInterface* desc) {
   if (!VERIFY(observer != NULL)) {
-    LOG(LS_ERROR) << "SetLocalDescription - observer is NULL.";
+    BLOG(LS_ERROR) << "SetLocalDescription - observer is NULL.";
     return;
   }
   if (!desc) {
@@ -483,7 +483,7 @@ void PeerConnection::SetRemoteDescription(
     SetSessionDescriptionObserver* observer,
     SessionDescriptionInterface* desc) {
   if (!VERIFY(observer != NULL)) {
-    LOG(LS_ERROR) << "SetRemoteDescription - observer is NULL.";
+    BLOG(LS_ERROR) << "SetRemoteDescription - observer is NULL.";
     return;
   }
 
@@ -514,7 +514,7 @@ void PeerConnection::PostSetSessionDescriptionFailure(
 bool PeerConnection::UpdateIce(const IceServers& configuration,
                                const MediaConstraintsInterface* constraints) {
   // TODO(ronghuawu): Implement UpdateIce.
-  LOG(LS_ERROR) << "UpdateIce is not implemented.";
+  BLOG(LS_ERROR) << "UpdateIce is not implemented.";
   return false;
 }
 

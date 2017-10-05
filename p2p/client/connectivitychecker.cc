@@ -196,7 +196,7 @@ void ConnectivityChecker::OnMessage(talk_base::Message *msg) {
       SignalCheckDone(this);
       break;
     default:
-      LOG(LS_ERROR) << "Unknown message: " << msg->message_id;
+      BLOG(LS_ERROR) << "Unknown message: " << msg->message_id;
   }
 }
 
@@ -214,7 +214,7 @@ void ConnectivityChecker::OnRequestDone(talk_base::AsyncHttpRequest* request) {
   std::vector<talk_base::Network*> networks;
   network_manager_->GetNetworks(&networks);
   if (networks.empty()) {
-    LOG(LS_ERROR) << "No networks while registering http start.";
+    BLOG(LS_ERROR) << "No networks while registering http start.";
     return;
   }
   talk_base::ProxyInfo proxy_info = request->proxy();
@@ -228,10 +228,10 @@ void ConnectivityChecker::OnRequestDone(talk_base::AsyncHttpRequest* request) {
     } else if (port == talk_base::HTTP_SECURE_PORT) {
       nic_info->https.rtt = now - nic_info->https.start_time_ms;
     } else {
-      LOG(LS_ERROR) << "Got response with unknown port: " << port;
+      BLOG(LS_ERROR) << "Got response with unknown port: " << port;
     }
   } else {
-    LOG(LS_ERROR) << "No nic info found while receiving response.";
+    BLOG(LS_ERROR) << "No nic info found while receiving response.";
   }
 }
 
@@ -269,7 +269,7 @@ void ConnectivityChecker::OnRelayAddressReady(Port* port) {
           connect_info = &nic_info->ssltcp;
           break;
         default:
-          LOG(LS_ERROR) << " relay address with bad protocol added";
+          BLOG(LS_ERROR) << " relay address with bad protocol added";
       }
       if (connect_info) {
         connect_info->rtt =
@@ -277,7 +277,7 @@ void ConnectivityChecker::OnRelayAddressReady(Port* port) {
       }
     }
   } else {
-    LOG(LS_ERROR) << " got relay address for non-existing nic";
+    BLOG(LS_ERROR) << " got relay address for non-existing nic";
   }
 }
 
@@ -295,13 +295,13 @@ void ConnectivityChecker::OnStunAddressReady(Port* port) {
     nic_info->stun_server_address = static_cast<StunPort*>(port)->server_addr();
     nic_info->stun.rtt = now - nic_info->stun.start_time_ms;
   } else {
-    LOG(LS_ERROR) << "Got stun address for non-existing nic";
+    BLOG(LS_ERROR) << "Got stun address for non-existing nic";
   }
 }
 
 void ConnectivityChecker::OnStunAddressError(Port* port) {
   ASSERT(worker_ == talk_base::Thread::Current());
-  LOG(LS_ERROR) << "Stun address error.";
+  BLOG(LS_ERROR) << "Stun address error.";
   talk_base::IPAddress ip = port->Network()->ip();
   NicMap::iterator i = nics_.find(NicId(ip, port->proxy().address));
   if (i != nics_.end()) {
@@ -313,7 +313,7 @@ void ConnectivityChecker::OnStunAddressError(Port* port) {
 
 void ConnectivityChecker::OnRelayAddressError(Port* port) {
   ASSERT(worker_ == talk_base::Thread::Current());
-  LOG(LS_ERROR) << "Relay address error.";
+  BLOG(LS_ERROR) << "Relay address error.";
 }
 
 void ConnectivityChecker::OnNetworksChanged() {
@@ -321,7 +321,7 @@ void ConnectivityChecker::OnNetworksChanged() {
   std::vector<talk_base::Network*> networks;
   network_manager_->GetNetworks(&networks);
   if (networks.empty()) {
-    LOG(LS_ERROR) << "Machine has no networks; nothing to do";
+    BLOG(LS_ERROR) << "Machine has no networks; nothing to do";
     return;
   }
   AllocatePorts();
@@ -359,7 +359,7 @@ void ConnectivityChecker::CreateRelayPorts(
   std::vector<talk_base::Network*> networks;
   network_manager_->GetNetworks(&networks);
   if (networks.empty()) {
-    LOG(LS_ERROR) << "Machine has no networks; no relay ports created.";
+    BLOG(LS_ERROR) << "Machine has no networks; no relay ports created.";
     return;
   }
   for (relay = config->relays.begin();
@@ -402,7 +402,7 @@ void ConnectivityChecker::CreateRelayPorts(
           ports_.push_back(port);
         }
       } else {
-        LOG(LS_ERROR) << "Failed to find nic info when creating relay ports.";
+        BLOG(LS_ERROR) << "Failed to find nic info when creating relay ports.";
       }
     }
   }
@@ -415,7 +415,7 @@ void ConnectivityChecker::AllocatePorts() {
   std::vector<talk_base::Network*> networks;
   network_manager_->GetNetworks(&networks);
   if (networks.empty()) {
-    LOG(LS_ERROR) << "Machine has no networks; no ports will be allocated";
+    BLOG(LS_ERROR) << "Machine has no networks; no ports will be allocated";
     return;
   }
   talk_base::ProxyInfo proxy_info = GetProxyInfo();
@@ -494,7 +494,7 @@ void ConnectivityChecker::RegisterHttpStart(int port) {
   std::vector<talk_base::Network*> networks;
   network_manager_->GetNetworks(&networks);
   if (networks.empty()) {
-    LOG(LS_ERROR) << "No networks while registering http start.";
+    BLOG(LS_ERROR) << "No networks while registering http start.";
     return;
   }
   talk_base::ProxyInfo proxy_info = GetProxyInfo();
@@ -507,10 +507,10 @@ void ConnectivityChecker::RegisterHttpStart(int port) {
     } else if (port == talk_base::HTTP_SECURE_PORT) {
       nic_info->https.start_time_ms = now;
     } else {
-      LOG(LS_ERROR) << "Registering start time for unknown port: " << port;
+      BLOG(LS_ERROR) << "Registering start time for unknown port: " << port;
     }
   } else {
-    LOG(LS_ERROR) << "Error, no nic info found while registering http start.";
+    BLOG(LS_ERROR) << "Error, no nic info found while registering http start.";
   }
 }
 

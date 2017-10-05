@@ -89,7 +89,7 @@ using webrtc::VideoRendererInterface;
 
 // Abort the process if |x| is false, emitting |msg|.
 #define CHECK(x, msg) if (x) {} else {                                  \
-  LOG(LS_ERROR) << __FILE__ << ":" << __LINE__ << ": " << msg; \
+  BLOG(LS_ERROR) << __FILE__ << ":" << __LINE__ << ": " << msg; \
   abort();                                                     \
   }
 // Abort the process if |jni| has a Java exception pending, emitting |msg|.

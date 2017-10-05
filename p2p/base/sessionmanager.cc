@@ -197,7 +197,7 @@ void SessionManager::OnIncomingResponse(const buzz::XmlElement* orig_stanza,
   SessionMessage msg;
   ParseError error;
   if (!ParseSessionMessage(orig_stanza, &msg, &error)) {
-    LOG(LS_WARNING) << "Error parsing incoming response: " << error.text
+    BLOG(LS_WARNING) << "Error parsing incoming response: " << error.text
                     << ":" << orig_stanza;
     return;
   }

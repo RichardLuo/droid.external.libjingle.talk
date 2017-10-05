@@ -105,7 +105,7 @@ bool UnixFilesystem::CreateFolder(const Pathname &path) {
     return false;
   }
 
-  LOG(LS_INFO) << "Creating folder: " << pathname;
+  BLOG(LS_INFO) << "Creating folder: " << pathname;
   return (0 == ::mkdir(pathname.c_str(), 0755));
 }
 
@@ -136,7 +136,7 @@ bool UnixFilesystem::CreatePrivateFile(const Pathname &filename) {
 }
 
 bool UnixFilesystem::DeleteFile(const Pathname &filename) {
-  LOG(LS_INFO) << "Deleting file:" << filename.pathname();
+  BLOG(LS_INFO) << "Deleting file:" << filename.pathname();
 
   if (!IsFile(filename)) {
     ASSERT(IsFile(filename));
@@ -146,7 +146,7 @@ bool UnixFilesystem::DeleteFile(const Pathname &filename) {
 }
 
 bool UnixFilesystem::DeleteEmptyFolder(const Pathname &folder) {
-  LOG(LS_INFO) << "Deleting folder" << folder.pathname();
+  BLOG(LS_INFO) << "Deleting folder" << folder.pathname();
 
   if (!IsFolder(folder)) {
     ASSERT(IsFolder(folder));
@@ -212,7 +212,7 @@ bool UnixFilesystem::MoveFile(const Pathname &old_path,
     ASSERT(IsFile(old_path));
     return false;
   }
-  LOG(LS_VERBOSE) << "Moving " << old_path.pathname()
+  BLOG(LS_VERBOSE) << "Moving " << old_path.pathname()
                   << " to " << new_path.pathname();
   if (rename(old_path.pathname().c_str(), new_path.pathname().c_str()) != 0) {
     if (errno != EXDEV)
@@ -231,7 +231,7 @@ bool UnixFilesystem::MoveFolder(const Pathname &old_path,
     ASSERT(IsFolder(old_path));
     return false;
   }
-  LOG(LS_VERBOSE) << "Moving " << old_path.pathname()
+  BLOG(LS_VERBOSE) << "Moving " << old_path.pathname()
                   << " to " << new_path.pathname();
   if (rename(old_path.pathname().c_str(), new_path.pathname().c_str()) != 0) {
     if (errno != EXDEV)
@@ -253,7 +253,7 @@ bool UnixFilesystem::IsFolder(const Pathname &path) {
 
 bool UnixFilesystem::CopyFile(const Pathname &old_path,
                               const Pathname &new_path) {
-  LOG(LS_VERBOSE) << "Copying " << old_path.pathname()
+  BLOG(LS_VERBOSE) << "Copying " << old_path.pathname()
                   << " to " << new_path.pathname();
   char buf[256];
   size_t len;

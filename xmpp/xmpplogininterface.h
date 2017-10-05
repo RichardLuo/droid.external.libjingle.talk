@@ -20,7 +20,7 @@ class XmppLoginInterface {
 
   public:
 
-    virtual bool IsDone() = 0;
+    virtual bool IsDone() const = 0;
 
     virtual void OutgoingStanza(const XmlElement *element) = 0;
 

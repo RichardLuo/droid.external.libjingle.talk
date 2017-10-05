@@ -60,7 +60,7 @@ static const int CERTIFICATE_LIFETIME = 60*60*24*365;  // one year, arbitrarily
 
 // Generate a key pair. Caller is responsible for freeing the returned object.
 static EVP_PKEY* MakeKey() {
-  LOG(LS_INFO) << "Making key pair";
+  BLOG(LS_INFO) << "Making key pair";
   EVP_PKEY* pkey = EVP_PKEY_new();
 #if OPENSSL_VERSION_NUMBER < 0x00908000l
   // Only RSA_generate_key is available. Use that.
@@ -86,14 +86,14 @@ static EVP_PKEY* MakeKey() {
   // ownership of rsa struct was assigned, don't free it.
   BN_free(exponent);
 #endif
-  LOG(LS_INFO) << "Returning key pair";
+  BLOG(LS_INFO) << "Returning key pair";
   return pkey;
 }
 
 // Generate a self-signed certificate, with the public key from the
 // given key pair. Caller is responsible for freeing the returned object.
 static X509* MakeCertificate(EVP_PKEY* pkey, const char* common_name) {
-  LOG(LS_INFO) << "Making certificate for " << common_name;
+  BLOG(LS_INFO) << "Making certificate for " << common_name;
   X509* x509 = NULL;
   BIGNUM* serial_number = NULL;
   X509_NAME* name = NULL;
@@ -139,7 +139,7 @@ static X509* MakeCertificate(EVP_PKEY* pkey, const char* common_name) {
 
   BN_free(serial_number);
   X509_NAME_free(name);
-  LOG(LS_INFO) << "Returning certificate";
+  BLOG(LS_INFO) << "Returning certificate";
   return x509;
 
  error:
@@ -156,7 +156,7 @@ static void LogSSLErrors(const std::string& prefix) {
 
   while ((err = ERR_get_error()) != 0) {
     ERR_error_string_n(err, error_buf, sizeof(error_buf));
-    LOG(LS_ERROR) << prefix << ": " << error_buf << "\n";
+    BLOG(LS_ERROR) << prefix << ": " << error_buf << "\n";
   }
 }
 
@@ -189,7 +189,7 @@ static void PrintCert(X509* x509) {
   BIO_write(temp_memory_bio, "\0", 1);
   char* buffer;
   BIO_get_mem_data(temp_memory_bio, &buffer);
-  LOG(LS_VERBOSE) << buffer;
+  BLOG(LS_VERBOSE) << buffer;
   BIO_free(temp_memory_bio);
 }
 #endif
@@ -292,7 +292,7 @@ OpenSSLIdentity* OpenSSLIdentity::Generate(const std::string& common_name) {
       return new OpenSSLIdentity(key_pair, certificate);
     delete key_pair;
   }
-  LOG(LS_INFO) << "Identity generation failed";
+  BLOG(LS_INFO) << "Identity generation failed";
   return NULL;
 }
 

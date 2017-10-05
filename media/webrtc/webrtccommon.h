@@ -51,23 +51,23 @@ namespace cricket {
     LOG_RTCERR5_EX(func, a1, a2, a3, a4, a5, GetLastEngineError())
 #define LOG_RTCERR6(func, a1, a2, a3, a4, a5, a6) \
     LOG_RTCERR6_EX(func, a1, a2, a3, a4, a5, a6, GetLastEngineError())
-#define LOG_RTCERR0_EX(func, err) LOG(LS_WARNING) \
+#define LOG_RTCERR0_EX(func, err) BLOG(LS_WARNING) \
     << "" << #func << "() failed, err=" << err
-#define LOG_RTCERR1_EX(func, a1, err) LOG(LS_WARNING) \
+#define LOG_RTCERR1_EX(func, a1, err) BLOG(LS_WARNING) \
     << "" << #func << "(" << a1 << ") failed, err=" << err
-#define LOG_RTCERR2_EX(func, a1, a2, err) LOG(LS_WARNING) \
+#define LOG_RTCERR2_EX(func, a1, a2, err) BLOG(LS_WARNING) \
     << "" << #func << "(" << a1 << ", " << a2 << ") failed, err=" \
     << err
-#define LOG_RTCERR3_EX(func, a1, a2, a3, err) LOG(LS_WARNING) \
+#define LOG_RTCERR3_EX(func, a1, a2, a3, err) BLOG(LS_WARNING) \
     << "" << #func << "(" << a1 << ", " << a2 << ", " << a3 \
     << ") failed, err=" << err
-#define LOG_RTCERR4_EX(func, a1, a2, a3, a4, err) LOG(LS_WARNING) \
+#define LOG_RTCERR4_EX(func, a1, a2, a3, a4, err) BLOG(LS_WARNING) \
     << "" << #func << "(" << a1 << ", " << a2 << ", " << a3 \
     << ", " << a4 << ") failed, err=" << err
-#define LOG_RTCERR5_EX(func, a1, a2, a3, a4, a5, err) LOG(LS_WARNING) \
+#define LOG_RTCERR5_EX(func, a1, a2, a3, a4, a5, err) BLOG(LS_WARNING) \
     << "" << #func << "(" << a1 << ", " << a2 << ", " << a3 \
     << ", " << a4 << ", " << a5 << ") failed, err=" << err
-#define LOG_RTCERR6_EX(func, a1, a2, a3, a4, a5, a6, err) LOG(LS_WARNING) \
+#define LOG_RTCERR6_EX(func, a1, a2, a3, a4, a5, a6, err) BLOG(LS_WARNING) \
     << "" << #func << "(" << a1 << ", " << a2 << ", " << a3 \
     << ", " << a4 << ", " << a5 << ", " << a6 << ") failed, err=" << err
 

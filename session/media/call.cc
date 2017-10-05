@@ -161,7 +161,7 @@ bool Call::SendViewRequest(Session* session,
     if (recv_streams)
       found = recv_streams->GetVideoStreamBySsrc(it->ssrc, &found_stream);
     if (!found) {
-      LOG(LS_WARNING) <<
+      BLOG(LS_WARNING) <<
           "Tried sending view request for bad ssrc: " << it->ssrc;
       return false;
     }
@@ -170,7 +170,7 @@ bool Call::SendViewRequest(Session* session,
   XmlElements elems;
   WriteError error;
   if (!WriteJingleViewRequest(CN_VIDEO, view_request, &elems, &error)) {
-    LOG(LS_ERROR) << "Couldn't write out view request: " << error.text;
+    BLOG(LS_ERROR) << "Couldn't write out view request: " << error.text;
     return false;
   }
 
@@ -189,10 +189,10 @@ void Call::SetVideoRenderer(Session* session, uint32 ssrc,
   VideoChannel* video_channel = GetVideoChannel(session);
   if (video_channel) {
     video_channel->SetRenderer(ssrc, renderer);
-    LOG(LS_INFO) << "Set renderer of ssrc " << ssrc
+    BLOG(LS_INFO) << "Set renderer of ssrc " << ssrc
                  << " to " << renderer << ".";
   } else {
-    LOG(LS_INFO) << "Failed to set renderer of ssrc " << ssrc << ".";
+    BLOG(LS_INFO) << "Failed to set renderer of ssrc " << ssrc << ".";
   }
 }
 
@@ -319,7 +319,7 @@ void Call::RemoveSession(Session* session) {
   while (!it->second.started_screencasts.empty()) {
     uint32 ssrc = it->second.started_screencasts.begin()->first;
     if (!StopScreencastWithoutSendingUpdate(it->second.session, ssrc)) {
-      LOG(LS_ERROR) << "Unable to stop screencast with ssrc " << ssrc;
+      BLOG(LS_ERROR) << "Unable to stop screencast with ssrc " << ssrc;
       ASSERT(false);
     }
   }
@@ -420,7 +420,7 @@ void Call::SendData(Session* session,
                     const std::string& data) {
   DataChannel* data_channel = GetDataChannel(session);
   if (!data_channel) {
-    LOG(LS_WARNING) << "Could not send data: no data channel.";
+    BLOG(LS_WARNING) << "Could not send data: no data channel.";
     return;
   }
 
@@ -430,7 +430,7 @@ void Call::SendData(Session* session,
 void Call::PressDTMF(int event) {
   // Queue up this digit
   if (queued_dtmf_.size() < kMaxDTMFDigits) {
-    LOG(LS_INFO) << "Call::PressDTMF(" << event << ")";
+    BLOG(LS_INFO) << "Call::PressDTMF(" << event << ")";
 
     queued_dtmf_.push_back(event);
 
@@ -459,27 +459,27 @@ bool Call::StartScreencast(Session* session,
 
   VideoChannel *video_channel = GetVideoChannel(session);
   if (!video_channel) {
-    LOG(LS_WARNING) << "Cannot add screencast"
+    BLOG(LS_WARNING) << "Cannot add screencast"
                     << " because there is no video channel.";
     return false;
   }
 
   VideoCapturer *capturer = video_channel->AddScreencast(ssrc, screencastid);
   if (capturer == NULL) {
-    LOG(LS_WARNING) << "Could not create screencast capturer.";
+    BLOG(LS_WARNING) << "Could not create screencast capturer.";
     return false;
   }
 
   VideoFormat format = ScreencastFormatFromFps(fps);
   if (!session_client_->channel_manager()->StartVideoCapture(
           capturer, format)) {
-    LOG(LS_WARNING) << "Could not start video capture.";
+    BLOG(LS_WARNING) << "Could not start video capture.";
     video_channel->RemoveScreencast(ssrc);
     return false;
   }
 
   if (!video_channel->SetCapturer(ssrc, capturer)) {
-    LOG(LS_WARNING) << "Could not start sending screencast.";
+    BLOG(LS_WARNING) << "Could not start sending screencast.";
     session_client_->channel_manager()->StopVideoCapture(
         capturer, ScreencastFormatFromFps(fps));
     video_channel->RemoveScreencast(ssrc);
@@ -512,7 +512,7 @@ bool Call::StopScreencast(Session* session,
 
   VideoChannel *video_channel = GetVideoChannel(session);
   if (!video_channel) {
-    LOG(LS_WARNING) << "Cannot add screencast"
+    BLOG(LS_WARNING) << "Cannot add screencast"
                     << " because there is no video channel.";
     return false;
   }
@@ -536,7 +536,7 @@ bool Call::StopScreencastWithoutSendingUpdate(
 
   VideoChannel *video_channel = GetVideoChannel(session);
   if (!video_channel) {
-    LOG(LS_WARNING) << "Cannot remove screencast"
+    BLOG(LS_WARNING) << "Cannot remove screencast"
                     << " because there is no video channel.";
     return false;
   }
@@ -544,7 +544,7 @@ bool Call::StopScreencastWithoutSendingUpdate(
   StartedScreencastMap::const_iterator screencast_iter =
       it->second.started_screencasts.find(ssrc);
   if (screencast_iter == it->second.started_screencasts.end()) {
-    LOG(LS_WARNING) << "Could not stop screencast " << ssrc
+    BLOG(LS_WARNING) << "Could not stop screencast " << ssrc
                     << " because there is no capturer.";
     return false;
   }
@@ -554,7 +554,7 @@ bool Call::StopScreencastWithoutSendingUpdate(
   video_channel->SetCapturer(ssrc, NULL);
   if (!session_client_->channel_manager()->StopVideoCapture(
           capturer, format)) {
-    LOG(LS_WARNING) << "Could not stop screencast " << ssrc
+    BLOG(LS_WARNING) << "Could not stop screencast " << ssrc
                     << " because could not stop capture.";
     return false;
   }
@@ -577,7 +577,7 @@ void Call::SendVideoStreamUpdate(
   const ContentInfo* video_info =
       GetFirstVideoContent(session->local_description());
   if (video_info == NULL) {
-    LOG(LS_WARNING) << "Cannot send stream update for video.";
+    BLOG(LS_WARNING) << "Cannot send stream update for video.";
     delete video;
     return;
   }
@@ -599,7 +599,7 @@ void Call::ContinuePlayDTMF() {
     int tone = queued_dtmf_.front();
     queued_dtmf_.pop_front();
 
-    LOG(LS_INFO) << "Call::ContinuePlayDTMF(" << tone << ")";
+    BLOG(LS_INFO) << "Call::ContinuePlayDTMF(" << tone << ")";
     for (MediaSessionMap::iterator it = media_session_map_.begin();
          it != media_session_map_.end(); ++it) {
       if (it->second.voice_channel != NULL) {
@@ -698,14 +698,14 @@ void Call::StartSpeakerMonitor(Session* session) {
     speaker_monitor->Start();
     speaker_monitor_map_[session->id()] = speaker_monitor;
   } else {
-    LOG(LS_WARNING) << "Already started speaker monitor for session "
+    BLOG(LS_WARNING) << "Already started speaker monitor for session "
                     << session->id() << ".";
   }
 }
 
 void Call::StopSpeakerMonitor(Session* session) {
   if (speaker_monitor_map_.find(session->id()) == speaker_monitor_map_.end()) {
-    LOG(LS_WARNING) << "Speaker monitor for session "
+    BLOG(LS_WARNING) << "Speaker monitor for session "
                     << session->id() << " already stopped.";
   } else {
     CurrentSpeakerMonitor* monitor = speaker_monitor_map_[session->id()];
@@ -793,18 +793,18 @@ void Call::OnSessionInfoMessage(Session* session,
   ViewRequest view_request;
   ParseError error;
   if (!ParseJingleViewRequest(action_elem, &view_request, &error)) {
-    LOG(LS_WARNING) << "Failed to parse view request: " << error.text;
+    BLOG(LS_WARNING) << "Failed to parse view request: " << error.text;
     return;
   }
 
   VideoChannel* video_channel = GetVideoChannel(session);
   if (video_channel == NULL) {
-    LOG(LS_WARNING) << "Ignore view request since we have no video channel.";
+    BLOG(LS_WARNING) << "Ignore view request since we have no video channel.";
     return;
   }
 
   if (!video_channel->ApplyViewRequest(view_request)) {
-    LOG(LS_WARNING) << "Failed to ApplyViewRequest.";
+    BLOG(LS_WARNING) << "Failed to ApplyViewRequest.";
   }
 }
 
@@ -846,7 +846,7 @@ bool Call::UpdateVoiceChannelRemoteContent(
     Session* session, const AudioContentDescription* audio) {
   VoiceChannel* voice_channel = GetVoiceChannel(session);
   if (!voice_channel->SetRemoteContent(audio, CA_UPDATE)) {
-    LOG(LS_ERROR) << "Failure in audio SetRemoteContent with CA_UPDATE";
+    BLOG(LS_ERROR) << "Failure in audio SetRemoteContent with CA_UPDATE";
     session->SetError(BaseSession::ERROR_CONTENT);
     return false;
   }
@@ -857,7 +857,7 @@ bool Call::UpdateVideoChannelRemoteContent(
     Session* session, const VideoContentDescription* video) {
   VideoChannel* video_channel = GetVideoChannel(session);
   if (!video_channel->SetRemoteContent(video, CA_UPDATE)) {
-    LOG(LS_ERROR) << "Failure in video SetRemoteContent with CA_UPDATE";
+    BLOG(LS_ERROR) << "Failure in video SetRemoteContent with CA_UPDATE";
     session->SetError(BaseSession::ERROR_CONTENT);
     return false;
   }
@@ -868,7 +868,7 @@ bool Call::UpdateDataChannelRemoteContent(
     Session* session, const DataContentDescription* data) {
   DataChannel* data_channel = GetDataChannel(session);
   if (!data_channel->SetRemoteContent(data, CA_UPDATE)) {
-    LOG(LS_ERROR) << "Failure in data SetRemoteContent with CA_UPDATE";
+    BLOG(LS_ERROR) << "Failure in data SetRemoteContent with CA_UPDATE";
     session->SetError(BaseSession::ERROR_CONTENT);
     return false;
   }
