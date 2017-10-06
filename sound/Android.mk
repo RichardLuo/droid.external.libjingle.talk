@@ -9,7 +9,7 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := libjingle_sound
-
+LOCAL_CXX11_DISABLED := yes
 LOCAL_CPP_EXTENSION := .cc
 
 LOCAL_CFLAGS := \

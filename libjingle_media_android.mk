@@ -8,6 +8,7 @@ LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
 
+LOCAL_CXX11_DISABLED := yes
 LOCAL_MODULE := libjingle_media_android
 
 LOCAL_SRC_FILES := \
