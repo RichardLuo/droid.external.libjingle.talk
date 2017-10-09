@@ -16,7 +16,7 @@ LOCAL_C_INCLUDES := \
 	$(path_libjingle) \
 	$(path_third_party) \
 	$(path_third_party)/webrtc \
-	$(path_third_party)/gtest/include \
+	$(path_external_gtest)/include \
 	$(path_third_party)/jsoncpp/source/include
 
 LOCAL_CPP_EXTENSION := .cc

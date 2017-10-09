@@ -95,7 +95,7 @@ LOCAL_SRC_FILES := \
 
 LOCAL_C_INCLUDES := \
 	$(JINGLE_C_INCLUDES) 	\
-	$(path_third_party)/gtest/include
+	$(path_external_gtest)/include
 
 LOCAL_CFLAGS += $(JINGLE_CFLAGS)
 

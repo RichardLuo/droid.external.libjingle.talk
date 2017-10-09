@@ -113,7 +113,7 @@ LOCAL_SRC_FILES += \
 ifneq ($(TARGET_SIMULATOR),true)
 LOCAL_C_INCLUDES += bionic		# very important!
 LOCAL_C_INCLUDES += external/stlport/stlport 
-LOCAL_C_INCLUDES += $(path_third_party)/gtest/include
+LOCAL_C_INCLUDES += $(path_external_gtest)/include
 LOCAL_SHARED_LIBRARIES += libstlport libdl
 endif
 

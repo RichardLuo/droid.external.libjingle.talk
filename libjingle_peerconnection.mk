@@ -19,7 +19,7 @@ LOCAL_C_INCLUDES := \
 	$(path_third_party)/expat/files/lib \
 	$(path_third_party)/jsoncpp/overrides/include \
 	$(path_third_party)/jsoncpp/source/include \
-	$(path_third_party)/gtest/include
+	$(path_external_gtest)/include
 
 LOCAL_SRC_FILES := \
 	app/webrtc/audiotrack.cc \
