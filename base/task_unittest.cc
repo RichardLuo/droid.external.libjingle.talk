@@ -76,6 +76,7 @@ class IdTimeoutTask : public Task, public sigslot::has_slots<> {
     virtual int OnTimeout() {
         std::cout << "--> OnTimeout!" << std::endl;
         SignalTimeoutId(unique_id());
+        return 0;
     }
 
   // void OnLocalTimeout() {
@@ -164,10 +165,8 @@ class TaskTest : public sigslot::has_slots<> {
       stuck_[i].timed_out_ = false;
       stuck_[i].xlat_ = stuck_[i].task_->unique_id();
       stuck_[i].task_->set_timeout_seconds(i + 1);
-      // BLOG(LS_INFO) << "Task " << stuck_[i].xlat_ << " created with timeout "
-      //              << stuck_[i].task_->timeout_seconds();
-      fprintf(stderr, "Task %d created with timeout value:%d \n",
-              stuck_[i].xlat_, stuck_[i].task_->timeout_seconds());
+      BLOG(LS_INFO) << "Task " << stuck_[i].xlat_ << " created with timeout "
+                    << stuck_[i].task_->timeout_seconds();
     }
 
     for (int i = 0; i < HAPPY_TASK_COUNT; ++i) {
@@ -209,8 +208,7 @@ class TaskTest : public sigslot::has_slots<> {
     ASSERT_EQ(HAPPY_TASK_COUNT, happy_index);
 
     // run the unblocked tasks
-    // BLOG(LS_INFO) << "Running tasks";
-    fprintf(stderr, "Running tasks\n");
+    BLOG(LS_INFO) << "Running tasks";
     task_runner_.RunTasks();
 
     std::cout << "Start time is " << GetCurrentTime() << std::endl;
@@ -224,8 +222,7 @@ class TaskTest : public sigslot::has_slots<> {
           happy_[j].task_->Wake();
         }
       }
-      // BLOG(LS_INFO) << "Polling tasks";
-      fprintf(stderr, "Polling tasks \n");
+      BLOG(LS_INFO) << "Polling tasks";
       task_runner_.PollTasks();
     }
 
@@ -237,9 +234,7 @@ class TaskTest : public sigslot::has_slots<> {
   }
 
   void OnTimeoutStuck(const int id) {
-      // BLOG(LS_INFO) << "Timed out task " << id;
-      fprintf(stderr, "Timed out task:%d \n", id);
-
+    BLOG(LS_INFO) << "Timed out task " << id;
     int i;
     for (i = 0; i < STUCK_TASK_COUNT; ++i) {
       if (stuck_[i].xlat_ == id) {
