@@ -83,13 +83,13 @@ LOCAL_SHARED_LIBRARIES += liblog
 ifneq ($(TARGET_SIMULATOR),true)
 LOCAL_C_INCLUDES += bionic		# very important!
 LOCAL_C_INCLUDES += external/stlport/stlport 
-LOCAL_C_INCLUDES += external/libjingle/third_party/alsa_headers
 LOCAL_SHARED_LIBRARIES += libstlport libdl
 LOCAL_CFLAGS += '-D_POSIX_SOURCE'
 else
 LOCAL_LDLIBS += -lrt -lpthread
 endif
 
+LOCAL_C_INCLUDES += external/libjingle/third_party/alsa_headers
 
 LOCAL_SRC_FILES += 	\
 	alsasymboltable.cc \

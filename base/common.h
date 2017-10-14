@@ -137,7 +137,10 @@ inline bool ImplicitCastToBool(bool result) { return result; }
 
 #endif  // !ENABLE_DEBUG
 
+#ifndef COMPILE_TIME_ASSERT
 #define COMPILE_TIME_ASSERT(expr)       char CTA_UNIQUE_NAME[expr]
+#endif
+
 #define CTA_UNIQUE_NAME                 CTA_MAKE_NAME(__LINE__)
 #define CTA_MAKE_NAME(line)             CTA_MAKE_NAME2(line)
 #define CTA_MAKE_NAME2(line)            constraint_ ## line
