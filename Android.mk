@@ -11,9 +11,9 @@ LOCAL_CFLAGS := \
 
 LOCAL_C_INCLUDES := \
 	external/cppformat \
+	external/expat/lib \
 	$(JINGLE_C_INCLUDES) \
-	$(path_openssl)/include \
-	$(path_third_party)/expat/files/lib \
+	$(path_openssl)/include
 
 
 LOCAL_SHARED_LIBRARIES += libexpat
