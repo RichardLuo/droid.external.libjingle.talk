@@ -41,6 +41,8 @@ class AsyncFile : public AsyncBase {
     
   AsyncFile();
     
+  virtual int Close() = 0;
+
   virtual ~AsyncFile();
 
   sigslot::signal1<AsyncFile*>          SignalReadEvent;

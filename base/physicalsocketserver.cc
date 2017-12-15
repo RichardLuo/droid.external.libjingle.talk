@@ -958,73 +958,88 @@ class SocketDispatcher : public Dispatcher, public PhysicalSocket {
 };
 
 class FileDispatcher: public Dispatcher, public AsyncFile {
+
  public:
-  FileDispatcher(int fd, PhysicalSocketServer *ss) : ss_(ss), fd_(fd), flags_(0) {
-    set_readable(true);
 
-    ss_->Add(this);
+    FileDispatcher(int fd, PhysicalSocketServer *ss)
+            : ss_(ss), fd_(fd), flags_(0) {
+        set_readable(true);
+        ss_->Add(this);
+        fcntl(fd_, F_SETFL, fcntl(fd_, F_GETFL, 0) | O_NONBLOCK);
+    }
 
-    fcntl(fd_, F_SETFL, fcntl(fd_, F_GETFL, 0) | O_NONBLOCK);
-  }
+    virtual int Close() {
+        flags_ = 0;
+        if (fd_ < 0) {
+            return 0;
+        } else {
+            const int err = ::close(fd_);
+            fd_ = -1;
+            return err;
+        }
+    }
 
-  virtual ~FileDispatcher() {
-    ss_->Remove(this);
-  }
+    virtual ~FileDispatcher() {
+        Close();
+        ss_->Remove(this);
+    }
 
   SocketServer* socketserver() { return ss_; }
 
-  virtual int read(void *pv, size_t cb) {
-      return ::read(fd_, pv, cb);
-  }
+    virtual int read(void *pv, size_t cb) {
+        return ::read(fd_, pv, cb);
+    }
 
-  virtual int write(const void *pv, size_t cb) {
-    return ::write(fd_, pv, cb);
-  }
+    virtual int write(const void *pv, size_t cb) {
+        return ::write(fd_, pv, cb);
+    }
 
-  virtual int GetDescriptor() {
-    return fd_;
-  }
+    virtual int GetDescriptor() {
+        return fd_;
+    }
 
-  virtual bool IsDescriptorClosed() {
-    return false;
-  }
+    virtual bool IsDescriptorClosed() {
+        return fd_ < 0;
+    }
 
-  virtual uint32 GetRequestedEvents() {
-    return flags_;
-  }
+    virtual uint32 GetRequestedEvents() {
+        return flags_;
+    }
 
-  virtual void OnPreEvent(uint32 ff) {
-  }
+    virtual void OnPreEvent(uint32 ff) {
+    }
 
-  virtual void OnEvent(uint32 ff, int err) {
-    if ((ff & DE_READ) != 0)
-      SignalReadEvent(this);
-    if ((ff & DE_WRITE) != 0)
-      SignalWriteEvent(this);
-    if ((ff & DE_CLOSE) != 0)
-      SignalCloseEvent(this, err);
-  }
+    virtual void OnEvent(uint32 ff, int err) {
+        if ((ff & DE_READ) != 0)
+            SignalReadEvent(this);
 
-  virtual bool readable() const {
-    return (flags_ & DE_READ) != 0;
-  }
+        if ((ff & DE_WRITE) != 0)
+            SignalWriteEvent(this);
 
-  virtual void set_readable(bool value) {
-    flags_ = value ? (flags_ | DE_READ) : (flags_ & ~DE_READ);
-  }
+        if ((ff & DE_CLOSE) != 0)
+            SignalCloseEvent(this, err);
+    }
 
-  virtual bool writable() const {
-    return (flags_ & DE_WRITE) != 0;
-  }
+    virtual bool readable() const {
+        return (flags_ & DE_READ) != 0;
+    }
 
-  virtual void set_writable(bool value) {
-    flags_ = value ? (flags_ | DE_WRITE) : (flags_ & ~DE_WRITE);
-  }
+    virtual void set_readable(bool value) {
+        flags_ = value ? (flags_ | DE_READ) : (flags_ & ~DE_READ);
+    }
 
- private:
-  PhysicalSocketServer* ss_;
-  int fd_;
-  int flags_;
+    virtual bool writable() const {
+        return (flags_ & DE_WRITE) != 0;
+    }
+
+    virtual void set_writable(bool value) {
+        flags_ = value ? (flags_ | DE_WRITE) : (flags_ & ~DE_WRITE);
+    }
+
+  private:
+    PhysicalSocketServer* ss_;
+    int fd_;
+    int flags_;
 };
 
 AsyncFile* PhysicalSocketServer::CreateFile(int fd) {
